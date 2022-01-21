@@ -1,0 +1,40 @@
+{
+  "name": "@steroidsjs/nest",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc && copyfiles ./{package.json,LICENSE,README.md} dist/"
+  },
+  "description": "",
+  "main": "index.js",
+  "author": "Vladimir Kozhin <hello@kozhindev.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/steroids/nest"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/steroids/nest",
+  "bugs": {
+    "url": "https://github.com/steroids/nest/issues"
+  },
+  "dependencies": {
+    "@nestjs/cli": "^8.1.6",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/config": "^1.1.5",
+    "@nestjs/core": "^8.0.0",
+    "@nestjs/swagger": "^5.1.5",
+    "@nestjs/typeorm": "^8.0.2",
+    "@sqltools/formatter": "^1.2.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "lodash": "^4.17.21",
+    "nestjs-command": "^3.1.1",
+    "typeorm": "^0.2.41",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "copyfiles": "^2.4.1",
+    "tsconfig-paths": "^3.10.1",
+    "typescript": "^4.3.5",
+    "@types/node": "^16.11.7"
+  }
+}
