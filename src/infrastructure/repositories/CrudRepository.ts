@@ -1,6 +1,6 @@
 import {Repository} from 'typeorm';
 import {instanceToPlain} from 'class-transformer';
-import {SearchHelper} from '../helpers/SearchHelper';
+import {SearchHelper} from '../../usecases/helpers/SearchHelper';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';

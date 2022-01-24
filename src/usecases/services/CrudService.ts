@@ -1,6 +1,6 @@
 import {toInteger as _toInteger} from 'lodash';
 import {ICrudRepository} from '../interfaces/ICrudRepository';
-import {DataMapperHelper} from '../../infrastructure/helpers/DataMapperHelper';
+import {DataMapperHelper} from '../helpers/DataMapperHelper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 
