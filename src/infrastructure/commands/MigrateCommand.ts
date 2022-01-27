@@ -79,13 +79,18 @@ export class MigrateCommand {
                 if (fs.existsSync(moduleClassPath)) {
                     const modelsDir = join(sourceRoot, moduleName, 'infrastructure/tables');
                     const modelFiles = fs.readdirSync(modelsDir);
+
+                    const modelPaths = [];
+                    for (const modelFile of modelFiles) {
+                        modelPaths.push(join(modelsDir, modelFile));
+                    }
+
                     for (const modelFile of modelFiles) {
                         const modelName = modelFile.replace(/\.ts$/, '');
-                        const modelPath = join(modelsDir, modelFile);
 
                         const result = await this.generateMigrations(
                             moduleDir,
-                            modelPath,
+                            modelPaths,
                             modelName,
                             modelsToTablesMap[modelName],
                         );
@@ -122,10 +127,10 @@ export class MigrateCommand {
         }
     }
 
-    protected async generateMigrations(moduleDir, modelPath, modelName, tableName): Promise<IMigrationData> {
+    protected async generateMigrations(moduleDir, modelPaths, modelName, tableName): Promise<IMigrationData> {
         const connection = new Connection({
             ...this.configService.get('database'),
-            entities: [modelPath],
+            entities: modelPaths,
             synchronize: false,
             migrationsRun: false,
             dropSchema: false,
