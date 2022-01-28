@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "scripts": {
     "build": "tsc && copyfiles ./{package.json,LICENSE,README.md} dist/"
   },
@@ -26,15 +26,16 @@
     "@sqltools/formatter": "^1.2.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "express": "^4.17.2",
     "lodash": "^4.17.21",
     "nestjs-command": "^3.1.1",
     "typeorm": "^0.2.41",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/node": "^16.11.7",
     "copyfiles": "^2.4.1",
     "tsconfig-paths": "^3.10.1",
-    "typescript": "^4.3.5",
-    "@types/node": "^16.11.7"
+    "typescript": "^4.3.5"
   }
 }
