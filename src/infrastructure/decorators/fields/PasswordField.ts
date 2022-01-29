@@ -20,6 +20,7 @@ export function PasswordField(options: IBaseFieldOptions = {}) {
             default: options.defaultValue,
             nullable: options.nullable,
         }),
-        Exclude(),
+        // TODO
+        // Exclude({toPlainOnly: true}),
     );
 }
