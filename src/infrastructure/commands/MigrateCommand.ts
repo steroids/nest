@@ -17,6 +17,10 @@ interface IMigrationData {
     downQueries: string[]
 }
 
+const DistrictsPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\location\\infrastructure\\tables\\DistrictTable.ts';
+const CityPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\location\\infrastructure\\tables\\CityTable.ts';
+const RealtyBuildingsPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\developer\\infrastructure\\tables\\BuildingComplexTable.ts';
+
 @Injectable()
 export class MigrateCommand {
     constructor(
@@ -84,6 +88,18 @@ export class MigrateCommand {
                     for (const modelFile of modelFiles) {
                         modelPaths.push(join(modelsDir, modelFile));
                     }
+
+                    if (moduleName === 'location') {
+                        modelPaths.push(RealtyBuildingsPath);
+                    }
+
+                    if (moduleName === 'developer') {
+                        modelPaths.push(CityPath);
+                        modelPaths.push(DistrictsPath);
+                    }
+
+                    console.log('modelPaths', modelPaths);
+                    console.log('moduleName', moduleName);
 
                     for (const modelFile of modelFiles) {
                         const modelName = modelFile.replace(/\.ts$/, '');
