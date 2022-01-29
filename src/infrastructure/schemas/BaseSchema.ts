@@ -1,4 +1,5 @@
 import {SearchSchema} from './SearchSchema';
+import {instanceToPlain} from 'class-transformer';
 
 export default class BaseSchema<Model> {
     constructor() {
@@ -7,7 +8,7 @@ export default class BaseSchema<Model> {
 
     static createFromModel(model: any) {
         const schema = new this();
-        return schema;
+        return Object.assign(schema, instanceToPlain(model));
     }
 
     static createFromSearch<Model>(searchResult: SearchSchema<Model>): SearchSchema<BaseSchema<Model>> {

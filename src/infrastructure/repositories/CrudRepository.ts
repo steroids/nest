@@ -101,7 +101,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     protected modelToEntity(model): Record<string, unknown> {
         const EntityClass = this.dbRepository.target as any;
         const entity = new EntityClass();
-        Object.assign(entity, instanceToPlain(model)); // TODO
+        Object.assign(entity, {...model}); // TODO
         return entity;
     }
 
@@ -113,8 +113,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     protected entityToModel(obj: any): TModel {
         const ModelClass = this.modelClass as any;
         const model = new ModelClass();
-        Object.assign(model, instanceToPlain(obj)); // TODO
-        //return DataMapperHelper.anyToModel(obj, this.dbRepository.target);
+        Object.assign(model, {...obj}); // TODO
+        // return DataMapperHelper.anyToModel(obj, this.dbRepository.target);
         return model;
     }
 }
