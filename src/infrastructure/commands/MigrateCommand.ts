@@ -20,6 +20,7 @@ interface IMigrationData {
 const DistrictsPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\location\\infrastructure\\tables\\DistrictTable.ts';
 const CityPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\location\\infrastructure\\tables\\CityTable.ts';
 const RealtyBuildingsPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\developer\\infrastructure\\tables\\BuildingComplexTable.ts';
+const DeveloperPath = 'F:\\Work\\goldenbee\\backend-nest\\src\\developer\\infrastructure\\tables\\DeveloperTable.ts';
 
 @Injectable()
 export class MigrateCommand {
@@ -91,6 +92,7 @@ export class MigrateCommand {
 
                     if (moduleName === 'location') {
                         modelPaths.push(RealtyBuildingsPath);
+                        modelPaths.push(DeveloperPath);
                     }
 
                     if (moduleName === 'developer') {
