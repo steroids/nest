@@ -1,13 +1,19 @@
-import {Command} from 'nestjs-command';
+import {Command, Positional} from 'nestjs-command';
 import {Injectable} from '@nestjs/common';
 import {Connection} from 'typeorm';
 import * as lodash from 'lodash';
 import {join} from 'path';
 import * as fs from 'fs';
+import {
+    upperFirst as _upperFirst,
+    uniq as _uniq,
+    camelCase as _camelCase
+} from 'lodash';
 import {format} from '@sqltools/formatter/lib/sqlFormatter';
 import {ConfigService} from '@nestjs/config';
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {CommandUtils} from 'typeorm/commands/CommandUtils';
+import {exporter} from '@dbml/core';
 
 interface IMigrationData {
     moduleDir: string,
@@ -51,6 +57,152 @@ export class MigrateCommand {
     })
     async show() {
         await this.connection.showMigrations();
+    }
+
+
+    @Command({
+        command: 'migrate:dbml2code <path>',
+        describe: 'Generate code from dbml diagram',
+    })
+    async dbml2code(
+        @Positional({
+            name: 'path',
+            describe: 'Path to *.dbml file',
+            type: 'string'
+        })
+            path: string,
+    ) {
+        if (!fs.existsSync(path)) {
+            throw new Error('Not found file: ' + path);
+        }
+
+        // Get source root directory
+        const cliConfiguration = await loadConfiguration();
+        const sourceRoot = join(process.cwd(), cliConfiguration.sourceRoot);
+
+        const dbmlRaw = fs.readFileSync(path, 'utf-8');
+        const dbmlJson: any = JSON.parse(exporter.export(dbmlRaw, 'json'));
+        const typesMap = {
+            varchar: 'string',
+            int: 'integer',
+            integer: 'integer',
+            bool: 'boolean',
+            boolean: 'boolean',
+            date: 'date',
+            datetime: 'dateTime',
+            double: 'decimal',
+            decimal: 'decimal',
+            float: 'decimal',
+            text: 'text',
+        };
+
+
+        Object.values(dbmlJson.tableGroups).forEach((tableGroup: any) => {
+
+            // Module name
+            const moduleName = tableGroup.name;
+
+            // Create directories
+            [
+                '',
+                'domain',
+                'domain/models',
+                'infrastructure',
+                'infrastructure/tables',
+            ].forEach(relativeDir => {
+                const dirPath = join(sourceRoot, moduleName, relativeDir);
+                if (!fs.existsSync(dirPath)) {
+                    fs.mkdirSync(dirPath);
+                }
+            });
+
+            Object.values(dbmlJson.tables).forEach((table: any) => {
+                if (!tableGroup.tableIds.includes(table.id)) {
+                    return;
+                }
+
+                const tableName = table.name;
+                const modelName = _upperFirst(_camelCase(tableName)) + 'Model';
+                const tableDescription = table.note;
+                const importedFields = [];
+                const modelFieldCodes = [];
+
+                const fields = table.fieldIds.map(fieldId => {
+                    const fieldName = dbmlJson.fields[fieldId].name;
+                    const fieldLabel = dbmlJson.fields[fieldId].note || '';
+
+                    // Field type
+                    let fieldType = typesMap[dbmlJson.fields[fieldId].type.type_name] || 'string';
+                    if (dbmlJson.fields[fieldId].pk) {
+                        fieldType = 'primaryKey';
+                    }
+                    if (['createTime', 'updateTime'].includes(fieldName)) {
+                        fieldType = fieldName;
+                    }
+                    if (fieldName.indexOf('phone') !== -1) {
+                        fieldType = 'phone';
+                    }
+                    if (fieldName.indexOf('email') !== -1) {
+                        fieldType = 'email';
+                    }
+                    if (fieldName.indexOf('password') !== -1) {
+                        fieldType = 'password';
+                    }
+
+
+                    // Js type
+                    let fieldJsType = 'string';
+                    if (['integer', 'decimal'].includes(fieldType)) {
+                        fieldJsType = 'number';
+                    }
+                    if (fieldType === 'boolean') {
+                        fieldJsType = 'boolean';
+                    }
+
+                    const decoratorName = _upperFirst(fieldType) + 'Field';
+                    importedFields.push(decoratorName);
+                    modelFieldCodes.push(`
+    @${decoratorName}({
+        label: '${fieldLabel}',
+    })
+    ${fieldName}: ${fieldJsType},
+`);
+                });
+
+                const code = `
+import {
+${_uniq(importedFields).map(line => '    ' + line).join(',\n')}
+} from '@steroidsjs/nest/infrastructure/decorators/fields';
+
+/**
+ * ${tableDescription}
+ */
+export class ${modelName} {
+${modelFieldCodes.join('')}
+}
+`;
+
+                console.log(1212, code);
+            });
+
+
+        });
+
+
+        //
+        // const babelParser = require('@babel/parser');
+        // const babelGenerator = require('@babel/generator').default;
+        //
+        // const code = fs.readFileSync('/Users/kozhin/projects/steroids-dev/steroids/nest/src/infrastructure/commands/BlankModel.ts', 'utf8');
+        //
+        // const ast = babelParser.parse(code, {
+        //     sourceType: 'module',
+        //     plugins: ['typescript', 'decorators-legacy'],
+        // });
+        //
+        //console.log(dbmlJson);
+
+
     }
 
     @Command({

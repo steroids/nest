@@ -1,4 +1,5 @@
 export {BooleanField} from './BooleanField';
+export {CoordinateField} from './CoordinateField';
 export {CreateTimeField} from './CreateTimeField';
 export {DateField} from './DateField';
 export {DateTimeField} from './DateTimeField';

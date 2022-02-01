@@ -17,6 +17,7 @@
     "url": "https://github.com/steroids/nest/issues"
   },
   "dependencies": {
+    "@dbml/core": "^2.3.1",
     "@nestjs/cli": "^8.1.6",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
@@ -29,6 +30,7 @@
     "express": "^4.17.2",
     "lodash": "^4.17.21",
     "nestjs-command": "^3.1.1",
+    "typedi": "^0.10.0",
     "typeorm": "^0.2.41",
     "uuid": "^8.3.2"
   },
