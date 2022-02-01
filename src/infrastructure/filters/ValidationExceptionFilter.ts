@@ -5,22 +5,30 @@ import {ValidationException} from '../../usecases/exceptions/ValidationException
 
 @Catch(ValidationException)
 export class ValidationExceptionFilter implements ExceptionFilter {
-    catch(exception: ValidationException, host: ArgumentsHost) {
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
-        let errors;
-        if (Array.isArray(exception.errors) && exception.errors[0] instanceof ValidationError) {
-            errors = exception.errors.reduce(
+    parseErrors(errors) {
+        if (Array.isArray(errors) && errors[0] instanceof ValidationError) {
+            return errors.reduce(
                 (result: any, item) => {
-                    result[item.property] = []
-                        .concat(Object.values(item.constraints));
+                    if (item.constraints) {
+                        result[item.property] = [].concat(Object.values(item.constraints));
+                    }
+                    if (item.children?.length > 0) {
+                        result[item.property] = this.parseErrors(item.children);
+                    }
                     return result;
                 },
                 {},
             );
-        } else {
-            errors = exception.errors;
         }
+        return errors;
+    }
+
+    catch(exception: ValidationException, host: ArgumentsHost) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse<Response>();
+        console.log(exception.errors);
+        const errors = this.parseErrors(exception.errors);
+
         response
             .status(HttpStatus.BAD_REQUEST)
             .json({
