@@ -1,5 +1,6 @@
 export {BooleanField} from './BooleanField';
 export {CreateTimeField} from './CreateTimeField';
+export {CoordinateField} from './CoordinateField';
 export {DateField} from './DateField';
 export {DateTimeField} from './DateTimeField';
 export {DecimalField} from './DecimalField';
