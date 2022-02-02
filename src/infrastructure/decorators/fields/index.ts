@@ -17,3 +17,4 @@ export {TextField} from './TextField';
 export {TimeField} from './TimeField';
 export {UidField} from './UidField';
 export {UpdateTimeField} from './UpdateTimeField';
+export {RelationField} from './RelationField';

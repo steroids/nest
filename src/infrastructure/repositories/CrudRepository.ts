@@ -47,9 +47,9 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param condition
      */
     async findOne(condition: ICondition): Promise<TModel> {
-        const entity = await this.dbRepository.createQueryBuilder()
-            .where(ConditionHelper.toTypeOrm(condition))
-            .getOne();
+        const entity = await this.dbRepository.findOne({
+            where: ConditionHelper.toTypeOrm(condition),
+        });
         return this.entityToModel(entity);
     }
 
@@ -69,20 +69,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      */
     async update(id: number, model: TModel) {
         const prevModel = await this.findOne({[this.primaryKey]: id});
-
-        // TODO - fix update
-
-        const toSave = {
-            ...prevModel,
-            ...model,
-        };
-
-        const entity = await this.dbRepository.update(
-            id,
-            toSave,
-        );
-
-        return this.entityToModel(entity);
+        const savedEntity = await this.dbRepository.save(this.modelToEntity({...prevModel, ...model}));
+        return this.entityToModel(savedEntity);
     }
 
     /**
@@ -98,10 +86,11 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param model
      * @protected
      */
-    protected modelToEntity(model): Record<string, unknown> {
-        const EntityClass = this.dbRepository.target as any;
-        const entity = new EntityClass();
-        Object.assign(entity, instanceToPlain(model)); // TODO
+    protected modelToEntity(model): any {
+        // const EntityClass = this.dbRepository.target as any;
+        //const entity = new EntityClass();
+        //Object.assign(entity, instanceToPlain(model)); // TODO
+        const entity = this.dbRepository.create(model);
         return entity;
     }
 
