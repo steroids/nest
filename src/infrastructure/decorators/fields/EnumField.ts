@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsEnum} from 'class-validator';
+import {IsEnum, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 
@@ -25,17 +25,19 @@ export function EnumField(options: IBEnumFieldOptions = {}) {
         options.enum = options.enum.toEnum();
     }
 
-    return applyDecorators(
-        BaseField({
-            ...options,
-            decoratorName: 'EnumField',
-            appType: 'enum',
-        }),
-        Column({
-            type: 'varchar',
-            default: options.defaultValue,
-            nullable: options.nullable,
-        }),
-        IsEnum(options.enum),
+    return applyDecorators(...[
+            BaseField({
+                ...options,
+                decoratorName: 'EnumField',
+                appType: 'enum',
+            }),
+            Column({
+                type: 'varchar',
+                default: options.defaultValue,
+                nullable: options.nullable,
+            }),
+            options.nullable && ValidateIf((object, value) => value !== null),
+            IsEnum(options.enum),
+        ].filter(Boolean)
     );
 }

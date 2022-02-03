@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsNumber} from 'class-validator';
+import {IsString, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 interface ICoordinateFieldOptions extends IBaseFieldOptions {
@@ -9,7 +9,7 @@ interface ICoordinateFieldOptions extends IBaseFieldOptions {
 }
 
 export function CoordinateField(options: ICoordinateFieldOptions = {}) {
-    return applyDecorators(
+    return applyDecorators(...[
         BaseField({
             ...options,
             decoratorName: 'CoordinateField',
@@ -22,6 +22,8 @@ export function CoordinateField(options: ICoordinateFieldOptions = {}) {
             precision: options.precision || 12,
             scale: options.scale || 9,
         }),
-        IsNumber(),
+        options.nullable && ValidateIf((object, value) => value !== null),
+        IsString(),
+        ].filter(Boolean)
     );
 }
