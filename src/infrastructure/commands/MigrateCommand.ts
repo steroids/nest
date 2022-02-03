@@ -7,8 +7,10 @@ import * as fs from 'fs';
 import {
     upperFirst as _upperFirst,
     uniq as _uniq,
-    camelCase as _camelCase
+    camelCase as _camelCase,
+    split as _split
 } from 'lodash';
+import * as pluralize from 'pluralize';
 import {format} from '@sqltools/formatter/lib/sqlFormatter';
 import {ConfigService} from '@nestjs/config';
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
@@ -60,6 +62,41 @@ export class MigrateCommand {
     }
 
 
+    determineRelation(dbmlJson, manyToManyTables, endpointId) {
+        const endpointLeft = dbmlJson.endpoints[endpointId];
+
+        const ref = dbmlJson.refs[endpointLeft.refId];
+        const endpointRight = dbmlJson.endpoints[
+            ref.endpointIds.filter(refEndpointId => refEndpointId !== endpointId)[0]
+            ];
+
+        const relationLeft = endpointLeft.relation;
+        const relationRight = endpointRight.relation;
+        let relationType = relationLeft + relationRight;
+        let fieldRight = dbmlJson.fields[endpointRight.fieldIds[0]];
+
+        if (relationType === '1*') {
+            const manyToManyTable = manyToManyTables.find(table => table.id === fieldRight.tableId)
+            if (manyToManyTable) {
+                relationType = '**';
+                const manyToManyRelationFieldId = manyToManyTable.fieldIds.filter(
+                    fieldId => fieldId !== fieldRight.id
+                )[0];
+                const manyToManyRelationField = dbmlJson.fields[manyToManyRelationFieldId];
+                const manyToManyRelationEndpoint = dbmlJson.endpoints[manyToManyRelationField.endpointIds[0]];
+                const manyToManyRelationRef = dbmlJson.refs[manyToManyRelationEndpoint.refId];
+                const realRelationEndpoint = dbmlJson.endpoints[
+                    manyToManyRelationRef.endpointIds.filter(endpointId => endpointId !== manyToManyRelationEndpoint.id)[0]
+                    ];
+                fieldRight = dbmlJson.fields[realRelationEndpoint.fieldIds[0]];
+            }
+        }
+        return {
+            relationType,
+            fieldRight,
+        };
+    }
+
     @Command({
         command: 'migrate:dbml2code <path>',
         describe: 'Generate code from dbml diagram',
@@ -67,6 +104,7 @@ export class MigrateCommand {
     async dbml2code(
         @Positional({
             name: 'path',
+            // @ts-ignore
             describe: 'Path to *.dbml file',
             type: 'string'
         })
@@ -82,6 +120,7 @@ export class MigrateCommand {
 
         const dbmlRaw = fs.readFileSync(path, 'utf-8');
         const dbmlJson: any = JSON.parse(exporter.export(dbmlRaw, 'json'));
+
         const typesMap = {
             varchar: 'string',
             int: 'integer',
@@ -96,6 +135,14 @@ export class MigrateCommand {
             text: 'text',
         };
 
+        const relationsMap = {
+            '11': 'OneToOne',
+            '1*': 'OneToMany',
+            '*1': 'ManyToOne',
+            '**': 'ManyToMany',
+        };
+
+        const relationsWithJoin = [];
 
         Object.values(dbmlJson.tableGroups).forEach((tableGroup: any) => {
 
@@ -116,20 +163,97 @@ export class MigrateCommand {
                 }
             });
 
+            const manyToManyTables = [];
             Object.values(dbmlJson.tables).forEach((table: any) => {
+                //Есть ли таблица в текущем модуле
                 if (!tableGroup.tableIds.includes(table.id)) {
                     return;
                 }
+                if (table.fieldIds.length === 2
+                    && dbmlJson.fields[table.fieldIds[0]].name.endsWith('Id')
+                    && dbmlJson.fields[table.fieldIds[1]].name.endsWith('Id')) {
+                    manyToManyTables.push(table);
+                }
+            });
 
-                const tableName = table.name;
-                const modelName = _upperFirst(_camelCase(tableName)) + 'Model';
+            //console.log(manyToManyTables);
+
+            Object.values(dbmlJson.tables).forEach((table: any) => {
+                //Таблица есть в текущем модуле и не является реализацией ManyToMany связи
+                if (!tableGroup.tableIds.includes(table.id) || manyToManyTables.includes(table)) {
+                    return;
+                }
+
+                const entityName = table.name;
+                const modelName = _upperFirst(_camelCase(entityName)) + 'Model';
+                const tableName = _upperFirst(_camelCase(entityName)) + 'Table';
                 const tableDescription = table.note;
                 const importedFields = [];
                 const modelFieldCodes = [];
+                const importedModels: {[module: string]: Array<string>} = {};
 
                 const fields = table.fieldIds.map(fieldId => {
                     const fieldName = dbmlJson.fields[fieldId].name;
                     const fieldLabel = dbmlJson.fields[fieldId].note || '';
+
+                    let isVirtualField = false;
+                    //Check relations
+                    if (dbmlJson.fields[fieldId].endpointIds.length > 0) {
+                        const fieldLeft = dbmlJson.fields[fieldId];
+
+                        fieldLeft.endpointIds.forEach(endpointId => {
+                            let {relationType, fieldRight} = this.determineRelation(dbmlJson, manyToManyTables, endpointId);
+                            relationType = relationsMap[relationType];
+
+                            const rightTable = dbmlJson.tables[fieldRight.tableId];
+                            const baseRightName = _camelCase(rightTable.name);
+                            const modelRightName = _upperFirst(baseRightName) + 'Model';
+
+                            let fieldName = baseRightName;
+                            if (relationType.endsWith('Many')) {
+                                const nameWords = _split(rightTable.name);
+                                nameWords[nameWords.length - 1] = pluralize.plural(nameWords[nameWords.length - 1]);
+                                fieldName = _camelCase(nameWords.join('_'));
+                            }
+                            if (relationType === 'ManyToOne') {
+                                fieldName = fieldLeft.name.endsWith('Id') ? fieldLeft.name.slice(0, -2) : fieldLeft.name;
+                                isVirtualField = true;
+                            }
+
+                            let isOwningSide = false;
+                            if ((relationType === 'OneToOne' && fieldName !== 'id')
+                                || (relationType === 'ManyToMany'
+                                    && !relationsWithJoin.includes(`${fieldId} - ${fieldRight.id}`))
+                            ) {
+                                isOwningSide = true;
+                                isVirtualField = true;
+                                relationsWithJoin.push(`${fieldRight.id} - ${fieldId}`);
+                            }
+
+                            importedFields.push('RelationField');
+                            const moduleToImport = dbmlJson.tableGroups[rightTable.groupId].name;
+                            if (importedModels[moduleToImport]) {
+                                importedModels[moduleToImport].push(modelRightName);
+                            } else {
+                                importedModels[moduleToImport] = [modelRightName];
+                            }
+                            console.log(importedModels);
+                            modelFieldCodes.push(`
+    @RelationField({
+        label: '${fieldLabel}',
+        type: '${relationType}',
+        isOwningSide: ${isOwningSide},
+        modelClass: () => ${modelRightName},
+    })
+    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : '' },
+`);
+
+                        });
+                    }
+
+                    if (isVirtualField) {
+                        return;
+                    }
 
                     // Field type
                     let fieldType = typesMap[dbmlJson.fields[fieldId].type.type_name] || 'string';
@@ -157,6 +281,9 @@ export class MigrateCommand {
                     }
                     if (fieldType === 'boolean') {
                         fieldJsType = 'boolean';
+                    }
+                    if (['createTime', 'updateTime'].includes(fieldType)) {
+                        fieldJsType = 'Date';
                     }
 
                     const decoratorName = _upperFirst(fieldType) + 'Field';
