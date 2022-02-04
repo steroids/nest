@@ -7,6 +7,8 @@ import * as fs from 'fs';
 import {
     upperFirst as _upperFirst,
     uniq as _uniq,
+    uniqWith as _uniqWith,
+    isEqual as _isEqual,
     camelCase as _camelCase,
     split as _split
 } from 'lodash';
@@ -190,7 +192,7 @@ export class MigrateCommand {
                 const tableDescription = table.note;
                 const importedFields = [];
                 const modelFieldCodes = [];
-                const importedModels: {[module: string]: Array<string>} = {};
+                const importedModels: Array<{model: string, module: string}> = [];
 
                 const fields = table.fieldIds.map(fieldId => {
                     const fieldName = dbmlJson.fields[fieldId].name;
@@ -232,12 +234,8 @@ export class MigrateCommand {
 
                             importedFields.push('RelationField');
                             const moduleToImport = dbmlJson.tableGroups[rightTable.groupId].name;
-                            if (importedModels[moduleToImport]) {
-                                importedModels[moduleToImport].push(modelRightName);
-                            } else {
-                                importedModels[moduleToImport] = [modelRightName];
-                            }
-                            console.log(importedModels);
+                            importedModels.push({model: modelRightName, module: moduleToImport});
+
                             modelFieldCodes.push(`
     @RelationField({
         label: '${fieldLabel}',
@@ -296,10 +294,25 @@ export class MigrateCommand {
 `);
                 });
 
+
+                const modulesImports = _uniqWith(importedModels, _isEqual).reduce((code, importedModel) => {
+                    let path = '';
+                    if (importedModel.module === tableGroup.name) {
+                        path = `./${importedModel.model}`;
+                    } else {
+                        path = `../../../${importedModel.module}/domain/models/${importedModel.model}`;
+                    }
+
+                    code += `import { ${importedModel.model} } from '${path}';\n`
+                    return code;
+                }, '');
+
+
                 const code = `
 import {
 ${_uniq(importedFields).map(line => '    ' + line).join(',\n')}
 } from '@steroidsjs/nest/infrastructure/decorators/fields';
+${modulesImports}
 
 /**
  * ${tableDescription}
