@@ -85,7 +85,6 @@ export class MigrateCommand {
                     fieldId => fieldId !== fieldRight.id
                 )[0];
                 const manyToManyRelationField = dbmlJson.fields[manyToManyRelationFieldId];
-                console.log(manyToManyTable.name);
                 const manyToManyRelationEndpoint = dbmlJson.endpoints[manyToManyRelationField.endpointIds[0]];
                 const manyToManyRelationRef = dbmlJson.refs[manyToManyRelationEndpoint.refId];
                 const realRelationEndpoint = dbmlJson.endpoints[
@@ -241,14 +240,14 @@ export class MigrateCommand {
                             const moduleToImport = _split(rightTable.name, '_')[0];
                             importedModels.push({model: modelRightName, module: moduleToImport});
 
-                            modelFieldCodes.push(`
-    @RelationField({
+                            modelFieldCodes.push(
+`    @RelationField({
         label: '${fieldLabel}',
         type: '${relationType}',
         isOwningSide: ${isOwningSide},
         modelClass: () => ${modelRightName},
     })
-    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : '' },
+    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : '' };\n
 `);
                         });
                     }
@@ -290,11 +289,11 @@ export class MigrateCommand {
 
                     const decoratorName = _upperFirst(fieldType) + 'Field';
                     importedFields.push(decoratorName);
-                    modelFieldCodes.push(`
-    @${decoratorName}({
+                    modelFieldCodes.push(
+`    @${decoratorName}({
         label: '${fieldLabel}',
     })
-    ${fieldName}: ${fieldJsType},
+    ${fieldName}: ${fieldJsType};\n
 `);
                 });
 
@@ -312,8 +311,8 @@ export class MigrateCommand {
                 }, '');
 
 
-                const code = `
-import {
+                const code =
+`import {
 ${_uniq(importedFields).map(line => '    ' + line).join(',\n')}
 } from '@steroidsjs/nest/infrastructure/decorators/fields';
 ${modulesImports}
@@ -327,9 +326,13 @@ ${modelFieldCodes.join('')}
 `;
 
                 console.log(1212, code);
+
+                const filePath = join(sourceRoot, moduleName, `domain/models/${modelName}.ts`);
+                if (!fs.existsSync(filePath)) {
+                    CommandUtils.createFile(filePath, code);
+                }
+
             });
-
-
         });
 
 
