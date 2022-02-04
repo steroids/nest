@@ -247,8 +247,7 @@ export class MigrateCommand {
         isOwningSide: ${isOwningSide},
         modelClass: () => ${modelRightName},
     })
-    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : '' };\n
-`);
+    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : '' };`);
                         });
                     }
 
@@ -293,8 +292,7 @@ export class MigrateCommand {
 `    @${decoratorName}({
         label: '${fieldLabel}',
     })
-    ${fieldName}: ${fieldJsType};\n
-`);
+    ${fieldName}: ${fieldJsType};`);
                 });
 
 
@@ -313,15 +311,14 @@ export class MigrateCommand {
 
                 const code =
 `import {
-${_uniq(importedFields).map(line => '    ' + line).join(',\n')}
+${_uniq(importedFields).map(line => '    ' + line).join(',\n')},
 } from '@steroidsjs/nest/infrastructure/decorators/fields';
 ${modulesImports}
-
 /**
  * ${tableDescription}
  */
 export class ${modelName} {
-${modelFieldCodes.join('')}
+${modelFieldCodes.join('\n\n')}
 }
 `;
 
