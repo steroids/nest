@@ -85,6 +85,7 @@ export class MigrateCommand {
                     fieldId => fieldId !== fieldRight.id
                 )[0];
                 const manyToManyRelationField = dbmlJson.fields[manyToManyRelationFieldId];
+                console.log(manyToManyTable.name);
                 const manyToManyRelationEndpoint = dbmlJson.endpoints[manyToManyRelationField.endpointIds[0]];
                 const manyToManyRelationRef = dbmlJson.refs[manyToManyRelationEndpoint.refId];
                 const realRelationEndpoint = dbmlJson.endpoints[
@@ -109,6 +110,12 @@ export class MigrateCommand {
             }
         });
         return manyToManyTables;
+    }
+
+    findModules(tables: Array<{name: string}>) {
+        return _uniq(
+            tables.map(table => _split(table.name, '_')[0])
+        );
     }
 
     @Command({
@@ -161,10 +168,8 @@ export class MigrateCommand {
 
         const manyToManyTables = this.findManyToManyTables(dbmlJson);
 
-        Object.values(dbmlJson.tableGroups).forEach((tableGroup: any) => {
-
-            // Module name
-            const moduleName = tableGroup.name;
+        const modules = this.findModules(Object.values(dbmlJson.tables));
+        modules.forEach((moduleName: string) => {
 
             // Create directories
             [
@@ -182,7 +187,7 @@ export class MigrateCommand {
 
             Object.values(dbmlJson.tables).forEach((table: any) => {
                 //Таблица есть в текущем модуле и не является реализацией ManyToMany связи
-                if (!tableGroup.tableIds.includes(table.id) || manyToManyTables.includes(table)) {
+                if (!table.name.startsWith(moduleName) || manyToManyTables.includes(table)) {
                     return;
                 }
 
@@ -213,7 +218,7 @@ export class MigrateCommand {
 
                             let fieldName = baseRightName;
                             if (relationType.endsWith('Many')) {
-                                const nameWords = _split(rightTable.name);
+                                const nameWords = _split(rightTable.name, '_');
                                 nameWords[nameWords.length - 1] = pluralize.plural(nameWords[nameWords.length - 1]);
                                 fieldName = _camelCase(nameWords.join('_'));
                             }
@@ -233,7 +238,7 @@ export class MigrateCommand {
                             }
 
                             importedFields.push('RelationField');
-                            const moduleToImport = dbmlJson.tableGroups[rightTable.groupId].name;
+                            const moduleToImport = _split(rightTable.name, '_')[0];
                             importedModels.push({model: modelRightName, module: moduleToImport});
 
                             modelFieldCodes.push(`
@@ -296,7 +301,7 @@ export class MigrateCommand {
 
                 const modulesImports = _uniqWith(importedModels, _isEqual).reduce((code, importedModel) => {
                     let path = '';
-                    if (importedModel.module === tableGroup.name) {
+                    if (importedModel.module === moduleName) {
                         path = `./${importedModel.model}`;
                     } else {
                         path = `../../../${importedModel.module}/domain/models/${importedModel.model}`;
