@@ -117,6 +117,67 @@ export class MigrateCommand {
         );
     }
 
+    getFieldType (fieldName, typeName, isPrimaryKey) {
+        const typesMap = {
+            varchar: 'string',
+            int: 'integer',
+            integer: 'integer',
+            bool: 'boolean',
+            boolean: 'boolean',
+            date: 'date',
+            datetime: 'dateTime',
+            double: 'decimal',
+            decimal: 'decimal',
+            float: 'decimal',
+            text: 'text',
+        };
+
+        let fieldType = typesMap[typeName] || 'string';
+        if (isPrimaryKey) {
+            fieldType = 'primaryKey';
+        }
+        if (['createTime', 'updateTime'].includes(fieldName)) {
+            fieldType = fieldName;
+        }
+        if (fieldName.indexOf('phone') !== -1) {
+            fieldType = 'phone';
+        }
+        if (fieldName.indexOf('email') !== -1) {
+            fieldType = 'email';
+        }
+        if (fieldName.indexOf('password') !== -1) {
+            fieldType = 'password';
+        }
+        return fieldType;
+    }
+
+    getFieldJsType(fieldType) {
+        let fieldJsType = 'string';
+        if (['integer', 'decimal'].includes(fieldType)) {
+            fieldJsType = 'number';
+        }
+        if (fieldType === 'boolean') {
+            fieldJsType = 'boolean';
+        }
+        if (['createTime', 'updateTime'].includes(fieldType)) {
+            fieldJsType = 'Date';
+        }
+        return fieldJsType;
+    }
+
+    getRelationFieldName(baseName, relationType, fieldName, relalationTableName) {
+        let relationFieldName = baseName;
+        if (relationType.endsWith('Many')) {
+            const nameWords = _split(relalationTableName, '_');
+            nameWords[nameWords.length - 1] = pluralize.plural(nameWords[nameWords.length - 1]);
+            relationFieldName = _camelCase(nameWords.join('_'));
+        }
+        if (relationType === 'ManyToOne') {
+            relationFieldName = fieldName.endsWith('Id') ? fieldName.slice(0, -2) : fieldName.name;
+        }
+        return relationFieldName;
+    }
+
     @Command({
         command: 'migrate:dbml2code <path>',
         describe: 'Generate code from dbml diagram',
@@ -141,19 +202,7 @@ export class MigrateCommand {
         const dbmlRaw = fs.readFileSync(path, 'utf-8');
         const dbmlJson: any = JSON.parse(exporter.export(dbmlRaw, 'json'));
 
-        const typesMap = {
-            varchar: 'string',
-            int: 'integer',
-            integer: 'integer',
-            bool: 'boolean',
-            boolean: 'boolean',
-            date: 'date',
-            datetime: 'dateTime',
-            double: 'decimal',
-            decimal: 'decimal',
-            float: 'decimal',
-            text: 'text',
-        };
+
 
         const relationsMap = {
             '11': 'OneToOne',
@@ -215,14 +264,11 @@ export class MigrateCommand {
                             const baseRightName = _camelCase(rightTable.name);
                             const modelRightName = _upperFirst(baseRightName) + 'Model';
 
-                            let fieldName = baseRightName;
-                            if (relationType.endsWith('Many')) {
-                                const nameWords = _split(rightTable.name, '_');
-                                nameWords[nameWords.length - 1] = pluralize.plural(nameWords[nameWords.length - 1]);
-                                fieldName = _camelCase(nameWords.join('_'));
-                            }
+                            let fieldName = this.getRelationFieldName(
+                                baseRightName, relationType, fieldLeft.name, rightTable.name
+                            );
+
                             if (relationType === 'ManyToOne') {
-                                fieldName = fieldLeft.name.endsWith('Id') ? fieldLeft.name.slice(0, -2) : fieldLeft.name;
                                 isVirtualField = true;
                             }
 
@@ -256,35 +302,14 @@ export class MigrateCommand {
                     }
 
                     // Field type
-                    let fieldType = typesMap[dbmlJson.fields[fieldId].type.type_name] || 'string';
-                    if (dbmlJson.fields[fieldId].pk) {
-                        fieldType = 'primaryKey';
-                    }
-                    if (['createTime', 'updateTime'].includes(fieldName)) {
-                        fieldType = fieldName;
-                    }
-                    if (fieldName.indexOf('phone') !== -1) {
-                        fieldType = 'phone';
-                    }
-                    if (fieldName.indexOf('email') !== -1) {
-                        fieldType = 'email';
-                    }
-                    if (fieldName.indexOf('password') !== -1) {
-                        fieldType = 'password';
-                    }
-
+                    const fieldType = this.getFieldType(
+                        fieldName,
+                        dbmlJson.fields[fieldId].type.type_name,
+                        dbmlJson.fields[fieldId].pk
+                    );
 
                     // Js type
-                    let fieldJsType = 'string';
-                    if (['integer', 'decimal'].includes(fieldType)) {
-                        fieldJsType = 'number';
-                    }
-                    if (fieldType === 'boolean') {
-                        fieldJsType = 'boolean';
-                    }
-                    if (['createTime', 'updateTime'].includes(fieldType)) {
-                        fieldJsType = 'Date';
-                    }
+                    const fieldJsType = this.getFieldJsType(fieldType)
 
                     const decoratorName = _upperFirst(fieldType) + 'Field';
                     importedFields.push(decoratorName);
