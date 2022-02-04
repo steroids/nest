@@ -251,7 +251,7 @@ export class MigrateCommand {
                         });
                     }
 
-                    if (isVirtualField) {
+                    if (isVirtualField && !dbmlJson.fields[fieldId].pk) {
                         return;
                     }
 
