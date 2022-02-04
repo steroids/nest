@@ -309,7 +309,7 @@ export class MigrateCommand {
                 }, '');
 
 
-                const code =
+                const modelCode =
 `import {
 ${_uniq(importedFields).map(line => '    ' + line).join(',\n')},
 } from '@steroidsjs/nest/infrastructure/decorators/fields';
@@ -322,15 +322,25 @@ ${modelFieldCodes.join('\n\n')}
 }
 `;
 
-                console.log(1212, code);
-
-                const filePath = join(sourceRoot, moduleName, `domain/models/${modelName}.ts`);
-                if (!fs.existsSync(filePath)) {
-                    CommandUtils.createFile(filePath, code);
+                const modelFilePath = join(sourceRoot, moduleName, `domain/models/${modelName}.ts`);
+                if (!fs.existsSync(modelFilePath)) {
+                    CommandUtils.createFile(modelFilePath, modelCode);
                 }
 
+                const tableCode =
+`import {Entity} from 'typeorm';
+import { ${modelName} } from '../../domain/models/${modelName}';
+
+@Entity({name: '${entityName}'})
+export class ${tableName} extends ${modelName} {}
+`;
+                const tableFilePath = join(sourceRoot, moduleName, `infrastructure/tables/${tableName}.ts`);
+                if (!fs.existsSync(tableFilePath)) {
+                    CommandUtils.createFile(tableFilePath, tableCode);
+                }
             });
         });
+
 
 
         //
