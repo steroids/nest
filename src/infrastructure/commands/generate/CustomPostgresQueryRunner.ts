@@ -979,20 +979,27 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
             ? [downQueries]
             : downQueries;
 
-        this.sqlInMemory.upTableQueries = resultUpQueries
-            .filter(item => item instanceof TableQuery)
-            .map((item: TableQuery) => {
-                const {tableName} = this.driver.parseTableName(item.tableName);
-                item.tableName = tableName;
-                return item;
-            }) as TableQuery[];
-        this.sqlInMemory.downTableQueries = resultDownQueries
-            .filter(item => item instanceof TableQuery)
-            .map((item: TableQuery) => {
-                const {tableName} = this.driver.parseTableName(item.tableName);
-                item.tableName = tableName;
-                return item;
-            }) as TableQuery[];
+        this.sqlInMemory.upTableQueries = [
+            ...this.sqlInMemory.upTableQueries,
+            ...resultUpQueries
+                .filter(item => item instanceof TableQuery)
+                .map((item: TableQuery) => {
+                    const {tableName} = this.driver.parseTableName(item.tableName);
+                    item.tableName = tableName;
+                    return item;
+                }) as TableQuery[]
+        ];
+
+        this.sqlInMemory.downTableQueries = [
+            ...this.sqlInMemory.downTableQueries,
+            ...resultDownQueries
+                .filter(item => item instanceof TableQuery)
+                .map((item: TableQuery) => {
+                    const {tableName} = this.driver.parseTableName(item.tableName);
+                    item.tableName = tableName;
+                    return item;
+                }) as TableQuery[]
+        ];
 
         const originalUpQueries = resultUpQueries.map(item => item instanceof TableQuery ? item.query : item);
         this.sqlInMemory.upQueries.push(...originalUpQueries);
