@@ -353,11 +353,12 @@ ${modelFieldCodes.join('\n\n')}
                 }
 
                 const tableCode =
-`import {Entity} from 'typeorm';
+`import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/Table';
+import {DeepPartial} from 'typeorm';
 import { ${modelName} } from '../../domain/models/${modelName}';
 
-@Entity({name: '${entityName}'})
-export class ${tableName} extends ${modelName} {}
+@TableFromModel(${modelName}, '${entityName}')
+export class ${tableName} implements DeepPartial<${modelName}> {}
 `;
                 const tableFilePath = join(sourceRoot, moduleName, `infrastructure/tables/${tableName}.ts`);
                 if (!fs.existsSync(tableFilePath)) {
