@@ -99,6 +99,18 @@ export class MigrateCommand {
         };
     }
 
+    findManyToManyTables(dbmlJson: any) {
+        const manyToManyTables = [];
+        Object.values(dbmlJson.tables).forEach((table: any) => {
+            if (table.fieldIds.length === 2
+                && dbmlJson.fields[table.fieldIds[0]].name.endsWith('Id')
+                && dbmlJson.fields[table.fieldIds[1]].name.endsWith('Id')) {
+                manyToManyTables.push(table);
+            }
+        });
+        return manyToManyTables;
+    }
+
     @Command({
         command: 'migrate:dbml2code <path>',
         describe: 'Generate code from dbml diagram',
@@ -144,7 +156,10 @@ export class MigrateCommand {
             '**': 'ManyToMany',
         };
 
+        //Связи ManyToMany, для которых уже добавлен декоратор JoinTable
         const relationsWithJoin = [];
+
+        const manyToManyTables = this.findManyToManyTables(dbmlJson);
 
         Object.values(dbmlJson.tableGroups).forEach((tableGroup: any) => {
 
@@ -164,21 +179,6 @@ export class MigrateCommand {
                     fs.mkdirSync(dirPath);
                 }
             });
-
-            const manyToManyTables = [];
-            Object.values(dbmlJson.tables).forEach((table: any) => {
-                //Есть ли таблица в текущем модуле
-                if (!tableGroup.tableIds.includes(table.id)) {
-                    return;
-                }
-                if (table.fieldIds.length === 2
-                    && dbmlJson.fields[table.fieldIds[0]].name.endsWith('Id')
-                    && dbmlJson.fields[table.fieldIds[1]].name.endsWith('Id')) {
-                    manyToManyTables.push(table);
-                }
-            });
-
-            //console.log(manyToManyTables);
 
             Object.values(dbmlJson.tables).forEach((table: any) => {
                 //Таблица есть в текущем модуле и не является реализацией ManyToMany связи
@@ -245,7 +245,6 @@ export class MigrateCommand {
     })
     ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : '' },
 `);
-
                         });
                     }
 
