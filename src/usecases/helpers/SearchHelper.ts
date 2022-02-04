@@ -4,12 +4,12 @@ import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 
 export class SearchHelper {
-    static async search<T>(
-        repository: Repository<T>,
+    static async search<TTable>(
+        repository: Repository<any>,
         dto: SearchInputDto,
-        prepareHandler: (query: SelectQueryBuilder<T>) => void | null = null,
-    ): Promise<SearchResultDto<T>> {
-        const result = new SearchResultDto<T>();
+        prepareHandler: (query: SelectQueryBuilder<TTable>) => void | null = null,
+    ): Promise<SearchResultDto<TTable>> {
+        const result = new SearchResultDto<TTable>();
 
         // Defaults
         dto = {
