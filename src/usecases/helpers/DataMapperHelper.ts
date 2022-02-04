@@ -4,8 +4,13 @@ import {
     has as _has,
 } from 'lodash';
 import {instanceToPlain} from 'class-transformer';
+import {MODEL_FIELD_NAMES_KEY} from '../../infrastructure/decorators/fields/BaseField';
 
 export class DataMapperHelper {
+    static getKeys(object) {
+        return Reflect.getMetadata(MODEL_FIELD_NAMES_KEY, object.prototype) || [];
+    }
+
     static anyToModel(obj, ModelClass) {
         const result = new ModelClass();
         Object.assign(result, obj); // TODO

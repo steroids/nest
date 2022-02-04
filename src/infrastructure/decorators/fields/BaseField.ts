@@ -1,8 +1,10 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
+import {DECORATORS} from '@nestjs/swagger/dist/constants';
 
 export const MODEL_META_KEY = 'meta';
+export const MODEL_FIELD_NAMES_KEY = 'meta_field_names';
 
 export type AppColumnType = 'boolean' | 'createTime' | 'date' | 'dateTime' | 'decimal' | 'email' | 'enum' | 'file'
     | 'html' | 'integer' | 'password' | 'phone' | 'primaryKey' | 'string' | 'text' | 'time' | 'updateTime' | string;
@@ -24,6 +26,11 @@ export interface IBaseFieldOptions {
 
 const ColumnMetaDecorator = value => (object, propertyName) => {
     Reflect.defineMetadata(MODEL_META_KEY, value, object, propertyName);
+
+    // Add field to list
+    const fieldNames = Reflect.getMetadata(MODEL_FIELD_NAMES_KEY, object) || [];
+    fieldNames.push(propertyName);
+    Reflect.defineMetadata(MODEL_FIELD_NAMES_KEY, fieldNames, object);
 };
 
 export function BaseField(options: IBaseFieldOptions = null) {
