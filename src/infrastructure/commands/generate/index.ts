@@ -49,8 +49,15 @@ ${downSqls.join(`
 export const generate = async (connection: Connection) => {
 
     // Get mapping model name to table name
+    const junctionTablesMap = {};
     const classesToTablesMap = connection.entityMetadatas.reduce((obj, entityMeta) => {
         obj[entityMeta.targetName] = entityMeta.tableName;
+
+        entityMeta.manyToManyRelations.forEach(manyToManyRelation => {
+            if (manyToManyRelation.joinTableName) {
+                junctionTablesMap[manyToManyRelation.joinTableName] = entityMeta.tableName;
+            }
+        });
         return obj;
     });
 
@@ -86,18 +93,21 @@ export const generate = async (connection: Connection) => {
     const migrationsByTables: Record<string, {upQueries: string[], downQueries: string[]}> = {};
     const sqlInMemory = await (new CustomRdbmsSchemaBuilder(connection)).log();
     for (const item of sqlInMemory.upTableQueries) {
-        if (!migrationsByTables[item.tableName]) {
-            migrationsByTables[item.tableName] = {
+        const tableName = junctionTablesMap[item.tableName] || item.tableName;
+
+        if (!migrationsByTables[tableName]) {
+            migrationsByTables[tableName] = {
                 upQueries: [],
                 downQueries: [],
             };
         }
-        migrationsByTables[item.tableName].upQueries.push(
+        migrationsByTables[tableName].upQueries.push(
             '        await queryRunner.query(`' + prettifyQuery(item.query.query) + '`' + queryParams(item.query.parameters) + ');'
         );
     }
     for (const item of sqlInMemory.downTableQueries) {
-        migrationsByTables[item.tableName].downQueries.push(
+        const tableName = junctionTablesMap[item.tableName] || item.tableName;
+        migrationsByTables[tableName].downQueries.push(
             '        await queryRunner.query(`' + prettifyQuery(item.query.query) + '`' + queryParams(item.query.parameters) + ');'
         );
     }
