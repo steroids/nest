@@ -1,6 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {Exclude} from 'class-transformer';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function PasswordField(options: IBaseFieldOptions = {}) {
@@ -20,6 +19,5 @@ export function PasswordField(options: IBaseFieldOptions = {}) {
             default: options.defaultValue,
             nullable: options.nullable,
         }),
-        Exclude(),
     );
 }

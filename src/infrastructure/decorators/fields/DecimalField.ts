@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsNumber} from 'class-validator';
+import {IsString, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 interface IDecimalFieldOptions extends IBaseFieldOptions {
@@ -9,7 +9,7 @@ interface IDecimalFieldOptions extends IBaseFieldOptions {
 }
 
 export function DecimalField(options: IDecimalFieldOptions = {}) {
-    return applyDecorators(
+    return applyDecorators(...[
         BaseField({
             ...options,
             decoratorName: 'DecimalField',
@@ -22,6 +22,8 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
             precision: options.precision || 10,
             scale: options.scale || 2,
         }),
-        IsNumber(),
+        options.nullable && ValidateIf((object, value) => value !== null),
+        IsString(),
+        ].filter(Boolean)
     );
 }

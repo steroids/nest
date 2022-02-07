@@ -26,11 +26,11 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     catch(exception: ValidationException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
-        console.log(exception.errors);
         const errors = this.parseErrors(exception.errors);
 
         response
-            .status(HttpStatus.BAD_REQUEST)
+            // TODO#Warning - ставим код 200, чтобы форма на фронте принимала массив ошибок
+            .status(HttpStatus.OK)
             .json({
                 statusCode: HttpStatus.BAD_REQUEST,
                 errors,

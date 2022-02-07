@@ -18,7 +18,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     /**
      * TypeORM repository instance
      */
-    public dbRepository: Repository<TModel>;
+    public dbRepository: Repository<any>;
 
     protected modelClass;
 
@@ -27,7 +27,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param dbRepository
      * @param modelClass
      */
-    public init(dbRepository: Repository<TModel>, modelClass: any) {
+    public init(dbRepository: Repository<any>, modelClass: any) {
         this.dbRepository = dbRepository;
         this.modelClass = modelClass;
     }
