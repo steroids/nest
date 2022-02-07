@@ -55,7 +55,7 @@ export function templateTable(
     entityName,
     tableName,
 ) {
-    return `import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/Table';
+    return `import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TableFromModel';
 import {DeepPartial} from 'typeorm';
 import { ${modelName} } from '../../domain/models/${modelName}';
 
