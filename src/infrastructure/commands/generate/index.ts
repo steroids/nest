@@ -92,6 +92,7 @@ export const generate = async (connection: Connection) => {
     // Generate migrations, separated by table names
     const migrationsByTables: Record<string, {upQueries: string[], downQueries: string[]}> = {};
     const sqlInMemory = await (new CustomRdbmsSchemaBuilder(connection)).log();
+    
     for (const item of sqlInMemory.upTableQueries) {
         const tableName = junctionTablesMap[item.tableName] || item.tableName;
 
@@ -128,18 +129,35 @@ export const generate = async (connection: Connection) => {
             const tableClassName = tablesInfo[tableName].tableClassName;
             const moduleDir = tablesInfo[tableName].moduleDir;
 
-            const fileContent = getTemplate(
+            //Создание файла миграции с созданием таблицы
+            const tableDeclarationFileContent = getTemplate(
                 tableClassName,
                 timestamp,
-                migrationsByTables[tableName].upQueries,
-                migrationsByTables[tableName].downQueries.reverse(),
+                migrationsByTables[tableName].upQueries.filter(query => query.includes('CREATE TABLE')),
+                migrationsByTables[tableName].downQueries.filter(query => query.includes('DROP TABLE')).reverse(),
             );
-            const fileName = timestamp + '-' + tableClassName + '.ts';
-            const path = join(moduleDir, '/infrastructure/migrations', fileName);
+            const tableDeclarationFileName = timestamp + '-' + tableClassName + '.ts';
+            const tableDeclarationFilePath = join(moduleDir, '/infrastructure/migrations', tableDeclarationFileName);
 
             // eslint-disable-next-line no-console
-            console.log('info', '\t' + path);
-            await CommandUtils.createFile(path, fileContent);
+            console.log('info', '\t' + tableDeclarationFilePath);
+            await CommandUtils.createFile(tableDeclarationFilePath, tableDeclarationFileContent);
+
+
+            //Создание файла миграции с добавллением в таблицу внешных ключей
+            const nextTimestamp = timestamp + 1;
+            const foreignKeysFileContent = getTemplate(
+                tableClassName,
+                nextTimestamp,
+                migrationsByTables[tableName].upQueries.filter(query => !query.includes('CREATE TABLE')),
+                migrationsByTables[tableName].downQueries.filter(query => !query.includes('DROP TABLE')).reverse(),
+            );
+            const foreignKeysFileName = nextTimestamp + '-' + tableClassName + '.ts';
+            const foreignKeysFilePath = join(moduleDir, '/infrastructure/migrations', foreignKeysFileName);
+
+            // eslint-disable-next-line no-console
+            console.log('info', '\t' + foreignKeysFilePath);
+            await CommandUtils.createFile(foreignKeysFilePath, foreignKeysFileContent);
         }
     }
 }
