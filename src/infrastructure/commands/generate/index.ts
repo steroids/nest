@@ -47,9 +47,9 @@ ${downSqls.join(`
 }
 
 export const generate = async (connection: Connection) => {
-
     // Get mapping model name to table name
     const junctionTablesMap = {};
+
     const classesToTablesMap = connection.entityMetadatas.reduce((obj, entityMeta) => {
         obj[entityMeta.targetName] = entityMeta.tableName;
 
@@ -59,7 +59,7 @@ export const generate = async (connection: Connection) => {
             }
         });
         return obj;
-    });
+    }, {});
 
     // Get source root directory
     const cliConfiguration = await loadConfiguration();
