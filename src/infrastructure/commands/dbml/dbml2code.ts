@@ -220,8 +220,10 @@ export async function dbml2code(path) {
                         }
 
                         importedFields.push('RelationField');
-                        const moduleToImport = _split(rightTable.name, '_')[0];
-                        importedModels.push({model: modelRightName, module: moduleToImport});
+                        if (rightTable.name !== table.name) {
+                            const moduleToImport = _split(rightTable.name, '_')[0];
+                            importedModels.push({model: modelRightName, module: moduleToImport});
+                        }
 
                         modelFieldCodes.push(templateModelRelation(
                             fieldLabel,
