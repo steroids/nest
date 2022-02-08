@@ -1,20 +1,20 @@
 import {Connection} from 'typeorm';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {MODEL_META_KEY} from '../decorators/fields/BaseField';
+import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
 
 export class MetaHelper {
-    static exportModels(connection: Connection, types: any[]) {
+    static exportModels(types: any[]) {
         const result = {};
         types.forEach(type => {
-            const typeormMeta = connection.getMetadata(type);
-            result[typeormMeta.name] = {
-                attributes: typeormMeta.columns.map(column => {
-                    const attribute = column.propertyName;
-                    const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, attribute);
-                    const modelMeta = Reflect.getMetadata(MODEL_META_KEY, type.prototype, attribute);
+            const fieldNames = DataMapperHelper.getKeys(type);
+            result[type.name] = {
+                attributes: fieldNames.map(fieldName => {
+                    const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, fieldName);
+                    const modelMeta = Reflect.getMetadata(MODEL_META_KEY, type.prototype, fieldName);
 
                     return {
-                        attribute,
+                        attribute: fieldName,
                         type: modelMeta.appType || 'string',
                         label: modelMeta.label || apiMeta.description,
                         required: apiMeta.required,
