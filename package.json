@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "scripts": {
     "build": "tsc && copyfiles ./{package.json,LICENSE,README.md} dist/"
   },
