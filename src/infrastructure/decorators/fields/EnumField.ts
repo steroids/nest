@@ -4,11 +4,11 @@ import {IsEnum, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 
-interface IBEnumFieldOptions extends IBaseFieldOptions {
+export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum?: object | string[] | any,
 }
 
-export function EnumField(options: IBEnumFieldOptions = {}) {
+export function EnumField(options: IEnumFieldOptions = {}) {
     if (Array.isArray(options.enum)) {
         options.enum = options.enum.reduce((obj, value) => {
             if (value.prototype instanceof BaseEnum) {
@@ -26,10 +26,10 @@ export function EnumField(options: IBEnumFieldOptions = {}) {
     }
 
     return applyDecorators(...[
-            BaseField({
-                ...options,
+            BaseField(options,{
                 decoratorName: 'EnumField',
                 appType: 'enum',
+                jsType: 'string',
             }),
             Column({
                 type: 'varchar',

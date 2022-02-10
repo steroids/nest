@@ -8,10 +8,10 @@ export function PrimaryKeyField(options: IBaseFieldOptions = {}) {
     }
 
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'PrimaryKeyField',
             appType: 'primaryKey',
+            jsType: 'number',
         }),
         PrimaryGeneratedColumn({type: 'integer'}),
     );

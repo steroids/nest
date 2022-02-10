@@ -9,10 +9,10 @@ export function EmailField(options: IBaseFieldOptions = {}) {
     }
 
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options,{
             decoratorName: 'EmailField',
             appType: 'email',
+            jsType: 'string',
         }),
         Column({
             type: 'varchar',

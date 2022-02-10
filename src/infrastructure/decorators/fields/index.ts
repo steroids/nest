@@ -1,3 +1,13 @@
+import {IBaseFieldOptions} from './BaseField';
+import {ICreateTimeFieldOptions} from './CreateTimeField';
+import {IDateTimeFieldColumnOptions} from './DateTimeField';
+import {IDecimalFieldOptions} from './DecimalField';
+import {IEnumFieldOptions} from './EnumField';
+import {IExtendFieldOptions} from './ExtendField';
+import {IFileField} from './FileField';
+import {IRelationFieldOptions} from './RelationField';
+import {IUpdateTimeFieldOptions} from './UpdateTimeField';
+
 export {BooleanField} from './BooleanField';
 export {CoordinateField} from './CoordinateField';
 export {CreateTimeField} from './CreateTimeField';
@@ -18,3 +28,6 @@ export {TimeField} from './TimeField';
 export {UidField} from './UidField';
 export {UpdateTimeField} from './UpdateTimeField';
 export {RelationField} from './RelationField';
+
+export type IAllFieldOptions = IBaseFieldOptions | ICreateTimeFieldOptions | IDateTimeFieldColumnOptions | IDecimalFieldOptions
+| IEnumFieldOptions | IExtendFieldOptions | IFileField | IRelationFieldOptions | IUpdateTimeFieldOptions;

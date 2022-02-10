@@ -8,7 +8,7 @@ export interface IRelationFieldOptions extends IBaseFieldOptions {
     type: 'OneToOne' | 'ManyToMany' | 'ManyToOne' | 'OneToMany',
     inverseSide?: string | ((object: any) => any),
     isOwningSide?: boolean,
-    modelClass: any,
+    modelClass: () => any,
 }
 
 const getRelationDecorator = (relation): any => {
@@ -41,10 +41,11 @@ export function RelationField(options: IRelationFieldOptions) {
 
     return applyDecorators(
         ...[
-            BaseField({
-                ...options,
+            BaseField(options, {
                 decoratorName: 'RelationField',
-                appType: 'integer',
+                appType: 'relation',
+                jsType: 'number',
+                isArray: ['ManyToMany', 'OneToMany'].includes(options.type),
             }),
             getRelationDecorator(options.type)(
                 () => options.modelClass().name.replace(/Model$/, 'Table'),

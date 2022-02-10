@@ -8,10 +8,10 @@ export function PasswordField(options: IBaseFieldOptions = {}) {
     }
 
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'PasswordField',
             appType: 'password',
+            jsType: 'string',
         }),
         Column({
             type: 'text',

@@ -5,10 +5,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function IntegerField(options: IBaseFieldOptions = {}) {
     return applyDecorators(...[
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'IntegerField',
             appType: 'integer',
+            jsType: 'number',
         }),
         Column({
             type: 'integer',

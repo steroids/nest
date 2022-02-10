@@ -6,10 +6,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function DateField(options: IBaseFieldOptions = {}) {
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'DateField',
             appType: 'date',
+            jsType: 'string',
         }),
         Column({
             type: 'date',

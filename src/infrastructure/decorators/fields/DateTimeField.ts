@@ -11,10 +11,10 @@ export interface IDateTimeFieldColumnOptions extends IBaseFieldOptions {
 
 export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'DateTimeField',
             appType: 'dateTime',
+            jsType: 'string',
         }),
         Column({
             type: 'timestamp',

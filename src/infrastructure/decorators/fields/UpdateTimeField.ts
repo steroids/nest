@@ -33,10 +33,10 @@ export function UpdateTimeField(options: IUpdateTimeFieldOptions = {}) {
     }
 
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'UpdateTimeField',
             appType: 'updateTime',
+            jsType: 'string',
         }),
         UpdateDateColumn({
             type: 'timestamp',

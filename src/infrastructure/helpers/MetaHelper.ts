@@ -1,8 +1,13 @@
 import {Connection} from 'typeorm';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {MODEL_META_KEY} from '../decorators/fields/BaseField';
+import {IAllFieldOptions} from '../decorators/fields';
 
 export class MetaHelper {
+    static getFieldOptions(ModelClass, fieldName): IAllFieldOptions {
+        return Reflect.getMetadata(MODEL_META_KEY, ModelClass.prototype, fieldName);
+    }
+
     static exportModels(connection: Connection, types: any[]) {
         const result = {};
         types.forEach(type => {

@@ -5,10 +5,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function StringField(options: IBaseFieldOptions = {}) {
     return applyDecorators(...[
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'StringField',
             appType: 'string',
+            jsType: 'string',
         }),
         Column({
             type: 'varchar',

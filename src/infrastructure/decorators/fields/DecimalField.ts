@@ -3,17 +3,17 @@ import {Column} from 'typeorm';
 import {IsString, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-interface IDecimalFieldOptions extends IBaseFieldOptions {
+export interface IDecimalFieldOptions extends IBaseFieldOptions {
     precision?: number,
     scale?: number,
 }
 
 export function DecimalField(options: IDecimalFieldOptions = {}) {
     return applyDecorators(...[
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'DecimalField',
             appType: 'decimal',
+            jsType: 'number',
         }),
         Column({
             type: 'decimal',

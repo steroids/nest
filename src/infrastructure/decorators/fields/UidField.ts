@@ -26,10 +26,10 @@ export function UidField(options: IBaseFieldOptions = {}) {
     }
 
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'UidField',
             appType: 'uid',
+            jsType: 'string',
         }),
         Column({
             type: options.dbType || 'varchar',

@@ -6,10 +6,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function BooleanField(options: IBaseFieldOptions = {}) {
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'BooleanField',
             appType: 'boolean',
+            jsType: 'boolean',
         }),
         Column({
             type: options.dbType || 'boolean',

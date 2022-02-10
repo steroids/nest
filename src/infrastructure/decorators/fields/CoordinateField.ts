@@ -3,17 +3,17 @@ import {Column} from 'typeorm';
 import {IsString, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-interface ICoordinateFieldOptions extends IBaseFieldOptions {
+export interface ICoordinateFieldOptions extends IBaseFieldOptions {
     precision?: number,
     scale?: number,
 }
 
 export function CoordinateField(options: ICoordinateFieldOptions = {}) {
     return applyDecorators(...[
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'CoordinateField',
             appType: 'decimal',
+            jsType: 'number',
         }),
         Column({
             type: 'decimal',

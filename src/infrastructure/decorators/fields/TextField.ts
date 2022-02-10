@@ -4,10 +4,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function TextField(options: IBaseFieldOptions = {}) {
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'TextField',
             appType: 'text',
+            jsType: 'string',
         }),
         Column({
             type: 'text',

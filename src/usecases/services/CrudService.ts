@@ -3,8 +3,7 @@ import {ICrudRepository} from '../interfaces/ICrudRepository';
 import {DataMapperHelper} from '../helpers/DataMapperHelper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
-import {validateOrReject} from "../helpers/ValidationHelper";
-import {plainToInstance} from "class-transformer";
+import {validateOrReject} from '../helpers/ValidationHelper';
 
 /**
  * Generic CRUD service
@@ -48,8 +47,7 @@ export class CrudService<
      */
     async search(dto: TSearchDto): Promise<SearchResultDto<TModel>> {
         await validateOrReject(dto);
-        const repositoryResult = await this.repository.search(dto);
-        return repositoryResult;
+        return await this.repository.search(dto);
     }
 
     /**
@@ -57,8 +55,7 @@ export class CrudService<
      * @param id
      */
     async findById(id: number | string): Promise<TModel> {
-        const model = await this.repository.findOne({[this.primaryKey]: _toInteger(id)});
-        return model;
+        return this.repository.findOne({[this.primaryKey]: _toInteger(id)});
     }
 
     /**
@@ -67,10 +64,7 @@ export class CrudService<
      */
     async create(dto: TSaveDto): Promise<TModel> {
         await validateOrReject(dto);
-        let model = this.dtoToModel(dto);
-        await validateOrReject(model);
-        const tmodel = await this.repository.create(model);
-        return tmodel;
+        return this.repository.create(await this.dtoToModel(dto));
     }
 
     /**
@@ -80,10 +74,7 @@ export class CrudService<
      */
     async update(id: number | string, dto: TSaveDto): Promise<TModel> {
         await validateOrReject(dto);
-        let model = this.dtoToModel(dto);
-        await validateOrReject(model);
-        model = await this.repository.update(_toInteger(id), model);
-        return model;
+        return this.repository.update(_toInteger(id), await this.dtoToModel(dto));
     }
 
     /**
@@ -97,10 +88,13 @@ export class CrudService<
     /**
      * Mapping dto to model class
      * @param dto
-     * @param model
      * @protected
      */
-    protected dtoToModel(dto: TSaveDto): TModel {
-        return plainToInstance(this.modelClass, dto);
+    protected async dtoToModel(dto: TSaveDto): Promise<TModel> {
+        if (!this.modelClass) {
+            throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
+        }
+
+        return DataMapperHelper.anyToModel(dto, this.modelClass);
     }
 }

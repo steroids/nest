@@ -31,10 +31,10 @@ export function CreateTimeField(options: ICreateTimeFieldOptions = {}) {
     }
 
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'CreateTimeField',
             appType: 'createTime',
+            jsType: 'string',
         }),
         CreateDateColumn({
             type: 'timestamp',

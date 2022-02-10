@@ -5,10 +5,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function TimeField(options: IBaseFieldOptions = {}) {
     return applyDecorators(
-        BaseField({
-            ...options,
+        BaseField(options, {
             decoratorName: 'TimeField',
             appType: 'time',
+            jsType: 'string',
         }),
         Column({
             type: 'varchar',

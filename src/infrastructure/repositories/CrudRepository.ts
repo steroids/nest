@@ -46,11 +46,11 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * Find item by condition
      * @param condition
      */
-    async findOne(condition: ICondition): Promise<TModel> {
+    async findOne(condition: ICondition): Promise<TModel | null> {
         const entity = await this.dbRepository.findOne({
             where: ConditionHelper.toTypeOrm(condition),
         });
-        return this.entityToModel(entity);
+        return entity ? this.entityToModel(entity) : null;
     }
 
     /**
@@ -69,6 +69,9 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      */
     async update(id: number, model: TModel) {
         const prevModel = await this.findOne({[this.primaryKey]: id});
+        if (!prevModel) {
+            throw new Error('Not found model by id: ' + id);
+        }
         const savedEntity = await this.dbRepository.save(this.modelToEntity({...prevModel, ...model}));
         return this.entityToModel(savedEntity);
     }
