@@ -110,7 +110,7 @@ const getFieldType = (fieldName, typeName, isPrimaryKey) => {
 
 const getFieldJsType = (fieldType) => {
     let fieldJsType = 'string';
-    if (['integer', 'decimal'].includes(fieldType)) {
+    if (['integer', 'decimal', 'primaryKey'].includes(fieldType)) {
         fieldJsType = 'number';
     }
     if (fieldType === 'boolean') {
