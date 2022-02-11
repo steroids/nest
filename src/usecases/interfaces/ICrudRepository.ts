@@ -5,7 +5,7 @@ import {ICondition} from '../../infrastructure/helpers/ConditionHelper';
 
 export interface ICrudRepository<TModel> {
     dbRepository: Repository<any>;
-    search: (dto: SearchInputDto) => Promise<SearchResultDto<TModel>>,
+    search: (dto: SearchInputDto, schemaClass?: any) => Promise<SearchResultDto<TModel>>,
     findOne: (condition: ICondition) => Promise<TModel>,
     create: (model: TModel) => Promise<TModel>,
     update: (id: number, model: TModel) => Promise<TModel>,

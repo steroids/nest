@@ -36,18 +36,14 @@ export class CrudService<
         this.modelClass = ModelClass;
     }
 
-    createModel(): TModel | any {
-        const ModelClass = this.modelClass;
-        return new ModelClass();
-    }
-
     /**
      * Search models with pagination, order and filters
      * @param dto
+     * @param schemaClass
      */
-    async search(dto: TSearchDto): Promise<SearchResultDto<TModel>> {
+    async search(dto: TSearchDto, schemaClass = null): Promise<SearchResultDto<TModel>> {
         await validateOrReject(dto);
-        return await this.repository.search(dto);
+        return await this.repository.search(dto, schemaClass);
     }
 
     /**

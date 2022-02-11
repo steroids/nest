@@ -35,9 +35,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     /**
      * Search items with pagination, filters and sorting
      * @param dto
+     * @param searchClass
      */
-    async search(dto: SearchInputDto): Promise<SearchResultDto<TModel>> {
-        const result = await SearchHelper.search<TModel>(this.dbRepository, dto);
+    async search(dto: SearchInputDto, searchClass = null): Promise<SearchResultDto<TModel>> {
+        const result = await SearchHelper.search<TModel>(this.dbRepository, dto, null, searchClass);
         result.items = result.items.map(item => this.entityToModel(item));
         return result;
     }
