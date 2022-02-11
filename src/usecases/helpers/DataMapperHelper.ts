@@ -23,7 +23,7 @@ export class DataMapperHelper {
                 const value = source[fieldName];
 
                 if (_isObject(value)) {
-                    const modelMeta = MetaHelper.getFieldOptions(ModelClass.prototype, fieldName) as IRelationFieldOptions;
+                    const modelMeta = MetaHelper.getFieldOptions(ModelClass, fieldName) as IRelationFieldOptions;
                     if (modelMeta.appType === 'relation') {
                         model[fieldName] = this.anyToModel(value, modelMeta.modelClass());
                     } else {

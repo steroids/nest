@@ -4,15 +4,14 @@ import {DataMapperHelper} from '../helpers/DataMapperHelper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {validateOrReject} from '../helpers/ValidationHelper';
+import SteroidsQuery from '../base/SteroidsQuery';
 
 /**
  * Generic CRUD service
  */
-export class CrudService<
-    TModel,
+export class CrudService<TModel,
     TSearchDto = ISearchInputDto,
-    TSaveDto = TModel
-    > {
+    TSaveDto = TModel> {
     /**
      * Model primary key
      */
@@ -38,12 +37,11 @@ export class CrudService<
 
     /**
      * Search models with pagination, order and filters
-     * @param dto
-     * @param schemaClass
+     * @param query
      */
-    async search(dto: TSearchDto, schemaClass = null): Promise<SearchResultDto<TModel>> {
-        await validateOrReject(dto);
-        return await this.repository.search(dto, schemaClass);
+    async search(query: SteroidsQuery<TSearchDto>): Promise<SearchResultDto<TModel>> {
+        await validateOrReject(query.dto);
+        return await this.repository.search(query);
     }
 
     /**

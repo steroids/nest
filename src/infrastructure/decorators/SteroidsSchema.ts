@@ -5,7 +5,7 @@ export interface ISchemaOptions {
     excludeSelect?: string[],
 }
 
-export function Schema(options: ISchemaOptions = {}) {
+export function SteroidsSchema(options: ISchemaOptions = {}) {
     return (target) => {
         Reflect.defineMetadata(SCHEMA_META_KEY, options, target);
     };

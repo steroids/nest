@@ -1,9 +1,9 @@
-import {Connection} from 'typeorm';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {MODEL_FIELD_NAMES_KEY, MODEL_META_KEY} from '../decorators/fields/BaseField';
 import {IAllFieldOptions} from '../decorators/fields';
-import {ISchemaOptions, SCHEMA_META_KEY} from '../decorators/Schema';
-import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
+import {ISchemaOptions, SCHEMA_META_KEY} from '../decorators/SteroidsSchema';
+import {IQueryRelation} from '../../usecases/base/SteroidsQuery';
+import {IRelationFieldOptions} from '../decorators/fields/RelationField';
 
 export class MetaHelper {
     static getFieldOptions(ModelClass, fieldName): IAllFieldOptions {
@@ -19,16 +19,45 @@ export class MetaHelper {
     }
 
     static getSchemaOptions(SchemaClass): ISchemaOptions {
-        return SchemaClass && Reflect.hasMetadata(SCHEMA_META_KEY, SchemaClass.prototype)
-            ? Reflect.getMetadata(SCHEMA_META_KEY, SchemaClass.prototype)
+        return SchemaClass && Reflect.hasMetadata(SCHEMA_META_KEY, SchemaClass)
+            ? Reflect.getMetadata(SCHEMA_META_KEY, SchemaClass)
             : null;
     }
 
-    static exportModels(connection: Connection, types: any[]) {
+    static getSchemaQueryData(SchemaClass): { select: string[], excludeSelect: string[], relations: IQueryRelation[] } {
+        const options = this.getSchemaOptions(SchemaClass);
+
+        const relations: IQueryRelation[] = [];
+        (MetaHelper.getFieldNames(SchemaClass) || []).forEach(fieldName => {
+            const modelMeta = MetaHelper.getFieldOptions(SchemaClass, fieldName) as IRelationFieldOptions;
+            if (modelMeta.appType === 'relation') {
+                if (/Ids?$/.exec(fieldName)) {
+                    relations.push({
+                        isId: true,
+                        name: fieldName.replace(/Ids?$/, ''),
+                        alias: fieldName,
+                    });
+                } else {
+                    relations.push({
+                        name: fieldName,
+                        alias: fieldName,
+                    });
+                }
+            }
+        });
+
+        return {
+            select: options?.select || undefined,
+            excludeSelect: options?.excludeSelect || undefined,
+            relations: relations.length > 0 ? relations : undefined,
+        };
+    }
+
+    static exportModels(types: any[]) {
 
         const result = {};
         types.forEach(type => {
-            const fieldNames = DataMapperHelper.getKeys(type);
+            const fieldNames = this.getFieldNames(type);
             result[type.name] = {
                 attributes: fieldNames.map(fieldName => {
                     const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, fieldName);

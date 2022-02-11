@@ -5,6 +5,7 @@ import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
+import SteroidsQuery from '../../usecases/base/SteroidsQuery';
 
 /**
  * Generic CRUD repository
@@ -34,11 +35,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
 
     /**
      * Search items with pagination, filters and sorting
-     * @param dto
-     * @param searchClass
+     * @param query
      */
-    async search(dto: SearchInputDto, searchClass = null): Promise<SearchResultDto<TModel>> {
-        const result = await SearchHelper.search<TModel>(this.dbRepository, dto, null, searchClass);
+    async search(query: SteroidsQuery<SearchInputDto>): Promise<SearchResultDto<TModel>> {
+        const result = await SearchHelper.search<TModel>(this.dbRepository, query, null);
         result.items = result.items.map(item => this.entityToModel(item));
         return result;
     }
