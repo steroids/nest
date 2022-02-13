@@ -26,6 +26,7 @@ export interface IBaseFieldOptions {
     max?: number,
     // Enum title to upload data on frontend
     items?: string,
+    plainName?: string,
 }
 
 export interface IInternalFieldOptions {

@@ -1,10 +1,12 @@
 import {
     isObject as _isObject,
+    isDate as _isDate,
     has as _has,
 } from 'lodash';
 import {MODEL_FIELD_NAMES_KEY} from '../../infrastructure/decorators/fields/BaseField';
 import {MetaHelper} from '../../infrastructure/helpers/MetaHelper';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
+import {instanceToPlain} from 'class-transformer';
 
 export class DataMapperHelper {
     static getKeys(object) {
@@ -40,6 +42,40 @@ export class DataMapperHelper {
         });
 
         return model;
+    }
+
+    static anyToSchema(source, SchemaClass) {
+        // TODO
+        return source;
+
+    }
+
+    static anyToPlain(source) {
+        // Array
+        if (Array.isArray(source)) {
+            return source.map(item => this.anyToPlain(item));
+        }
+
+        // Date
+        if (_isDate(source)) {
+            // TODO
+            return source;
+        }
+
+        // Object
+        if (_isObject(source)) {
+            const keys = MetaHelper.getFieldNames(source.constructor);
+
+            return Object.keys(source).reduce((obj, key) => {
+                if (!keys || keys.includes(key)) {
+                    obj[key] = DataMapperHelper.anyToPlain(source[key]);
+                }
+                return obj;
+            }, {});
+        }
+
+        // Scalar
+        return source;
     }
 
     static applyFields(target: Record<string, unknown> | any, source: any, fields: string[] = null) {

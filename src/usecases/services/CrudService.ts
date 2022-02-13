@@ -1,10 +1,11 @@
+import {Type} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
 import {ICrudRepository} from '../interfaces/ICrudRepository';
 import {DataMapperHelper} from '../helpers/DataMapperHelper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {validateOrReject} from '../helpers/ValidationHelper';
-import SteroidsQuery from '../base/SteroidsQuery';
+import SearchQuery from '../base/SearchQuery';
 
 /**
  * Generic CRUD service
@@ -29,46 +30,115 @@ export class CrudService<TModel,
      */
     protected modelClass;
 
-
     init(repository: ICrudRepository<TModel>, ModelClass) {
         this.repository = repository;
         this.modelClass = ModelClass;
     }
 
+    async search(dto: TSearchDto): Promise<SearchResultDto<TModel>>
+    async search<TSchema>(
+        dto: TSearchDto,
+        schemaClass: Type<TSchema>
+    ): Promise<SearchResultDto<Type<TSchema>>>
+
     /**
      * Search models with pagination, order and filters
-     * @param query
+     * @param dto
+     * @param schemaClass
      */
-    async search(query: SteroidsQuery<TSearchDto>): Promise<SearchResultDto<TModel>> {
-        await validateOrReject(query.dto);
-        return await this.repository.search(query);
+    async search<TSchema>(
+        dto: TSearchDto,
+        schemaClass: Type<TSchema> = null
+    ): Promise<SearchResultDto<TModel | Type<TSchema>>> {
+        await validateOrReject(dto);
+
+        const result = await this.repository.search<TSchema>(dto, SearchQuery.createFromSchema(schemaClass));
+        if (schemaClass) {
+            result.items = result.items.map((model: TModel) => this.modelToSchema<TSchema>(model, schemaClass));
+        }
+        return result;
     }
+
+    async findById(id: number | string): Promise<TModel>
+    async findById<TSchema>(
+        id: number | string,
+        schemaClass: Type<TSchema>,
+    ): Promise<Type<TSchema>>
 
     /**
      * Find model by id
      * @param id
+     * @param schemaClass
      */
-    async findById(id: number | string): Promise<TModel> {
-        return this.repository.findOne({[this.primaryKey]: _toInteger(id)});
+    async findById<TSchema>(
+        id: number | string,
+        schemaClass: Type<TSchema> = null,
+    ): Promise<TModel | Type<TSchema>> {
+        const searchQuery = SearchQuery.createFromSchema(schemaClass);
+        searchQuery.condition = {[this.primaryKey]: _toInteger(id)};
+        const model = await this.findOne(searchQuery);
+        return schemaClass ? this.modelToSchema<TSchema>(model, schemaClass) : model;
     }
+
+    /**
+     * Find one model by search query (selects and condition)
+     * @param searchQuery
+     */
+    async findOne(searchQuery: SearchQuery): Promise<TModel> {
+        return await this.repository.findOne(searchQuery);
+    }
+
+    /**
+     * Find many models by search query (selects and condition)
+     * @param searchQuery
+     */
+    async findMany(searchQuery: SearchQuery): Promise<TModel[]> {
+        return await this.repository.findMany(searchQuery);
+    }
+
+    async create(dto: TSaveDto): Promise<TModel>
+    async create<TSchema>(
+        dto: TSaveDto,
+        schemaClass: Type<TSchema>,
+    ): Promise<Type<TSchema>>
 
     /**
      * Create new model
      * @param dto
+     * @param schemaClass
      */
-    async create(dto: TSaveDto): Promise<TModel> {
+    async create<TSchema>(
+        dto: TSaveDto,
+        schemaClass: Type<TSchema> = null,
+    ): Promise<TModel | Type<TSchema>> {
         await validateOrReject(dto);
-        return this.repository.create(await this.dtoToModel(dto));
+
+        const model = await this.repository.create(await this.dtoToModel(dto));
+        return schemaClass ? this.findById(model[this.primaryKey], schemaClass) : model;
     }
+
+    async update<TSchema>(id: number | string, dto: TSaveDto): Promise<TModel>
+    async update<TSchema>(
+        id: number | string,
+        dto: TSaveDto,
+        schemaClass: Type<TSchema>,
+    ): Promise<Type<TSchema>>
 
     /**
      * Update model
      * @param id
      * @param dto
+     * @param schemaClass
      */
-    async update(id: number | string, dto: TSaveDto): Promise<TModel> {
+    async update<TSchema>(
+        id: number | string,
+        dto: TSaveDto,
+        schemaClass: Type<TSchema> = null,
+    ): Promise<TModel | Type<TSchema>> {
         await validateOrReject(dto);
-        return this.repository.update(_toInteger(id), await this.dtoToModel(dto));
+
+        const model = await this.repository.update(_toInteger(id), await this.dtoToModel(dto));
+        return schemaClass ? this.findById(id, schemaClass) : model;
     }
 
     /**
@@ -80,11 +150,21 @@ export class CrudService<TModel,
     }
 
     /**
+     * Mapping model to schema class
+     * @param model
+     * @param schemaClass
+     * @protected
+     */
+    protected modelToSchema<TSchema>(model: TModel, schemaClass: Type<TSchema>): Type<TSchema> {
+        return DataMapperHelper.anyToSchema(model, schemaClass);
+    }
+
+    /**
      * Mapping dto to model class
      * @param dto
      * @protected
      */
-    protected async dtoToModel(dto: TSaveDto): Promise<TModel> {
+    protected dtoToModel(dto: TSaveDto): Promise<TModel> {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }

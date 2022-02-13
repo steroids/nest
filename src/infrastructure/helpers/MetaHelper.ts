@@ -2,7 +2,7 @@ import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {MODEL_FIELD_NAMES_KEY, MODEL_META_KEY} from '../decorators/fields/BaseField';
 import {IAllFieldOptions} from '../decorators/fields';
 import {ISchemaOptions, SCHEMA_META_KEY} from '../decorators/SteroidsSchema';
-import {IQueryRelation} from '../../usecases/base/SteroidsQuery';
+import {IQueryRelation} from '../../usecases/base/SearchQuery';
 import {IRelationFieldOptions} from '../decorators/fields/RelationField';
 
 export class MetaHelper {

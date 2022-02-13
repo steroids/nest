@@ -1,11 +1,12 @@
 import {Repository} from 'typeorm';
-import {instanceToPlain} from 'class-transformer';
 import {SearchHelper} from '../../usecases/helpers/SearchHelper';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
-import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
-import SteroidsQuery from '../../usecases/base/SteroidsQuery';
+import SearchQuery from '../../usecases/base/SearchQuery';
+import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
+import {ICondition} from '../helpers/ConditionHelper';
+import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 
 /**
  * Generic CRUD repository
@@ -35,23 +36,56 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
 
     /**
      * Search items with pagination, filters and sorting
-     * @param query
+     * @param dto
+     * @param searchQuery
      */
-    async search(query: SteroidsQuery<SearchInputDto>): Promise<SearchResultDto<TModel>> {
-        const result = await SearchHelper.search<TModel>(this.dbRepository, query, null);
+    async search(dto: SearchInputDto, searchQuery: SearchQuery): Promise<SearchResultDto<TModel>> {
+        const result = await SearchHelper.search<TModel>(
+            this.dbRepository,
+            dto,
+            searchQuery,
+            null
+        );
         result.items = result.items.map(item => this.entityToModel(item));
         return result;
     }
 
     /**
      * Find item by condition
-     * @param condition
+     * @param conditionOrQuery
      */
-    async findOne(condition: ICondition): Promise<TModel | null> {
-        const entity = await this.dbRepository.findOne({
-            where: ConditionHelper.toTypeOrm(condition),
-        });
-        return entity ? this.entityToModel(entity) : null;
+    async findOne(conditionOrQuery: ICondition | SearchQuery): Promise<TModel | null> {
+        const dbQuery = this.createQueryBuilder(conditionOrQuery);
+
+        const row = await dbQuery.getOne();
+        return row ? this.entityToModel(row) : null;
+    }
+
+    /**
+     * Find item by condition
+     * @param conditionOrQuery
+     */
+    async findMany(conditionOrQuery: ICondition | SearchQuery): Promise<TModel[]> {
+        const dbQuery = this.createQueryBuilder(conditionOrQuery);
+
+        const rows = await dbQuery.getMany();
+        return rows.map(row => this.entityToModel(row));
+    }
+
+    /**
+     * Create db query builder for findOne() and findMany() methods
+     * @param conditionOrQuery
+     * @protected
+     */
+    protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery): SelectQueryBuilder<any> {
+        const searchQuery = !(conditionOrQuery instanceof SearchQuery)
+            ? new SearchQuery({condition: conditionOrQuery})
+            : conditionOrQuery;
+
+        const dbQuery = this.dbRepository.createQueryBuilder();
+        SearchQuery.prepare(this.dbRepository, dbQuery, searchQuery);
+
+        return dbQuery;
     }
 
     /**
@@ -68,7 +102,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param id
      * @param model
      */
-    async update(id: number, model: TModel) {
+    async update(id: number, model: TModel): Promise<TModel> {
         const prevModel = await this.findOne({[this.primaryKey]: id});
         if (!prevModel) {
             throw new Error('Not found model by id: ' + id);
@@ -91,11 +125,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @protected
      */
     protected modelToEntity(model): any {
-        // const EntityClass = this.dbRepository.target as any;
-        //const entity = new EntityClass();
-        //Object.assign(entity, instanceToPlain(model)); // TODO
-        const entity = this.dbRepository.create(model);
-        return entity;
+        return this.dbRepository.create(model);
     }
 
     /**
@@ -104,10 +134,9 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @protected
      */
     protected entityToModel(obj: any): TModel {
-        const ModelClass = this.modelClass as any;
-        const model = new ModelClass();
-        Object.assign(model, instanceToPlain(obj)); // TODO
-        //return DataMapperHelper.anyToModel(obj, this.dbRepository.target);
-        return model;
+        if (!this.modelClass) {
+            throw new Error('Property modelClass is not set in repository: ' + this.constructor.name);
+        }
+        return DataMapperHelper.anyToModel(obj, this.modelClass);
     }
 }
