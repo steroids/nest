@@ -54,7 +54,6 @@ export class MetaHelper {
     }
 
     static exportModels(types: any[]) {
-
         const result = {};
         types.forEach(type => {
             const fieldNames = this.getFieldNames(type);
@@ -72,8 +71,6 @@ export class MetaHelper {
                     };
                 }),
             };
-
-            // fields
         });
         return result;
     }

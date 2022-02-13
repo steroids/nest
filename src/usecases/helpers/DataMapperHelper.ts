@@ -6,7 +6,6 @@ import {
 import {MODEL_FIELD_NAMES_KEY} from '../../infrastructure/decorators/fields/BaseField';
 import {MetaHelper} from '../../infrastructure/helpers/MetaHelper';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
-import {instanceToPlain} from 'class-transformer';
 
 export class DataMapperHelper {
     static getKeys(object) {
@@ -45,9 +44,25 @@ export class DataMapperHelper {
     }
 
     static anyToSchema(source, SchemaClass) {
-        // TODO
-        return source;
+        const schema = new SchemaClass();
+        const keys = MetaHelper.getFieldNames(SchemaClass);
+        keys.forEach(key => {
+            const meta = MetaHelper.getFieldOptions(SchemaClass, key) as IRelationFieldOptions;
+            if (meta.appType === 'relation' && !/Ids?$/.exec(key)) {
+                let subSchemaClass = Reflect.getOwnMetadata('design:type', SchemaClass.prototype, key);
+                if (!(typeof subSchemaClass === 'function')) {
+                    subSchemaClass = meta.modelClass();
+                }
+                schema[key] = DataMapperHelper.anyToSchema(
+                    _has(source, key) ? source[key] : null,
+                    subSchemaClass
+                );
+            } else if (_has(source, key)) {
+                schema[key] = source[key];
+            }
+        });
 
+        return schema;
     }
 
     static anyToPlain(source) {
@@ -76,28 +91,5 @@ export class DataMapperHelper {
 
         // Scalar
         return source;
-    }
-
-    static applyFields(target: Record<string, unknown> | any, source: any, fields: string[] = null) {
-        if (_isObject(source)) {
-            Object.assign(target, source); // TODO
-
-            // if (!_isPlainObject(source)) {
-            //     source = instanceToPlain(source);
-            // }
-            //
-            // if (!fields) {
-            //     fields = Object.getOwnPropertyNames(target);
-            // }
-            // fields.forEach(field => {
-            //     if (_has(source, field)) {
-            //         if (_isObject(source[field])) {
-            //             // TODO Nested objects...
-            //         } else {
-            //             target[field] = source[field];
-            //         }
-            //     }
-            // });
-        }
     }
 }

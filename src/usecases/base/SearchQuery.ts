@@ -36,7 +36,6 @@ export default class SearchQuery {
         }
 
         if (select) {
-            // TODO nested selects
             dbQuery.select(select.map(name => prefix + name));
         }
 
@@ -48,7 +47,8 @@ export default class SearchQuery {
                     prefix + relation.name,
                 );
             } else {
-                dbQuery.relation(relation.name);
+                dbQuery.leftJoinAndSelect(prefix + relation.name, prefix + relation.name);
+                // TODO nested selects
             }
         });
 
