@@ -1,9 +1,9 @@
 import {Repository} from 'typeorm';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {SearchInputDto} from '../dtos/SearchInputDto';
-import {ICondition} from '../../infrastructure/helpers/ConditionHelper';
 import {Type} from '@nestjs/common';
 import SearchQuery from '../base/SearchQuery';
+import {ICondition} from '../helpers/ConditionHelper';
 
 export interface ICrudRepository<TModel> {
     dbRepository: Repository<any>;

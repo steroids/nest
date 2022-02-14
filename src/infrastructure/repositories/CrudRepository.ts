@@ -5,8 +5,8 @@ import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 import SearchQuery from '../../usecases/base/SearchQuery';
 import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
-import {ICondition} from '../helpers/ConditionHelper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
+import {ICondition} from '../../usecases/helpers/ConditionHelper';
 
 /**
  * Generic CRUD repository
@@ -78,9 +78,11 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @protected
      */
     protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery): SelectQueryBuilder<any> {
-        const searchQuery = !(conditionOrQuery instanceof SearchQuery)
-            ? new SearchQuery({condition: conditionOrQuery})
-            : conditionOrQuery;
+        let searchQuery = conditionOrQuery as SearchQuery;
+        if (!(conditionOrQuery instanceof SearchQuery)) {
+            searchQuery = new SearchQuery();
+            searchQuery.condition = conditionOrQuery;
+        }
 
         const dbQuery = this.dbRepository.createQueryBuilder();
         SearchQuery.prepare(this.dbRepository, dbQuery, searchQuery);

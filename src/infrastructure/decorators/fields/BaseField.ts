@@ -2,10 +2,11 @@ import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty} from 'class-validator';
+import {IAllFieldOptions} from './index';
 
-export const MODEL_META_KEY = 'meta';
-export const MODEL_FIELD_DECORATOR_NAME = 'meta_field_decorator_name';
-export const MODEL_FIELD_NAMES_KEY = 'meta_field_names';
+export const STEROIDS_META_FIELD = 'steroids_meta_field';
+export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
+export const STEROIDS_META_KEYS = 'steroids_meta_keys';
 
 export type AppColumnType = 'boolean' | 'createTime' | 'date' | 'dateTime' | 'decimal' | 'email' | 'enum' | 'file'
     | 'html' | 'integer' | 'password' | 'phone' | 'primaryKey' | 'relation' | 'string' | 'text' | 'time' | 'updateTime' | string;
@@ -36,17 +37,31 @@ export interface IInternalFieldOptions {
     isArray?: boolean,
 }
 
-const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
-    Reflect.defineMetadata(MODEL_META_KEY, options, object, propertyName);
-    Reflect.defineMetadata(MODEL_FIELD_DECORATOR_NAME, internalOptions.decoratorName, object, propertyName);
-
-    // Add field to list
-    const fieldNames = Reflect.getMetadata(MODEL_FIELD_NAMES_KEY, object) || [];
-    fieldNames.push(propertyName);
-    Reflect.defineMetadata(MODEL_FIELD_NAMES_KEY, fieldNames, object);
+export const getFieldOptions = (targetClass, fieldName: string): IAllFieldOptions => {
+    return targetClass && Reflect.getMetadata(STEROIDS_META_FIELD, targetClass.prototype, fieldName);
 };
 
-export function BaseField(options: IBaseFieldOptions = null, internalOptions: IInternalFieldOptions) {
+export const getFieldDecorator = (targetClass, fieldName: string): (...args: any) => PropertyDecorator => {
+    const decoratorName: string = Reflect.getMetadata(STEROIDS_META_FIELD_DECORATOR, targetClass.prototype, fieldName);
+    const decorator = require('./index')[decoratorName];
+    if (!decorator) {
+        throw new Error(`Not found Field decorator ${decoratorName}, property: ${fieldName}`);
+    }
+
+    return decorator;
+};
+
+const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
+    Reflect.defineMetadata(STEROIDS_META_FIELD, options, object, propertyName);
+    Reflect.defineMetadata(STEROIDS_META_FIELD_DECORATOR, internalOptions.decoratorName, object, propertyName);
+
+    // Add field to list
+    const fieldNames = Reflect.getMetadata(STEROIDS_META_KEYS, object) || [];
+    fieldNames.push(propertyName);
+    Reflect.defineMetadata(STEROIDS_META_KEYS, fieldNames, object);
+};
+
+export function BaseField(options: IBaseFieldOptions = null, internalOptions: IInternalFieldOptions = {}) {
     return applyDecorators(
         ...[
             ColumnMetaDecorator({

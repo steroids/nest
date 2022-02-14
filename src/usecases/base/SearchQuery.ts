@@ -1,7 +1,10 @@
-import {MetaHelper} from '../../infrastructure/helpers/MetaHelper';
-import {ConditionHelper, ICondition} from '../../infrastructure/helpers/ConditionHelper';
 import {Repository} from 'typeorm';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
+import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
+import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
+import {getFieldOptions} from '../../infrastructure/decorators/fields/BaseField';
+import {DataMapperHelper} from '../helpers/DataMapperHelper';
+import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
 
 export interface IQueryRelation {
     name: string,
@@ -16,7 +19,33 @@ export default class SearchQuery {
     condition?: ICondition;
 
     static createFromSchema(SchemaClass) {
-        return new SearchQuery(MetaHelper.getSchemaQueryData(SchemaClass));
+        const searchQuery = new SearchQuery();
+
+        Object.assign(searchQuery, getSchemaSelectOptions(SchemaClass))
+
+        const relations: IQueryRelation[] = [];
+        (DataMapperHelper.getKeys(SchemaClass) || []).forEach(fieldName => {
+            const modelMeta = getFieldOptions(SchemaClass, fieldName) as IRelationFieldOptions;
+            if (modelMeta.appType === 'relation') {
+                if (/Ids?$/.exec(fieldName)) {
+                    relations.push({
+                        isId: true,
+                        name: fieldName.replace(/Ids?$/, ''),
+                        alias: fieldName,
+                    });
+                } else {
+                    relations.push({
+                        name: fieldName,
+                        alias: fieldName,
+                    });
+                }
+            }
+        });
+        if (relations.length > 0) {
+            searchQuery.relations = relations;
+        }
+
+        return searchQuery;
     }
 
     static prepare(
@@ -56,12 +85,5 @@ export default class SearchQuery {
         if (searchQuery.condition) {
             dbQuery.andWhere(ConditionHelper.toTypeOrm(searchQuery.condition));
         }
-    }
-
-    constructor(data: SearchQuery = {}) {
-        this.select = data.select;
-        this.excludeSelect = data.excludeSelect;
-        this.relations = data.relations;
-        this.condition = data.condition;
     }
 }

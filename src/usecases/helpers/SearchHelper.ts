@@ -9,7 +9,7 @@ export class SearchHelper {
     static async search<TTable>(
         repository: Repository<any>,
         dto: SearchInputDto,
-        query: SearchQuery,
+        searchQuery: SearchQuery,
         prepareHandler: (query: SelectQueryBuilder<TTable>) => void | null = null,
     ): Promise<SearchResultDto<TTable>> {
         const result = new SearchResultDto<TTable>();
@@ -24,7 +24,7 @@ export class SearchHelper {
         // Create query
         const dbQuery = repository.createQueryBuilder();
 
-        SearchQuery.prepare(repository, dbQuery, query);
+        SearchQuery.prepare(repository, dbQuery, searchQuery);
 
         // Sort
         const sort = typeof dto.sort === 'string' ? dto.sort.split(',') : (dto.sort || []);
