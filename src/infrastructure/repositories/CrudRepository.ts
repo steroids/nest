@@ -93,32 +93,113 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     /**
      * Create item
      * @param model
+     * @param transactionHandler
      */
-    async create(model: TModel): Promise<TModel> {
-        const entity = await this.dbRepository.manager.save(this.modelToEntity(model));
-        return this.entityToModel(entity);
+    async create(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
+        let entity;
+        let nextModel;
+        if (transactionHandler) {
+            await this.dbRepository.manager.transaction(async (manager) => {
+                await transactionHandler(async () => {
+                    await this.beforeSave(null, model);
+                    entity = await manager.save(this.modelToEntity(model));
+                    nextModel = this.entityToModel(entity);
+                    await this.afterSave(null, nextModel);
+                });
+            });
+        } else {
+            entity = await this.dbRepository.manager.save(this.modelToEntity(model));
+            nextModel = this.entityToModel(entity);
+        }
+        return nextModel;
     }
 
     /**
      * Update item
      * @param id
      * @param model
+     * @param transactionHandler
      */
-    async update(id: number, model: TModel): Promise<TModel> {
+    async update(id: number, model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
         const prevModel = await this.findOne({[this.primaryKey]: id});
         if (!prevModel) {
             throw new Error('Not found model by id: ' + id);
         }
-        const savedEntity = await this.dbRepository.save(this.modelToEntity({...prevModel, ...model}));
-        return this.entityToModel(savedEntity);
+
+        let entity;
+        let nextModel;
+        if (transactionHandler) {
+            await this.dbRepository.manager.transaction(async (manager) => {
+                await transactionHandler(async () => {
+                    await this.beforeSave(prevModel, model);
+                    entity = await manager.save(this.modelToEntity({...prevModel, ...model}));
+                    nextModel = this.entityToModel(entity);
+                    await this.afterSave(prevModel, nextModel);
+                });
+            });
+        } else {
+            entity = await this.dbRepository.manager.save(this.modelToEntity({...prevModel, ...model}));
+            nextModel = this.entityToModel(entity);
+        }
+
+        return nextModel;
     }
 
     /**
      * Remove item
      * @param id
+     * @param transactionHandler
      */
-    async remove(id: number): Promise<void> {
-        await this.dbRepository.delete(id);
+    async remove(id: number, transactionHandler?: (callback) => Promise<void>): Promise<void> {
+        if (transactionHandler) {
+            await this.dbRepository.manager.transaction(async (manager) => {
+                await transactionHandler(async () => {
+                    await this.beforeDelete(id);
+                    await manager.remove(id);
+                    await this.afterDelete(id);
+                });
+            });
+        } else {
+            await this.dbRepository.manager.remove(id);
+        }
+    }
+
+    /**
+     * Handler for customize logic before save
+     * @param prevModel
+     * @param nextModel
+     * @protected
+     */
+    protected async beforeSave(prevModel: TModel | null, nextModel: TModel) {
+        // You handler code
+    }
+
+    /**
+     * Handler for customize logic after save
+     * @param prevModel
+     * @param nextModel
+     * @protected
+     */
+    protected async afterSave(prevModel: TModel | null, nextModel: TModel) {
+        // You handler code
+    }
+
+    /**
+     * Handler for customize logic before delete
+     * @param id
+     * @protected
+     */
+    protected async beforeDelete(id: number) {
+        // You handler code
+    }
+
+    /**
+     * Handler for customize logic after delete
+     * @param id
+     * @protected
+     */
+    protected async afterDelete(id: number) {
+        // You handler code
     }
 
     /**

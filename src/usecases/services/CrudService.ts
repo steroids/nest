@@ -123,7 +123,15 @@ export class CrudService<TModel,
     ): Promise<TModel | Type<TSchema>> {
         await validateOrReject(dto);
 
-        const model = await this.repository.create(await this.dtoToModel(dto));
+        const nextModel = await this.dtoToModel(dto);
+
+        let model;
+        await this.repository.create(nextModel, async (save) => {
+            await this.beforeSave(null, nextModel);
+            model = await save();
+            await this.afterSave(null, model);
+        });
+
         return schemaClass ? this.findById(model[this.primaryKey], context, schemaClass) : model;
     }
 
@@ -150,17 +158,70 @@ export class CrudService<TModel,
     ): Promise<TModel | Type<TSchema>> {
         await validateOrReject(dto);
 
-        const model = await this.repository.update(_toInteger(id), await this.dtoToModel(dto));
+        const prevModel = await this.findById(id);
+        const nextModel = await this.dtoToModel(dto);
+
+        let model;
+        await this.repository.update(_toInteger(id), nextModel, async (save) => {
+            await this.beforeSave(prevModel, nextModel);
+            model = await save();
+            await this.afterSave(prevModel, model);
+        });
+
         return schemaClass ? this.findById(id, context, schemaClass) : model;
     }
 
     /**
      * Remove model
-     * @param id
+     * @param rawId
      * @param context
      */
-    async remove(id: number | string, context: ContextDto = null): Promise<void> {
-        await this.repository.remove(_toInteger(id));
+    async remove(rawId: number | string, context: ContextDto = null): Promise<void> {
+        const id: number = _toInteger(rawId);
+
+        await this.repository.remove(id, async (remove) => {
+            await this.beforeDelete(id);
+            await remove();
+            await this.afterDelete(id);
+        });
+    }
+
+    /**
+     * Handler for customize logic before save
+     * @param prevModel
+     * @param nextModel
+     * @protected
+     */
+    protected async beforeSave(prevModel: TModel | null, nextModel: TModel) {
+        // You handler code
+    }
+
+    /**
+     * Handler for customize logic after save
+     * @param prevModel
+     * @param nextModel
+     * @protected
+     */
+    protected async afterSave(prevModel: TModel | null, nextModel: TModel) {
+        // You handler code
+    }
+
+    /**
+     * Handler for customize logic before delete
+     * @param id
+     * @protected
+     */
+    protected async beforeDelete(id: number) {
+        // You handler code
+    }
+
+    /**
+     * Handler for customize logic after delete
+     * @param id
+     * @protected
+     */
+    protected async afterDelete(id: number) {
+        // You handler code
     }
 
     /**
