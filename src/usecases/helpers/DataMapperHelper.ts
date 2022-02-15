@@ -111,13 +111,19 @@ export class DataMapperHelper {
                     const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, fieldName);
                     const options = getFieldOptions(type, fieldName);
 
-                    return {
+                    const fieldData = {
                         attribute: fieldName,
                         type: options.appType || 'string',
                         label: options.label || apiMeta.description,
                         required: apiMeta.required,
                         ...(options.items ? {items: options.items} : {}),
                     };
+
+                    if (fieldData.type === 'relation') {
+                        fieldData['modelClass'] = (options as IRelationFieldOptions).modelClass().name;
+                    }
+
+                    return fieldData;
                 }),
             };
         });
