@@ -5,6 +5,7 @@ import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/Sch
 import {getFieldOptions} from '../../infrastructure/decorators/fields/BaseField';
 import {DataMapperHelper} from '../helpers/DataMapperHelper';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
+import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
 
 export interface IQueryRelation {
     name: string,
@@ -26,19 +27,22 @@ export default class SearchQuery {
         const relations: IQueryRelation[] = [];
         (DataMapperHelper.getKeys(SchemaClass) || []).forEach(fieldName => {
             const modelMeta = getFieldOptions(SchemaClass, fieldName) as IRelationFieldOptions;
-            if (modelMeta.appType === 'relation') {
-                if (/Ids?$/.exec(fieldName)) {
+            switch (modelMeta.appType) {
+                case 'relationId':
+                    const relationIdOptions = modelMeta as IRelationIdFieldOptions;
                     relations.push({
                         isId: true,
-                        name: fieldName.replace(/Ids?$/, ''),
+                        name: relationIdOptions.relationName,
                         alias: fieldName,
                     });
-                } else {
+                    break;
+
+                case 'relation':
                     relations.push({
                         name: fieldName,
                         alias: fieldName,
                     });
-                }
+                    break;
             }
         });
         if (relations.length > 0) {
