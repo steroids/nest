@@ -143,7 +143,9 @@ export class DataMapperHelper {
                     break;
 
                 default:
-                    entity[key] = value;
+                    if (typeof value !== 'undefined') {
+                        entity[key] = value;
+                    }
             }
         });
 
