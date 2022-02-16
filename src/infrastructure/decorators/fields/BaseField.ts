@@ -9,7 +9,8 @@ export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
 export const STEROIDS_META_KEYS = 'steroids_meta_keys';
 
 export type AppColumnType = 'boolean' | 'createTime' | 'date' | 'dateTime' | 'decimal' | 'email' | 'enum' | 'file'
-    | 'html' | 'integer' | 'password' | 'phone' | 'primaryKey' | 'relation' | 'string' | 'text' | 'time' | 'updateTime' | string;
+    | 'html' | 'integer' | 'password' | 'phone' | 'primaryKey' | 'relation' | 'relationId' | 'string' | 'text'
+    | 'time' | 'updateTime' | string;
 export type JsType = 'boolean' | 'string' | 'number' | string;
 
 export interface IBaseFieldOptions {
@@ -40,6 +41,22 @@ export interface IInternalFieldOptions {
 export const getFieldOptions = (targetClass, fieldName: string): IAllFieldOptions => {
     return targetClass && Reflect.getMetadata(STEROIDS_META_FIELD, targetClass.prototype, fieldName);
 };
+
+export const isMetaClass = (MetaClass): boolean => {
+    return Reflect.hasMetadata(STEROIDS_META_KEYS, MetaClass.prototype);
+}
+
+export const getMetaFields = (MetaClass): string[] => {
+    return Reflect.getMetadata(STEROIDS_META_KEYS, MetaClass.prototype) || [];
+}
+
+export const getMetaRelations = (MetaClass): string[] => {
+    return getMetaFields(MetaClass)
+        .filter(fieldName => {
+            const options = getFieldOptions(MetaClass, fieldName);
+            return ['relationId', 'relation'].includes(options.appType);
+        });
+}
 
 export const getFieldDecorator = (targetClass, fieldName: string): (...args: any) => PropertyDecorator => {
     const decoratorName: string = Reflect.getMetadata(STEROIDS_META_FIELD_DECORATOR, targetClass.prototype, fieldName);

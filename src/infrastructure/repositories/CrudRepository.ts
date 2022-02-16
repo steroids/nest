@@ -1,4 +1,5 @@
-import {Repository} from 'typeorm';
+import {has as _has, cloneDeep as _cloneDeep} from 'lodash';
+import {EntityManager, Repository} from 'typeorm';
 import {SearchHelper} from '../../usecases/helpers/SearchHelper';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
@@ -7,6 +8,7 @@ import SearchQuery from '../../usecases/base/SearchQuery';
 import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../../usecases/helpers/ConditionHelper';
+import {getMetaRelations} from '../decorators/fields/BaseField';
 
 /**
  * Generic CRUD repository
@@ -96,24 +98,22 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param transactionHandler
      */
     async create(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
-        let entity;
-        let nextModel;
+        const saveHandler = async (manager) => {
+            await this.beforeSave(null, model);
+            const entity = await manager.save(this.modelToEntity(model));
+            DataMapperHelper.applyChangesToModel(model, entity);
+            await this.afterSave(null, model);
+            return model;
+        };
+
         if (transactionHandler) {
             await this.dbRepository.manager.transaction(async (manager) => {
-                await transactionHandler(async () => {
-                    await this.beforeSave(null, model);
-                    entity = await manager.save(this.modelToEntity(model));
-                    nextModel = this.entityToModel(entity);
-                    await this.afterSave(null, nextModel);
-
-                    return nextModel;
-                });
+                await transactionHandler(async () => saveHandler(manager));
             });
         } else {
-            entity = await this.dbRepository.manager.save(this.modelToEntity(model));
-            nextModel = this.entityToModel(entity);
+            await saveHandler(this.dbRepository.manager);
         }
-        return nextModel;
+        return model;
     }
 
     /**
@@ -123,27 +123,34 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param transactionHandler
      */
     async update(id: number, model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
-        const prevModel = await this.findOne({[this.primaryKey]: id});
+        const searchQuery = new SearchQuery();
+        searchQuery.condition = {[this.primaryKey]: id};
+        searchQuery.relations = getMetaRelations(model.constructor)
+            .filter(key => _has(model, key));
+
+        const prevModel = await this.findOne(searchQuery);
         if (!prevModel) {
             throw new Error('Not found model by id: ' + id);
         }
 
-        let entity;
-        let nextModel;
+        let nextModel = _cloneDeep(prevModel);
+        DataMapperHelper.applyChangesToModel(nextModel, model);
+
+        const saveHandler = async (manager) => {
+            await this.beforeSave(prevModel, nextModel);
+            const entity = await manager.save(this.modelToEntity(nextModel));
+            DataMapperHelper.applyChangesToModel(nextModel, entity);
+            await this.afterSave(prevModel, nextModel);
+
+            return nextModel;
+        };
+
         if (transactionHandler) {
             await this.dbRepository.manager.transaction(async (manager) => {
-                await transactionHandler(async () => {
-                    await this.beforeSave(prevModel, model);
-                    entity = await manager.save(this.modelToEntity({...prevModel, ...model}));
-                    nextModel = this.entityToModel(entity);
-                    await this.afterSave(prevModel, nextModel);
-
-                    return nextModel;
-                });
+                await transactionHandler(async () => saveHandler(manager));
             });
         } else {
-            entity = await this.dbRepository.manager.save(this.modelToEntity({...prevModel, ...model}));
-            nextModel = this.entityToModel(entity);
+            await saveHandler(this.dbRepository.manager);
         }
 
         return nextModel;

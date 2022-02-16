@@ -2,6 +2,7 @@ import {Entity} from 'typeorm';
 import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
 import {ExtendField} from './fields/ExtendField';
 import {applyDecorators} from '@nestjs/common';
+import {getMetaFields} from './fields/BaseField';
 
 export interface ITableOptions {
     name: string,
@@ -11,8 +12,7 @@ export interface ITableOptions {
 
 function TableFromModelInternal(ModelClass) {
     return (target) => {
-        const fields = DataMapperHelper.getKeys(ModelClass);
-        fields.forEach(field => {
+        getMetaFields(ModelClass).forEach(field => {
             ExtendField(ModelClass)(target.prototype, field);
         });
     };

@@ -81,7 +81,7 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        const searchQuery = SearchQuery.createFromSchema(schemaClass);
+        const searchQuery = schemaClass ? SearchQuery.createFromSchema(schemaClass) : new SearchQuery();
         searchQuery.condition = {[this.primaryKey]: _toInteger(id)};
         const model = await this.findOne(searchQuery);
         return schemaClass ? this.modelToSchema<TSchema>(model, schemaClass) : model;
