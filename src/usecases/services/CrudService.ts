@@ -125,14 +125,8 @@ export class CrudService<TModel,
 
         const nextModel = await this.dtoToModel(dto);
 
-        let model;
-        await this.repository.create(nextModel, async (save) => {
-            await this.beforeSave(null, nextModel);
-            model = await save();
-            await this.afterSave(null, model);
-        });
-
-        return schemaClass ? this.findById(model[this.primaryKey], context, schemaClass) : model;
+        await this.saveInternal(null, nextModel, context);
+        return schemaClass ? this.findById(nextModel[this.primaryKey], context, schemaClass) : nextModel;
     }
 
     async update<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
@@ -145,30 +139,57 @@ export class CrudService<TModel,
 
     /**
      * Update model
-     * @param id
+     * @param rawId
      * @param dto
      * @param context
      * @param schemaClass
      */
     async update<TSchema>(
-        id: number | string,
+        rawId: number | string,
         dto: TSaveDto,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
+        const id: number = _toInteger(rawId);
+
+        // Validate dto
         await validateOrReject(dto);
 
+        // Fetch previous model state
         const prevModel = await this.findById(id);
-        const nextModel = await this.dtoToModel(dto);
+        if (!prevModel) {
+            throw new Error('Not found model by id: ' + id);
+        }
 
-        let model;
-        await this.repository.update(_toInteger(id), nextModel, async (save) => {
-            await this.beforeSave(prevModel, nextModel);
-            model = await save();
-            await this.afterSave(prevModel, model);
+        // Create next model state
+        const ModelClass = this.modelClass;
+        const nextModel = new ModelClass();
+        DataMapperHelper.applyChangesToModel(nextModel, this.dtoToModel(dto));
+
+        // Save
+        await this.saveInternal(prevModel, nextModel, context);
+
+        // Convert to schema, if need
+        return schemaClass ? this.findById(id, context, schemaClass) : nextModel;
+    }
+
+    /**
+     * Internal save method for overwrite in project
+     * @param prevModel
+     * @param nextModel
+     * @param context
+     */
+    async saveInternal(prevModel: TModel | null, nextModel: TModel, context?: ContextDto) {
+        // you code outside transaction before save
+        await this.repository.save(nextModel, async (save) => {
+            // you code inside transaction before save
+            await save();
+            // you code inside transaction after save
         });
+        // you code outside transaction after save
 
-        return schemaClass ? this.findById(id, context, schemaClass) : model;
+        // or save() call without transaction
+        // await this.repository.save(nextModel);
     }
 
     /**
@@ -179,49 +200,25 @@ export class CrudService<TModel,
     async remove(rawId: number | string, context: ContextDto = null): Promise<void> {
         const id: number = _toInteger(rawId);
 
+        await this.removeInternal(id, context);
+    }
+
+    /**
+     * Internal remove method for overwrite in project
+     * @param id
+     * @param context
+     */
+    async removeInternal(id: number, context?: ContextDto) {
+        // you code outside transaction before remove
         await this.repository.remove(id, async (remove) => {
-            await this.beforeDelete(id);
+            // you code inside transaction before remove
             await remove();
-            await this.afterDelete(id);
+            // you code inside transaction after remove
         });
-    }
+        // you code outside transaction after remove
 
-    /**
-     * Handler for customize logic before save
-     * @param prevModel
-     * @param nextModel
-     * @protected
-     */
-    protected async beforeSave(prevModel: TModel | null, nextModel: TModel) {
-        // You handler code
-    }
-
-    /**
-     * Handler for customize logic after save
-     * @param prevModel
-     * @param nextModel
-     * @protected
-     */
-    protected async afterSave(prevModel: TModel | null, nextModel: TModel) {
-        // You handler code
-    }
-
-    /**
-     * Handler for customize logic before delete
-     * @param id
-     * @protected
-     */
-    protected async beforeDelete(id: number) {
-        // You handler code
-    }
-
-    /**
-     * Handler for customize logic after delete
-     * @param id
-     * @protected
-     */
-    protected async afterDelete(id: number) {
-        // You handler code
+        // or remove() call without transaction
+        // await this.repository.remove(id);
     }
 
     /**

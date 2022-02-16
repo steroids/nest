@@ -1,4 +1,3 @@
-import {has as _has, cloneDeep as _cloneDeep} from 'lodash';
 import {EntityManager, Repository} from 'typeorm';
 import {SearchHelper} from '../../usecases/helpers/SearchHelper';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
@@ -8,7 +7,6 @@ import SearchQuery from '../../usecases/base/SearchQuery';
 import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../../usecases/helpers/ConditionHelper';
-import {getMetaRelations} from '../decorators/fields/BaseField';
 
 /**
  * Generic CRUD repository
@@ -98,22 +96,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param transactionHandler
      */
     async create(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
-        const saveHandler = async (manager) => {
-            await this.beforeSave(null, model);
-            const entity = await manager.save(this.modelToEntity(model));
-            DataMapperHelper.applyChangesToModel(model, entity);
-            await this.afterSave(null, model);
-            return model;
-        };
-
-        if (transactionHandler) {
-            await this.dbRepository.manager.transaction(async (manager) => {
-                await transactionHandler(async () => saveHandler(manager));
-            });
-        } else {
-            await saveHandler(this.dbRepository.manager);
-        }
-        return model;
+        model[this.primaryKey] = undefined;
+        return this.save(model, transactionHandler);
     }
 
     /**
@@ -123,37 +107,37 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param transactionHandler
      */
     async update(id: number, model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
-        const searchQuery = new SearchQuery();
-        searchQuery.condition = {[this.primaryKey]: id};
-        searchQuery.relations = getMetaRelations(model.constructor)
-            .filter(key => _has(model, key));
+        model[this.primaryKey] = id;
+        return this.save(model, transactionHandler);
+    }
 
-        const prevModel = await this.findOne(searchQuery);
-        if (!prevModel) {
-            throw new Error('Not found model by id: ' + id);
-        }
-
-        let nextModel = _cloneDeep(prevModel);
-        DataMapperHelper.applyChangesToModel(nextModel, model);
-
-        const saveHandler = async (manager) => {
-            await this.beforeSave(prevModel, nextModel);
-            const entity = await manager.save(this.modelToEntity(nextModel));
-            DataMapperHelper.applyChangesToModel(nextModel, entity);
-            await this.afterSave(prevModel, nextModel);
-
-            return nextModel;
-        };
-
+    /**
+     * Create or update item
+     * @param model
+     * @param transactionHandler
+     */
+    async save(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
         if (transactionHandler) {
             await this.dbRepository.manager.transaction(async (manager) => {
-                await transactionHandler(async () => saveHandler(manager));
+                await transactionHandler(async () => {
+                    await this.saveInternal(manager, model);
+                });
             });
         } else {
-            await saveHandler(this.dbRepository.manager);
+            await this.saveInternal(this.dbRepository.manager, model);
         }
 
-        return nextModel;
+        return model;
+    }
+
+    /**
+     * Internal save method for overwrite in project
+     * @param manager
+     * @param nextModel
+     */
+    async saveInternal(manager: EntityManager, nextModel: TModel) {
+        const entity = await manager.save(this.modelToEntity(nextModel));
+        DataMapperHelper.applyChangesToModel(nextModel, entity);
     }
 
     /**
@@ -165,52 +149,21 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
         if (transactionHandler) {
             await this.dbRepository.manager.transaction(async (manager) => {
                 await transactionHandler(async () => {
-                    await this.beforeDelete(id);
-                    await manager.remove(id);
-                    await this.afterDelete(id);
+                    await this.removeInternal(manager, id);
                 });
             });
         } else {
-            await this.dbRepository.manager.remove(id);
+            await this.removeInternal(this.dbRepository.manager, id);
         }
     }
 
     /**
-     * Handler for customize logic before save
-     * @param prevModel
-     * @param nextModel
-     * @protected
-     */
-    protected async beforeSave(prevModel: TModel | null, nextModel: TModel) {
-        // You handler code
-    }
-
-    /**
-     * Handler for customize logic after save
-     * @param prevModel
-     * @param nextModel
-     * @protected
-     */
-    protected async afterSave(prevModel: TModel | null, nextModel: TModel) {
-        // You handler code
-    }
-
-    /**
-     * Handler for customize logic before delete
+     * Internal remove method for overwrite in project
+     * @param manager
      * @param id
-     * @protected
      */
-    protected async beforeDelete(id: number) {
-        // You handler code
-    }
-
-    /**
-     * Handler for customize logic after delete
-     * @param id
-     * @protected
-     */
-    protected async afterDelete(id: number) {
-        // You handler code
+    async removeInternal(manager: EntityManager, id: number) {
+        await manager.remove(id);
     }
 
     /**

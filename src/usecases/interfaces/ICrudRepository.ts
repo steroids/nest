@@ -12,5 +12,6 @@ export interface ICrudRepository<TModel> {
     findMany: (conditionOrQuery: ICondition | SearchQuery) => Promise<TModel[]>,
     create: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
     update: (id: number, model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
+    save: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
     remove: (id: number, transactionHandler?: (callback) => Promise<void>) => Promise<void>,
 }

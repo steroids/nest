@@ -155,6 +155,11 @@ export class DataMapperHelper {
     static applyChangesToModel(model, changes) {
         getMetaFields(model.constructor).forEach(key => {
             const options = getFieldOptions(model.constructor, key);
+
+            if (options.appType === 'primaryKey' && !model[key] && changes[key]) {
+                model[key] = changes[key];
+            }
+
             if (options.appType === 'relationId') {
                 // TODO Нужно придумать как кастомить primary key (id)
                 const primaryKey = 'id';
