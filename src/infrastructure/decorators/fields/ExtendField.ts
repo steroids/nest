@@ -11,20 +11,22 @@ export function ExtendField(modelClass, options: string | IExtendFieldOptions = 
             options = {sourceFieldName: options};
         }
 
+        const modelFieldName = options.sourceFieldName || propertyName;
+
         // Detect model field name with *Id and *Ids suffixes
-        let modelFieldName;
-        if (options.sourceFieldName) {
-            modelFieldName = options.sourceFieldName;
-        } else {
-            const modelFieldNames = DataMapperHelper.getKeys(modelClass);
-            for (let suffix of ['', 'Id', 'Ids']) {
-                const nameWithoutSuffix = propertyName.replace(new RegExp(suffix + '$', 'g'), '');
-                if (modelFieldNames.includes(nameWithoutSuffix)) {
-                    modelFieldName = nameWithoutSuffix;
-                    break;
-                }
-            }
-        }
+        // let modelFieldName;
+        // if (options.sourceFieldName) {
+        //     modelFieldName = options.sourceFieldName;
+        // } else {
+        //     const modelFieldNames = DataMapperHelper.getKeys(modelClass);
+        //     for (let suffix of ['', 'Id', 'Ids']) {
+        //         const nameWithoutSuffix = propertyName.replace(new RegExp(suffix + '$', 'g'), '');
+        //         if (modelFieldNames.includes(nameWithoutSuffix)) {
+        //             modelFieldName = nameWithoutSuffix;
+        //             break;
+        //         }
+        //     }
+        // }
         if (!modelFieldName) {
             throw new Error('Not found field "' + propertyName + '" in model "' + modelClass.name + '"');
         }

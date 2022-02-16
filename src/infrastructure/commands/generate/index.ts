@@ -75,7 +75,7 @@ export const generate = async (connection: Connection) => {
 
             if (fs.existsSync(moduleClassPath)) {
                 const tableClassDir = join(sourceRoot, moduleName, 'infrastructure/tables');
-                const tableFiles = fs.readdirSync(tableClassDir);
+                const tableFiles = fs.existsSync(tableClassDir) ? fs.readdirSync(tableClassDir) : [];
                 for (const tableFile of tableFiles) {
                     const tableClassName = tableFile.replace(/\.ts$/, '');
                     const tableName = classesToTablesMap[tableClassName];

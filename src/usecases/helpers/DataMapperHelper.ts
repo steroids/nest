@@ -7,8 +7,13 @@ import {
     getFieldOptions,
     STEROIDS_META_KEYS
 } from '../../infrastructure/decorators/fields/BaseField';
-import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
+import {
+    getTableNameFromModelClass,
+    IRelationFieldOptions
+} from '../../infrastructure/decorators/fields/RelationField';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
+import {Connection} from 'typeorm';
+import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
 
 export class DataMapperHelper {
     static hasFields(object) {
@@ -30,7 +35,7 @@ export class DataMapperHelper {
             if (_has(source, fieldName)) {
                 const value = source[fieldName];
 
-                if (_isObject(value)) {
+                if (_isObject(value) && !_isDate(value)) {
                     const modelMeta = getFieldOptions(ModelClass, fieldName) as IRelationFieldOptions;
                     if (modelMeta.appType === 'relation') {
                         model[fieldName] = this.anyToModel(value, modelMeta.modelClass());
@@ -100,6 +105,49 @@ export class DataMapperHelper {
 
         // Scalar
         return source;
+    }
+
+    static modelToEntity(connection: Connection, model) {
+        const entity: any = connection.getRepository(getTableNameFromModelClass(model.constructor)).create();
+
+        this.getKeys(model.constructor).forEach(key => {
+            const value = model[key];
+
+            const options = getFieldOptions(model.constructor, key);
+            switch (options.appType) {
+                case 'relationId':
+                    const relationIdOptions = options as IRelationIdFieldOptions;
+                    const subRelationIdOptions = getFieldOptions(model.constructor, relationIdOptions.relationName) as IRelationFieldOptions
+                    if (['ManyToMany', 'OneToMany'].includes(subRelationIdOptions.type)) {
+                        // is array
+                        entity[relationIdOptions.relationName] = (value || []).map(id => {
+                            return this.modelToEntity(
+                                connection,
+                                this.anyToModel({id}, subRelationIdOptions.modelClass())
+                            );
+                        })
+                    } else {
+                        // is single id
+                        // TODO Customize primary key
+                        entity[relationIdOptions.relationName] = value ? {id: value} : null;
+                    }
+                    break;
+                case 'relation':
+                    const relationOptions = options as IRelationFieldOptions;
+                    if (_isObject(value)) {
+                        entity[key] = this.modelToEntity(
+                            connection,
+                            this.anyToModel(value, relationOptions.modelClass())
+                        );
+                    }
+                    break;
+
+                default:
+                    entity[key] = value;
+            }
+        });
+
+        return entity;
     }
 
     static exportModels(types: any[]) {

@@ -105,6 +105,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
                     entity = await manager.save(this.modelToEntity(model));
                     nextModel = this.entityToModel(entity);
                     await this.afterSave(null, nextModel);
+
+                    return nextModel;
                 });
             });
         } else {
@@ -135,6 +137,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
                     entity = await manager.save(this.modelToEntity({...prevModel, ...model}));
                     nextModel = this.entityToModel(entity);
                     await this.afterSave(prevModel, nextModel);
+
+                    return nextModel;
                 });
             });
         } else {
@@ -208,7 +212,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @protected
      */
     protected modelToEntity(model): any {
-        return this.dbRepository.create(model);
+        return DataMapperHelper.modelToEntity(this.dbRepository.manager.connection, model);
     }
 
     /**

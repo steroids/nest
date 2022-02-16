@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {ManyToMany, ManyToOne, OneToMany, OneToOne, JoinTable, JoinColumn} from 'typeorm';
+import {ManyToMany, ManyToOne, OneToMany, OneToOne, JoinTable, JoinColumn, Column} from 'typeorm';
 import {ValidateNested} from 'class-validator';
 import {Type} from 'class-transformer';
 import {BaseField, IBaseFieldOptions} from './BaseField';
@@ -36,6 +36,10 @@ const getOwningDecorator = (relation, owningSide) => {
     return null;
 }
 
+export const getTableNameFromModelClass = (ModelClass) => {
+    return ModelClass.name.replace(/Model$/, 'Table');
+}
+
 export function RelationField(options: IRelationFieldOptions) {
     const OwningDecorator = getOwningDecorator(options.type, options.isOwningSide);
 
@@ -48,7 +52,7 @@ export function RelationField(options: IRelationFieldOptions) {
                 isArray: ['ManyToMany', 'OneToMany'].includes(options.type),
             }),
             getRelationDecorator(options.type)(
-                () => options.modelClass().name.replace(/Model$/, 'Table'),
+                () => getTableNameFromModelClass(options.modelClass()),
                 options.inverseSide,
                 {cascade: ['insert', 'update'], onUpdate: 'CASCADE'}
             ),
