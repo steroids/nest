@@ -3,7 +3,11 @@ import {Column} from 'typeorm';
 import {IsEmail} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export function EmailField(options: IBaseFieldOptions = {}) {
+export interface IEmailFieldOptions extends IBaseFieldOptions {
+    unique?: boolean,
+}
+
+export function EmailField(options: IEmailFieldOptions = {}) {
     if (!options.label) {
         options.label = 'Email';
     }
@@ -17,6 +21,7 @@ export function EmailField(options: IBaseFieldOptions = {}) {
         Column({
             type: 'varchar',
             default: options.defaultValue,
+            unique: options.unique,
             nullable: options.nullable,
         }),
         IsEmail(),

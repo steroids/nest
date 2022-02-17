@@ -7,6 +7,10 @@ import {IFileField} from './FileField';
 import {IRelationFieldOptions} from './RelationField';
 import {IUpdateTimeFieldOptions} from './UpdateTimeField';
 import {IRelationIdFieldOptions} from './RelationIdField';
+import {IEmailFieldOptions} from './EmailField';
+import {IPhoneFieldOptions} from './PhoneField';
+import {IStringFieldOptions} from './StringField';
+import {IIntegerFieldOptions} from './IntegerField';
 
 export {BooleanField} from './BooleanField';
 export {CoordinateField} from './CoordinateField';
@@ -32,4 +36,4 @@ export {RelationIdField} from './RelationIdField';
 
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
-    & IUpdateTimeFieldOptions;
+    & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions;

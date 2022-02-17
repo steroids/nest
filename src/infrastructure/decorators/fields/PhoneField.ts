@@ -3,7 +3,11 @@ import {Column} from 'typeorm';
 import {IsPhoneNumber} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export function PhoneField(options: IBaseFieldOptions = {}) {
+export interface IPhoneFieldOptions extends IBaseFieldOptions {
+    unique?: boolean,
+}
+
+export function PhoneField(options: IPhoneFieldOptions = {}) {
     if (!options.label) {
         options.label = 'Телефон';
     }
@@ -18,6 +22,7 @@ export function PhoneField(options: IBaseFieldOptions = {}) {
             type: 'varchar',
             length: options.max || 16,
             default: options.defaultValue,
+            unique: options.unique,
             nullable: options.nullable,
         }),
         IsPhoneNumber(),

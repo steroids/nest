@@ -3,7 +3,11 @@ import {Column} from 'typeorm';
 import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export function IntegerField(options: IBaseFieldOptions = {}) {
+export interface IIntegerFieldOptions extends IBaseFieldOptions {
+    unique?: boolean,
+}
+
+export function IntegerField(options: IIntegerFieldOptions = {}) {
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'IntegerField',
@@ -13,6 +17,7 @@ export function IntegerField(options: IBaseFieldOptions = {}) {
         Column({
             type: 'integer',
             default: options.defaultValue,
+            unique: options.unique,
             nullable: options.nullable,
         }),
         options.nullable && ValidateIf((object, value) => value !== null),

@@ -3,7 +3,11 @@ import {Column} from 'typeorm';
 import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export function StringField(options: IBaseFieldOptions = {}) {
+export interface IStringFieldOptions extends IBaseFieldOptions {
+    unique?: boolean,
+}
+
+export function StringField(options: IStringFieldOptions = {}) {
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'StringField',
@@ -14,6 +18,7 @@ export function StringField(options: IBaseFieldOptions = {}) {
             type: 'varchar',
             length: options.max,
             default: options.defaultValue,
+            unique: options.unique,
             nullable: options.nullable,
         }),
         IsString(),
