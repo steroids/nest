@@ -165,7 +165,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param id
      */
     async removeInternal(manager: EntityManager, id: number) {
-        await manager.remove(id);
+        await manager.remove(this.dbRepository.create({id}));
     }
 
     /**
