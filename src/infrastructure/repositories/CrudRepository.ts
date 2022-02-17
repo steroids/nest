@@ -94,6 +94,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * Create item
      * @param model
      * @param transactionHandler
+     * @deprecated Use save() method
      */
     async create(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
         model[this.primaryKey] = undefined;
@@ -105,6 +106,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param id
      * @param model
      * @param transactionHandler
+     * @deprecated Use save() method
      */
     async update(id: number, model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
         model[this.primaryKey] = id;
