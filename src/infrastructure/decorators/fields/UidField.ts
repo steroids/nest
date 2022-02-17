@@ -1,15 +1,19 @@
 import {applyDecorators} from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import {Column, getMetadataArgsStorage} from 'typeorm';
 import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
+
+export const generateUid = (): string => uuidv4();
 
 const UidBehaviour = (object, propertyName) => {
     const methodName = propertyName + '__uidBehaviour';
     if (!object[methodName]) {
         // eslint-disable-next-line func-names
         object[methodName] = function () {
-            this[propertyName] = uuidv4();
+            if (!this[propertyName]) {
+                this[propertyName] = generateUid();
+            }
         };
     }
 
@@ -38,7 +42,5 @@ export function UidField(options: IBaseFieldOptions = {}) {
             update: false,
         }),
         UidBehaviour,
-        // TODO - is it required? IsBoolean causes validation error, when updating object
-        // IsBoolean(),
     );
 }
