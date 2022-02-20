@@ -10,20 +10,22 @@ export interface IDecimalFieldOptions extends IBaseFieldOptions {
 
 export function DecimalField(options: IDecimalFieldOptions = {}) {
     return applyDecorators(...[
-        BaseField(options, {
-            decoratorName: 'DecimalField',
-            appType: 'decimal',
-            jsType: 'number',
-        }),
-        Column({
-            type: 'decimal',
-            default: options.defaultValue,
-            nullable: options.nullable,
-            precision: options.precision || 10,
-            scale: options.scale || 2,
-        }),
-        options.nullable && ValidateIf((object, value) => value !== null),
-        IsString(),
+            BaseField(options, {
+                decoratorName: 'DecimalField',
+                appType: 'decimal',
+                jsType: 'number',
+            }),
+            Column({
+                type: 'decimal',
+                default: options.defaultValue,
+                nullable: options.nullable,
+                precision: options.precision || 10,
+                scale: options.scale || 2,
+            }),
+            options.nullable && ValidateIf((object, value) => value !== null),
+            IsString({
+                message: 'Должно быть строкой',
+            }),
         ].filter(Boolean)
     );
 }

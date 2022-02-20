@@ -16,7 +16,9 @@ export function DateField(options: IBaseFieldOptions = {}) {
             default: options.defaultValue,
             nullable: options.nullable,
         }),
-        IsDate(),
+        IsDate({
+            message: 'Некорректный формат даты',
+        }),
         Type(() => Date),
     );
 }

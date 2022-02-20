@@ -16,7 +16,9 @@ export function BooleanField(options: IBaseFieldOptions = {}) {
             default: _has(options, 'defaultValue') ? options.defaultValue : false,
             nullable: _has(options, 'nullable') ? options.nullable : false,
         }),
-        IsBoolean(),
+        IsBoolean({
+            message: 'Должен быть булевом',
+        }),
         IsOptional(),
     );
 }

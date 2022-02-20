@@ -1,7 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
+import {toInteger as _toInteger} from 'lodash';
 import {Column} from 'typeorm';
-import {IsInt, Max, Min, ValidateIf} from 'class-validator';
+import {IsInt, IsNumberString, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
+import {Transform} from 'class-transformer';
 
 export interface IIntegerFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
@@ -21,7 +23,10 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             nullable: options.nullable,
         }),
         options.nullable && ValidateIf((object, value) => value !== null),
-        IsInt(),
+        Transform(({value}) => value === null ? value : _toInteger(value)),
+        IsInt({
+            message: 'Должно быть числом',
+        }),
         typeof options.min === 'number' && Min(options.min),
         typeof options.max === 'number' && Max(options.max),
     ].filter(Boolean));

@@ -172,7 +172,7 @@ export class DataMapperHelper {
                 const value = changes[relationIdOptions.relationName];
                 model[key] = Array.isArray(value)
                     ? value.map(obj => obj[primaryKey])
-                    : value[primaryKey];
+                    : (value ? value[primaryKey] : null);
                 delete model[relationIdOptions.relationName];
                 return;
             }

@@ -56,7 +56,10 @@ export class CrudService<TModel,
     ): Promise<SearchResultDto<TModel | Type<TSchema>>> {
         await validateOrReject(dto);
 
-        const result = await this.repository.search<TSchema>(dto, SearchQuery.createFromSchema(schemaClass));
+        const result = await this.repository.search<TSchema>(
+            dto,
+            schemaClass ? SearchQuery.createFromSchema(schemaClass) : new SearchQuery(),
+        );
         if (schemaClass) {
             result.items = result.items.map((model: TModel) => this.modelToSchema<TSchema>(model, schemaClass));
         }

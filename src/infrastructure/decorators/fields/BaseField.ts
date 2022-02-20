@@ -96,7 +96,9 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 required: options.nullable === false,
                 isArray: options.isArray,
             }),
-            options.required && IsNotEmpty(),
+            options.required && IsNotEmpty({
+                message: 'Обязательно для заполнения',
+            }),
         ].filter(Boolean)
     );
 }

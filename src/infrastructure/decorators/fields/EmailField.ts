@@ -24,6 +24,8 @@ export function EmailField(options: IEmailFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
-        IsEmail(),
+        IsEmail({
+            message: 'Некорректный email адрес',
+        }),
     );
 }

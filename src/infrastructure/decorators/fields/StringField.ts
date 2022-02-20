@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
+import {IsOptional, IsString, MaxLength, MinLength, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IStringFieldOptions extends IBaseFieldOptions {
@@ -21,7 +21,9 @@ export function StringField(options: IStringFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
-        IsString(),
+        IsString({
+            message: 'Должна быть строка',
+        }),
         IsOptional(), // TODO check nullable and required
         typeof options.min === 'number' && MinLength(options.min),
         typeof options.max === 'number' && MaxLength(options.max),

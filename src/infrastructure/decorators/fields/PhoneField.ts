@@ -25,6 +25,8 @@ export function PhoneField(options: IPhoneFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
-        IsPhoneNumber(),
+        IsPhoneNumber(null, {
+            message: 'Некорректный номер телефона',
+        }),
     );
 }

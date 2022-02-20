@@ -28,7 +28,9 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
             //     },
             // },
         }),
-        IsDate(),
+        IsDate({
+            message: 'Некорректный формат даты',
+        }),
         Type(() => Date),
     );
 }
