@@ -168,6 +168,7 @@ export class CrudService<TModel,
         const ModelClass = this.modelClass;
         const nextModel = new ModelClass();
         DataMapperHelper.applyChangesToModel(nextModel, this.dtoToModel(dto));
+        nextModel[this.primaryKey] = id;
 
         // Save
         await this.saveInternal(prevModel, nextModel, context);

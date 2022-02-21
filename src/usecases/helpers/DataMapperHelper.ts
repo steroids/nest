@@ -165,15 +165,15 @@ export class DataMapperHelper {
                 const primaryKey = 'id';
                 const relationIdOptions = options as IRelationIdFieldOptions;
 
-                if (!_has(changes, relationIdOptions.relationName)) {
-                    return;
+                if (_has(changes, relationIdOptions.relationName)) {
+                    const value = changes[relationIdOptions.relationName];
+                    model[key] = Array.isArray(value)
+                        ? value.map(obj => obj[primaryKey])
+                        : (value ? value[primaryKey] : null);
+                    delete model[relationIdOptions.relationName];
+                } else if (_has(changes, key)) {
+                    model[key] = changes[key];
                 }
-
-                const value = changes[relationIdOptions.relationName];
-                model[key] = Array.isArray(value)
-                    ? value.map(obj => obj[primaryKey])
-                    : (value ? value[primaryKey] : null);
-                delete model[relationIdOptions.relationName];
                 return;
             }
 
