@@ -37,6 +37,7 @@ export default class SearchQuery {
     ) {
 
         const prefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '.' : '';
+        const relationPrefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '' : 'relation';
         const table = dbRepository.target;
 
         // Get select and relations from search schema
@@ -59,7 +60,7 @@ export default class SearchQuery {
                     const relationIdOptions = options as IRelationIdFieldOptions;
                     dbQuery.loadRelationIdAndMap(
                         prefix + relation,
-                        prefix + relationIdOptions.relationName,
+                        relationPrefix + relationIdOptions.relationName,
                     );
                     break;
 
