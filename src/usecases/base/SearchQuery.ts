@@ -60,13 +60,16 @@ export default class SearchQuery {
                     const relationIdOptions = options as IRelationIdFieldOptions;
                     dbQuery.loadRelationIdAndMap(
                         prefix + relation,
-                        relationPrefix + relationIdOptions.relationName,
+                        prefix + relationIdOptions.relationName,
                     );
                     break;
 
                 case 'relation':
                     // TODO nested selects
-                    dbQuery.leftJoinAndSelect(prefix + relation, prefix + relation);
+                    dbQuery.leftJoinAndSelect(
+                        prefix + relation,
+                        relationPrefix + relation
+                    );
                     break;
             }
         });
