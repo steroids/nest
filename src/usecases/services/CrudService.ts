@@ -240,7 +240,7 @@ export class CrudService<TModel,
      * @param dto
      * @protected
      */
-    protected dtoToModel(dto: TSaveDto): Promise<TModel> {
+    protected dtoToModel(dto: TSaveDto): TModel {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
