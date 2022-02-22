@@ -41,8 +41,6 @@ export class DataMapperHelper {
             if (_has(source, fieldName)) {
                 const value = source[fieldName];
 
-                console.log("ANY TO MODEL FIELD", fieldName, value);
-
                 if (_isArray(value)) {
                     model[fieldName] = value.map(item => getFieldValue(model, fieldName, item));
                 } else {
