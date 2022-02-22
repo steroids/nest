@@ -2,6 +2,7 @@ import {
     isObject as _isObject,
     isDate as _isDate,
     has as _has,
+    isArray as _isArray
 } from 'lodash';
 import {
     getFieldOptions, getMetaFields, isMetaClass,
@@ -23,21 +24,29 @@ export class DataMapperHelper {
 
         const model = new ModelClass();
 
+        const getFieldValue = function(model, fieldName, value) {
+            if (_isObject(value) && !_isDate(value)) {
+                const modelMeta = getFieldOptions(ModelClass, fieldName) as IRelationFieldOptions;
+                if (modelMeta.appType === 'relation') {
+                    return this.anyToModel(value, modelMeta.modelClass());
+                } else {
+                    // TODO Error?...
+                }
+            } else {
+                return value;
+            }
+        }.bind(this);
+
         fieldNames.forEach(fieldName => {
-
-
             if (_has(source, fieldName)) {
                 const value = source[fieldName];
 
-                if (_isObject(value) && !_isDate(value)) {
-                    const modelMeta = getFieldOptions(ModelClass, fieldName) as IRelationFieldOptions;
-                    if (modelMeta.appType === 'relation') {
-                        model[fieldName] = this.anyToModel(value, modelMeta.modelClass());
-                    } else {
-                        // TODO Error?...
-                    }
+                console.log("ANY TO MODEL FIELD", fieldName, value);
+
+                if (_isArray(value)) {
+                    model[fieldName] = value.map(item => getFieldValue(model, fieldName, item));
                 } else {
-                    model[fieldName] = value;
+                    model[fieldName] = getFieldValue(model, fieldName, value);
                 }
             } else if (_has(source, fieldName + 'Id')) {
                 model[fieldName + 'Id'] = source[fieldName + 'Id'];
