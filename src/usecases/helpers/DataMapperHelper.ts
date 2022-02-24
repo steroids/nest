@@ -71,6 +71,13 @@ export class DataMapperHelper {
                 );
             } else if (_has(source, key)) {
                 schema[key] = source[key];
+            } else {
+                //TODO meta сейчас рассмматривается как IRelationFieldOptions, но в ней также лежит и другая информация
+                // @ts-ignore
+                if (meta.sourceFieldName && source[meta.sourceFieldName]) {
+                    // @ts-ignore
+                    schema[key] = source[meta.sourceFieldName];
+                }
             }
         });
 
