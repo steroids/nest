@@ -58,6 +58,16 @@ export class DataMapperHelper {
 
     static anyToSchema(source, SchemaClass) {
         const schema = new SchemaClass();
+
+        /**
+         * Is schema implements [[IManualSchema]]?
+         * @see IManualSchema
+         */
+        if (schema['updateFromModel'] && typeof schema['updateFromModel'] === 'function' && source) {
+            schema['updateFromModel'](source);
+            return schema;
+        }
+
         getMetaFields(SchemaClass).forEach(key => {
             const meta = getFieldOptions(SchemaClass, key) as IRelationFieldOptions;
             if (meta.appType === 'relation' && !/Ids?$/.exec(key)) {
