@@ -22,7 +22,7 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
-        options.nullable && ValidateIf((object, value) => value !== null),
+        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         Transform(({value}) => value === null ? value : _toInteger(value)),
         IsInt({
             message: 'Должно быть числом',

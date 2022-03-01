@@ -2,7 +2,7 @@ import {validate, ValidatorOptions} from 'class-validator';
 import {ValidationException} from '../exceptions';
 
 const defaultValidatorOptions: ValidatorOptions = {
-    whitelist: true,
+    whitelist: false,
 };
 
 export async function validateOrReject(dto: any, validatorOptions?: ValidatorOptions) {
