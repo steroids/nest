@@ -14,6 +14,7 @@ import {
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {Connection} from 'typeorm';
 import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
+import {getComputableFieldCallback} from '../../infrastructure/decorators/fields/ComputableField';
 
 export class DataMapperHelper {
 
@@ -79,15 +80,20 @@ export class DataMapperHelper {
                     _has(source, key) ? source[key] : null,
                     subSchemaClass
                 );
-            } else if (_has(source, key)) {
-                schema[key] = source[key];
             } else {
                 //TODO meta сейчас рассмматривается как IRelationFieldOptions, но в ней также лежит и другая информация
-                // @ts-ignore
-                if (meta.sourceFieldName && source[meta.sourceFieldName]) {
-                    // @ts-ignore
-                    schema[key] = source[meta.sourceFieldName];
-                }
+                //@ts-ignore
+                const fieldNameFromMeta = (meta.sourceFieldName && source[meta.sourceFieldName]) ? meta.sourceFieldName: ''
+                const sourceFieldName = _has(source, key) ? key : fieldNameFromMeta
+
+                const {isComputableField, computableCallback} = getComputableFieldCallback(SchemaClass, key);
+
+                schema[key] = isComputableField
+                    ? computableCallback({
+                            value: source[sourceFieldName],
+                            source
+                    })
+                    : source[sourceFieldName];
             }
         });
 
