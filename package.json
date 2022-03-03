@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.1.25",
+  "version": "1.1.26",
   "scripts": {
     "build": "tsc && copyfiles ./{package.json,LICENSE,README.md} dist/",
     "watch": "tsc -p tsconfig-debug.json"
@@ -24,7 +24,7 @@
     "@nestjs/config": "^1.1.5",
     "@nestjs/core": "^8.0.0",
     "@nestjs/swagger": "^5.1.5",
-    "@nestjs/typeorm": "^8.0.2",
+    "@nestjs/typeorm": "^8.0.3",
     "@sqltools/formatter": "^1.2.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -33,8 +33,9 @@
     "nestjs-command": "^3.1.1",
     "pluralize": "^8.0.0",
     "typedi": "^0.10.0",
-    "typeorm": "^0.2.41",
-    "uuid": "^8.3.2"
+    "typeorm": "^0.2.44",
+    "uuid": "^8.3.2",
+    "date-fns": "^2.28.0"
   },
   "devDependencies": {
     "@types/node": "^16.11.7",
