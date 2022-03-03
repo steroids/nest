@@ -23,9 +23,15 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             nullable: options.nullable,
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-        Transform(({value}) => value === null ? value : _toInteger(value)),
+        Transform(({value}) => {
+            if (Array.isArray(value)) {
+                return value.map(valueItem => _toInteger(valueItem));
+            }
+            return value === null ? value : _toInteger(value);
+        } ),
         IsInt({
             message: 'Должно быть числом',
+            each: options.isArray,
         }),
         typeof options.min === 'number' && Min(options.min),
         typeof options.max === 'number' && Max(options.max),
