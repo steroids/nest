@@ -14,7 +14,7 @@ import {
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {Connection} from 'typeorm';
 import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
-import {getComputableFieldCallback} from '../../infrastructure/decorators/fields/ComputableField';
+import {getTransformCallbacks} from '../../infrastructure/decorators/Transform';
 
 export class DataMapperHelper {
 
@@ -86,14 +86,15 @@ export class DataMapperHelper {
                 const fieldNameFromMeta = (meta.sourceFieldName && source[meta.sourceFieldName]) ? meta.sourceFieldName: ''
                 const sourceFieldName = _has(source, key) ? key : fieldNameFromMeta
 
-                const {isComputableField, computableCallback} = getComputableFieldCallback(SchemaClass, key);
-
-                schema[key] = isComputableField
-                    ? computableCallback({
-                            value: source[sourceFieldName],
-                            source
+                schema[key] = source[sourceFieldName];
+                const callbacks = getTransformCallbacks(SchemaClass, key);
+                for (let callback of callbacks) {
+                    schema[key] = callback({
+                        value: schema[key],
+                        item: source,
+                        key,
                     })
-                    : source[sourceFieldName];
+                }
             }
         });
 

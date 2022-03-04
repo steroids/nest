@@ -7,6 +7,7 @@ import SearchQuery from '../../usecases/base/SearchQuery';
 import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../../usecases/helpers/ConditionHelper';
+import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
 
 /**
  * Generic CRUD repository
@@ -119,14 +120,21 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param transactionHandler
      */
     async save(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
+        const saver = async (manager: EntityManager, nextModel: TModel) => {
+            // TODO Transform::toDb
+            const entity = await manager.save(this.modelToEntity(nextModel));
+            DataMapperHelper.applyChangesToModel(nextModel, entity);
+            // TODO Transform::fromDbч
+        };
+
         if (transactionHandler) {
             await this.dbRepository.manager.transaction(async (manager) => {
                 await transactionHandler(async () => {
-                    await this.saveInternal(manager, model);
+                    await this.saveInternal({save: (nextModel) => saver(manager, nextModel)}, model);
                 });
             });
         } else {
-            await this.saveInternal(this.dbRepository.manager, model);
+            await this.saveInternal({save: (nextModel) => saver(this.dbRepository.manager, nextModel)}, model);
         }
 
         return model;
@@ -137,9 +145,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @param manager
      * @param nextModel
      */
-    async saveInternal(manager: EntityManager, nextModel: TModel) {
-        const entity = await manager.save(this.modelToEntity(nextModel));
-        DataMapperHelper.applyChangesToModel(nextModel, entity);
+    async saveInternal(manager: ISaveManager, nextModel: TModel) {
+        await manager.save(nextModel);
     }
 
     /**

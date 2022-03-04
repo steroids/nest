@@ -7,6 +7,7 @@ import {SearchResultDto} from '../dtos/SearchResultDto';
 import {validateOrReject} from '../helpers/ValidationHelper';
 import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
+import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 
 /**
  * Generic CRUD service
@@ -158,8 +159,13 @@ export class CrudService<TModel,
         // Validate dto
         await validateOrReject(dto);
 
+        const searchQuery = new SearchQuery();
+        searchQuery.condition = {[this.primaryKey]: id};
+        searchQuery.relations = getMetaRelations(dto.constructor);
+        console.log(999, searchQuery.relations)
+
         // Fetch previous model state
-        const prevModel = await this.findById(id);
+        let prevModel = await this.findOne(searchQuery);
         if (!prevModel) {
             throw new Error('Not found model by id: ' + id);
         }
@@ -167,7 +173,14 @@ export class CrudService<TModel,
         // Create next model state
         const ModelClass = this.modelClass;
         const nextModel = new ModelClass();
+
+        // Сперва добавляем данные для новой модели из старой
+        DataMapperHelper.applyChangesToModel(nextModel, prevModel);
+
+        // Затем накатываем изменения
         DataMapperHelper.applyChangesToModel(nextModel, this.dtoToModel(dto));
+
+        // Принудительно добавляем primary key, т.к. его зачастую нет в dto
         nextModel[this.primaryKey] = id;
 
         // Save
