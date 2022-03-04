@@ -18,6 +18,10 @@ import {getTransformCallbacks} from '../../infrastructure/decorators/Transform';
 
 export class DataMapperHelper {
 
+    static create<T>(MetaClass, values: Partial<T>) {
+        return this.anyToModel(values, MetaClass);
+    }
+
     static anyToModel(source, ModelClass, fieldNames = null) {
         if (!fieldNames) {
             fieldNames = getMetaFields(ModelClass);
@@ -69,30 +73,41 @@ export class DataMapperHelper {
             return schema;
         }
 
-        getMetaFields(SchemaClass).forEach(key => {
-            const meta = getFieldOptions(SchemaClass, key) as IRelationFieldOptions;
-            if (meta.appType === 'relation' && !/Ids?$/.exec(key)) {
-                let subSchemaClass = Reflect.getOwnMetadata('design:type', SchemaClass.prototype, key);
-                if (!(typeof subSchemaClass === 'function')) {
-                    subSchemaClass = meta.modelClass();
+        getMetaFields(SchemaClass).forEach(fieldName => {
+            const meta = getFieldOptions(SchemaClass, fieldName) as IRelationFieldOptions;
+            if (meta.appType === 'relation' && !/Ids?$/.exec(fieldName)) {
+                const reflectClass = Reflect.getOwnMetadata('design:type', SchemaClass.prototype, fieldName);
+
+                const subSchemaClass = meta.modelClass();
+
+                if (meta.isArray) {
+                    schema[fieldName] = source[fieldName].map(item => {
+                        return DataMapperHelper.anyToSchema(
+                            item,
+                            subSchemaClass
+                        )
+                    });
+                } else if (!(typeof reflectClass === 'function')) {
+                    schema[fieldName] = DataMapperHelper.anyToSchema(
+                        _has(source, fieldName) ? source[fieldName] : null,
+                        subSchemaClass
+                    );
+                } else {
+                    throw new Error('DataMapperHelper: relation is not a class');
                 }
-                schema[key] = DataMapperHelper.anyToSchema(
-                    _has(source, key) ? source[key] : null,
-                    subSchemaClass
-                );
             } else {
                 //TODO meta сейчас рассмматривается как IRelationFieldOptions, но в ней также лежит и другая информация
                 //@ts-ignore
                 const fieldNameFromMeta = (meta.sourceFieldName && source[meta.sourceFieldName]) ? meta.sourceFieldName: ''
-                const sourceFieldName = _has(source, key) ? key : fieldNameFromMeta
+                const sourceFieldName = _has(source, fieldName) ? fieldName : fieldNameFromMeta
 
-                schema[key] = source[sourceFieldName];
-                const callbacks = getTransformCallbacks(SchemaClass, key);
+                schema[fieldName] = source[sourceFieldName];
+                const callbacks = getTransformCallbacks(SchemaClass, fieldName);
                 for (let callback of callbacks) {
-                    schema[key] = callback({
-                        value: schema[key],
+                    schema[fieldName] = callback({
+                        value: schema[fieldName],
                         item: source,
-                        key,
+                        key: fieldName,
                     })
                 }
             }
