@@ -8,7 +8,7 @@ import {TableIndex} from 'typeorm/schema-builder/table/TableIndex';
 import {TableUnique} from 'typeorm/schema-builder/table/TableUnique';
 import {OrmUtils} from 'typeorm/util/OrmUtils';
 import {Query} from 'typeorm/driver/Query';
-import {TypeORMError} from 'typeorm/error';
+import {TypeORMError} from 'typeorm/error/TypeORMError';
 import {MetadataTableType} from 'typeorm/driver/types/MetadataTableType';
 import {PostgresQueryRunner} from 'typeorm/driver/postgres/PostgresQueryRunner';
 import {SqlInMemory} from 'typeorm/driver/SqlInMemory';
