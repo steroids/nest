@@ -76,14 +76,14 @@ export class DataMapperHelper {
             let meta = getFieldOptions(SchemaClass, fieldName);
             if (meta.appType === 'relation' && !/Ids?$/.exec(fieldName)) {
                 meta = meta as IRelationFieldOptions;
-                const relationMetaClass = meta.modelClass();
                 const relationValueClass = Reflect.getOwnMetadata('design:type', SchemaClass.prototype, fieldName);
 
+                // Expecting single schema class for array fields, not array of schemas
                 if (meta.isArray && _isArray(source?.[fieldName])) {
                     schema[fieldName] = source[fieldName].map(item => {
                         return DataMapperHelper.anyToSchema(
                             item,
-                            relationMetaClass
+                            relationValueClass
                         );
                     });
                 } else if (isMetaClass(relationValueClass)) {
