@@ -18,6 +18,10 @@ import {getComputableFieldCallback} from '../../infrastructure/decorators/fields
 
 export class DataMapperHelper {
 
+    static create<T>(MetaClass, values: Partial<T>) {
+        return this.anyToModel(values, MetaClass);
+    }
+
     static anyToModel(source, ModelClass, fieldNames = null) {
         if (!fieldNames) {
             fieldNames = getMetaFields(ModelClass);
