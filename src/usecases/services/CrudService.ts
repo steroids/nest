@@ -54,7 +54,7 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null
     ): Promise<SearchResultDto<TModel | Type<TSchema>>> {
-        await validateOrReject(dto);
+        await validateOrReject(dto, this.getDefaultDtoValidationOptions());
 
         const result = await this.repository.search<TSchema>(
             dto,
@@ -124,7 +124,7 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        await validateOrReject(dto);
+        await validateOrReject(dto, this.getDefaultDtoValidationOptions());
 
         const nextModel = await this.dtoToModel(dto);
 
@@ -156,7 +156,7 @@ export class CrudService<TModel,
         const id: number = _toInteger(rawId);
 
         // Validate dto
-        await validateOrReject(dto);
+        await validateOrReject(dto, this.getDefaultDtoValidationOptions());
 
         // Fetch previous model state
         const prevModel = await this.findById(id);
@@ -245,5 +245,9 @@ export class CrudService<TModel,
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
         return DataMapperHelper.anyToModel(dto, this.modelClass);
+    }
+
+    protected getDefaultDtoValidationOptions() {
+        return {};
     }
 }
