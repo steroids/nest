@@ -18,7 +18,8 @@ export class UserInfoModel {
 
     @RelationField({
         type: 'OneToOne',
-        modelClass: () => UserModel,
+        relationClass: () => UserModel,
+        isOwningSide: false,
         nullable: true,
     })
     user: UserModel;

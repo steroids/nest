@@ -1,12 +1,13 @@
 import {Type} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
 import {ICrudRepository} from '../interfaces/ICrudRepository';
-import {DataMapperHelper} from '../helpers/DataMapperHelper';
+import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {validateOrReject} from '../helpers/ValidationHelper';
 import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
+import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 
 /**
  * Generic CRUD service
@@ -158,8 +159,12 @@ export class CrudService<TModel,
         // Validate dto
         await validateOrReject(dto);
 
+        const searchQuery = new SearchQuery();
+        searchQuery.condition = {[this.primaryKey]: id};
+        searchQuery.relations = getMetaRelations(dto.constructor);
+
         // Fetch previous model state
-        const prevModel = await this.findById(id);
+        let prevModel = await this.findOne(searchQuery);
         if (!prevModel) {
             throw new Error('Not found model by id: ' + id);
         }
@@ -167,7 +172,14 @@ export class CrudService<TModel,
         // Create next model state
         const ModelClass = this.modelClass;
         const nextModel = new ModelClass();
-        DataMapperHelper.applyChangesToModel(nextModel, this.dtoToModel(dto));
+
+        // Сперва добавляем данные для новой модели из старой
+        DataMapper.applyValues(nextModel, prevModel);
+
+        // Затем накатываем изменения
+        DataMapper.applyValues(nextModel, this.dtoToModel(dto));
+
+        // Принудительно добавляем primary key, т.к. его зачастую нет в dto
         nextModel[this.primaryKey] = id;
 
         // Save
@@ -232,7 +244,7 @@ export class CrudService<TModel,
      * @protected
      */
     protected modelToSchema<TSchema>(model: TModel, schemaClass: Type<TSchema>): Type<TSchema> {
-        return DataMapperHelper.anyToSchema(model, schemaClass);
+        return DataMapper.create(schemaClass, model);
     }
 
     /**
@@ -244,6 +256,6 @@ export class CrudService<TModel,
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
-        return DataMapperHelper.anyToModel(dto, this.modelClass);
+        return DataMapper.create(this.modelClass, dto);
     }
 }

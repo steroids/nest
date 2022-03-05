@@ -1,5 +1,5 @@
 import {
-    PrimaryKeyField, RelationField, StringField,
+    PrimaryKeyField, RelationField, RelationIdField, StringField,
 } from '../../../decorators/fields';
 import {ImageModel} from './ImageModel';
 
@@ -12,7 +12,14 @@ export class FileModel {
 
     @RelationField({
         type: 'OneToMany',
-        modelClass: () => ImageModel,
+        inverseSide: image => image.file,
+        relationClass: () => ImageModel,
     })
     images?: ImageModel[];
+
+    @RelationIdField({
+        relationName: 'images',
+        isArray: true,
+    })
+    imagesIds: number[];
 }

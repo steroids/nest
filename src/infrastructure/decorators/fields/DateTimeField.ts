@@ -4,6 +4,18 @@ import {Column} from 'typeorm';
 import {IsDate} from 'class-validator';
 import {Type} from 'class-transformer';
 import {BaseField, IBaseFieldOptions} from './BaseField';
+import {formatISO9075, parseISO} from 'date-fns';
+
+export const normalizeDateTime = value => {
+    if (!value) {
+        return null;
+    }
+    if (typeof value === 'string') {
+        value = parseISO(value);
+    }
+
+    return formatISO9075(value);
+};
 
 export interface IDateTimeFieldColumnOptions extends IBaseFieldOptions {
     precision?: number,
@@ -21,12 +33,10 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
             precision: _has(options, 'precision') ? options.precision : 0,
             default: options.defaultValue,
             nullable: options.nullable,
-            // transformer: {
-            //     from(value: any): any {
-            //         console.log(value);
-            //         return value;
-            //     },
-            // },
+            transformer: {
+                from: normalizeDateTime,
+                to: normalizeDateTime,
+            },
         }),
         IsDate({
             message: 'Некорректный формат даты',

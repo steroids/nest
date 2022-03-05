@@ -3,7 +3,7 @@ import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getFieldOptions, getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
-import {DataMapperHelper} from '../helpers/DataMapperHelper';
+import {DataMapper} from '../helpers/DataMapper';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
 import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
 
@@ -35,7 +35,6 @@ export default class SearchQuery {
         dbQuery: SelectQueryBuilder<any>,
         searchQuery: SearchQuery,
     ) {
-
         const prefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '.' : '';
         const relationPrefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '' : 'relation';
         const table = dbRepository.target;
@@ -55,6 +54,9 @@ export default class SearchQuery {
         // Find relations
         (searchQuery.relations || []).forEach(relation => {
             const options = getFieldOptions(table, relation);
+            if (!options) {
+                throw new Error('Not found relation "' + relation + '" for table "' + table + '"');
+            }
             switch (options.appType) {
                 case 'relationId':
                     const relationIdOptions = options as IRelationIdFieldOptions;

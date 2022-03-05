@@ -1,5 +1,5 @@
 import {getFieldDecorator, getFieldOptions, IBaseFieldOptions} from './BaseField';
-import {DataMapperHelper} from '../../../usecases/helpers/DataMapperHelper';
+import {DataMapper} from '../../../usecases/helpers/DataMapper';
 
 export interface IExtendFieldOptions extends IBaseFieldOptions {
     sourceFieldName?: string,
