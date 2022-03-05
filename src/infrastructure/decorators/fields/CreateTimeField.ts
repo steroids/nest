@@ -1,10 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
 import {has as _has} from 'lodash';
-import {Column, CreateDateColumn, getMetadataArgsStorage} from 'typeorm';
+import {Column, getMetadataArgsStorage} from 'typeorm';
 import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
-import {getTableNameFromModelClass} from './RelationField';
 
 export interface ICreateTimeFieldOptions extends IBaseFieldOptions {
     precision?: number,

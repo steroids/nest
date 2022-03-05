@@ -3,6 +3,7 @@ import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty} from 'class-validator';
 import {IAllFieldOptions} from './index';
+import {ITransformCallback} from '../Transform';
 
 export const STEROIDS_META_FIELD = 'steroids_meta_field';
 export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
@@ -29,6 +30,7 @@ export interface IBaseFieldOptions {
     // Enum title to upload data on frontend
     items?: string,
     plainName?: string,
+    transform?: ITransformCallback,
 }
 
 export interface IInternalFieldOptions {
@@ -37,6 +39,11 @@ export interface IInternalFieldOptions {
     decoratorName?: string,
     isArray?: boolean,
 }
+
+export const getMetaPrimaryKey = (targetClass): string => {
+    return getMetaFields(targetClass)
+        .find(key => getFieldOptions(targetClass, key).appType === 'primaryKey') || null;
+};
 
 export const getFieldOptions = (targetClass, fieldName: string): IAllFieldOptions => {
     return targetClass && Reflect.getMetadata(STEROIDS_META_FIELD, targetClass.prototype, fieldName);
@@ -84,7 +91,6 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
             ColumnMetaDecorator({
                 label: null,
                 hint: null,
-                items: null, // TODO
                 ...options,
                 isArray: internalOptions.isArray || null,
                 appType: internalOptions.appType || null,

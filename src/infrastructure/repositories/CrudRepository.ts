@@ -4,10 +4,12 @@ import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 import SearchQuery from '../../usecases/base/SearchQuery';
-import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
+import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../../usecases/helpers/ConditionHelper';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
+import {getTableFromModel} from '../decorators/TableFromModel';
+import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
 
 /**
  * Generic CRUD repository
@@ -121,10 +123,9 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      */
     async save(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
         const saver = async (manager: EntityManager, nextModel: TModel) => {
-            // TODO Transform::toDb
-            const entity = await manager.save(this.modelToEntity(nextModel));
-            DataMapperHelper.applyChangesToModel(nextModel, entity);
-            // TODO Transform::fromDbч
+            const entity = this.modelToEntity(nextModel);
+            const newEntity = await manager.save(entity);
+            DataMapper.applyValues(nextModel, newEntity, TRANSFORM_TYPE_FROM_DB);
         };
 
         if (transactionHandler) {
@@ -181,7 +182,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
      * @protected
      */
     protected modelToEntity(model): any {
-        return DataMapperHelper.modelToEntity(this.dbRepository.manager.connection, model);
+        return DataMapper.create(getTableFromModel(this.modelClass), model, TRANSFORM_TYPE_TO_DB);
     }
 
     /**
@@ -193,6 +194,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in repository: ' + this.constructor.name);
         }
-        return DataMapperHelper.anyToModel(obj, this.modelClass);
+
+        return DataMapper.create(this.modelClass, obj, TRANSFORM_TYPE_FROM_DB);
     }
 }

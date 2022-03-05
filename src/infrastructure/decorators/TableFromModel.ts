@@ -1,5 +1,5 @@
 import {Entity} from 'typeorm';
-import {DataMapperHelper} from '../../usecases/helpers/DataMapperHelper';
+import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {ExtendField} from './fields/ExtendField';
 import {applyDecorators} from '@nestjs/common';
 import {getMetaFields} from './fields/BaseField';
@@ -10,8 +10,16 @@ export interface ITableOptions {
     modelClass?: any,
 }
 
+const modelToTableMap = {};
+
+export const getTableFromModel = (ModelClass) => {
+    return modelToTableMap[ModelClass.name] || null;
+}
+
 function TableFromModelInternal(ModelClass) {
     return (target) => {
+        modelToTableMap[ModelClass.name] = target;
+
         getMetaFields(ModelClass).forEach(field => {
             ExtendField(ModelClass)(target.prototype, field);
         });

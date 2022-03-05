@@ -1,7 +1,7 @@
 import {Type} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
 import {ICrudRepository} from '../interfaces/ICrudRepository';
-import {DataMapperHelper} from '../helpers/DataMapperHelper';
+import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {validateOrReject} from '../helpers/ValidationHelper';
@@ -162,7 +162,6 @@ export class CrudService<TModel,
         const searchQuery = new SearchQuery();
         searchQuery.condition = {[this.primaryKey]: id};
         searchQuery.relations = getMetaRelations(dto.constructor);
-        console.log(999, searchQuery.relations)
 
         // Fetch previous model state
         let prevModel = await this.findOne(searchQuery);
@@ -175,10 +174,10 @@ export class CrudService<TModel,
         const nextModel = new ModelClass();
 
         // Сперва добавляем данные для новой модели из старой
-        DataMapperHelper.applyChangesToModel(nextModel, prevModel);
+        DataMapper.applyValues(nextModel, prevModel);
 
         // Затем накатываем изменения
-        DataMapperHelper.applyChangesToModel(nextModel, this.dtoToModel(dto));
+        DataMapper.applyValues(nextModel, this.dtoToModel(dto));
 
         // Принудительно добавляем primary key, т.к. его зачастую нет в dto
         nextModel[this.primaryKey] = id;
@@ -245,7 +244,7 @@ export class CrudService<TModel,
      * @protected
      */
     protected modelToSchema<TSchema>(model: TModel, schemaClass: Type<TSchema>): Type<TSchema> {
-        return DataMapperHelper.anyToSchema(model, schemaClass);
+        return DataMapper.create(schemaClass, model);
     }
 
     /**
@@ -257,6 +256,6 @@ export class CrudService<TModel,
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
-        return DataMapperHelper.anyToModel(dto, this.modelClass);
+        return DataMapper.create(this.modelClass, dto);
     }
 }

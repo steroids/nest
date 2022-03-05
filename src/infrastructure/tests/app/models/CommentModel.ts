@@ -28,13 +28,13 @@ export class CommentModel {
 
     @RelationField({
         type: 'ManyToOne',
-        modelClass: () => ArticleModel,
+        relationClass: () => ArticleModel,
     })
     article: ArticleModel;
 
     @RelationField({
         type: 'ManyToOne',
-        modelClass: () => UserModel,
+        relationClass: () => UserModel,
         nullable: true,
     })
     user: UserModel;

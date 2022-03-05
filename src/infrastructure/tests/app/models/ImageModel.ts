@@ -14,16 +14,16 @@ export class ImageModel {
     @StringField()
     url?: string;
 
+    @RelationField({
+        type: 'ManyToOne',
+        relationClass: () => FileModel,
+        nullable: true,
+    })
+    file?: FileModel;
+
     @RelationIdField({
         relationName: 'file',
         nullable: true,
     })
     fileId?: number;
-
-    @RelationField({
-        type: 'ManyToOne',
-        modelClass: () => FileModel,
-        nullable: true,
-    })
-    file?: FileModel;
 }

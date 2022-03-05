@@ -19,7 +19,7 @@ export class UserModel {
 
     @RelationField({
         type: 'OneToOne',
-        modelClass: () => UserInfoModel,
+        relationClass: () => UserInfoModel,
         isOwningSide: true,
         nullable: true,
     })
@@ -32,7 +32,7 @@ export class UserModel {
 
     @RelationField({
         type: 'ManyToOne',
-        modelClass: () => FileModel,
+        relationClass: () => FileModel,
         nullable: true,
     })
     mainPhoto: FileModel;
@@ -46,7 +46,7 @@ export class UserModel {
     @RelationField({
         type: 'ManyToMany',
         isOwningSide: true,
-        modelClass: () => FileModel,
+        relationClass: () => FileModel,
     })
     galleryPhotos: FileModel[];
 }

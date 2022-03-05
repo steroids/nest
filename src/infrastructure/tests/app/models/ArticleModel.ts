@@ -16,7 +16,9 @@ export class ArticleModel {
     @StringField()
     title: string;
 
-    @StringField()
+    @StringField({
+        nullable: true,
+    })
     text: string;
 
     @CreateTimeField()
@@ -26,7 +28,7 @@ export class ArticleModel {
     updateTime: Date;
 
     @RelationIdField({
-        relationName: 'tag',
+        relationName: 'tags',
         isArray: true,
     })
     tagIds: number[];
@@ -34,7 +36,7 @@ export class ArticleModel {
     @RelationField({
         type: 'ManyToMany',
         isOwningSide: true,
-        modelClass: () => TagModel,
+        relationClass: () => TagModel,
     })
     tags: TagModel[];
 
@@ -45,14 +47,15 @@ export class ArticleModel {
 
     @RelationField({
         type: 'ManyToOne',
-        modelClass: () => UserModel,
+        relationClass: () => UserModel,
         nullable: true,
     })
     creatorUser: UserModel;
 
     @RelationField({
         type: 'OneToMany',
-        modelClass: () => CommentModel,
+        inverseSide: comment => comment.article,
+        relationClass: () => CommentModel,
     })
     comments: CommentModel[];
 }

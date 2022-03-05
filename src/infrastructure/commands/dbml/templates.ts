@@ -45,7 +45,7 @@ export function templateModelRelation(
         label: '${fieldLabel}',
         type: '${relationType}',
         isOwningSide: ${isOwningSide},
-        modelClass: () => ${modelRightName},
+        relationClass: () => ${modelRightName},
     })
     ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : ''};`;
 }
