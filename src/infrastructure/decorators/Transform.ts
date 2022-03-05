@@ -4,7 +4,7 @@ export const STEROIDS_META_TRANSFORM_PREFIX = 'steroids_meta_transform_';
 
 export type ITransformCallback = (options: {value: any, item: any, key: string, options: IAllFieldOptions}) => any;
 
-export type ITransformType = 'default' | 'computable' | 'from_db' | 'to_db';
+export type ITransformType = 'default' | 'computable' | 'from_db' | 'to_db' | string;
 export const TRANSFORM_TYPE_DEFAULT = 'default';
 export const TRANSFORM_TYPE_COMPUTABLE = 'computable';
 export const TRANSFORM_TYPE_FROM_DB = 'from_db';
