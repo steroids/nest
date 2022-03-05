@@ -15,6 +15,9 @@ import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {Connection} from 'typeorm';
 import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
 import {getComputableFieldCallback} from '../../infrastructure/decorators/fields/ComputableField';
+import {DataMapperException} from "../exceptions/DataMapperException";
+import {IAllFieldOptions} from "../../infrastructure/decorators/fields";
+import {IExtendFieldOptions} from "../../infrastructure/decorators/fields/ExtendField";
 
 export class DataMapperHelper {
 
@@ -74,39 +77,41 @@ export class DataMapperHelper {
         }
 
         getMetaFields(SchemaClass).forEach(fieldName => {
-            const meta = getFieldOptions(SchemaClass, fieldName) as IRelationFieldOptions;
+            let meta = getFieldOptions(SchemaClass, fieldName);
             if (meta.appType === 'relation' && !/Ids?$/.exec(fieldName)) {
-                const reflectClass = Reflect.getOwnMetadata('design:type', SchemaClass.prototype, fieldName);
+                meta = meta as IRelationFieldOptions;
+                const relationValueClass = Reflect.getOwnMetadata('design:type', SchemaClass.prototype, fieldName);
 
-                const subSchemaClass = meta.modelClass();
-
-                if (meta.isArray) {
+                // Expecting single schema class for array fields, not array of schemas
+                if (meta.isArray && _isArray(source?.[fieldName])) {
                     schema[fieldName] = source[fieldName].map(item => {
                         return DataMapperHelper.anyToSchema(
                             item,
-                            subSchemaClass
-                        )
+                            relationValueClass
+                        );
                     });
-                } else if (!(typeof reflectClass === 'function')) {
-                    schema[fieldName] = DataMapperHelper.anyToSchema(
-                        _has(source, fieldName) ? source[fieldName] : null,
-                        subSchemaClass
-                    );
+                } else if (isMetaClass(relationValueClass)) {
+                    schema[fieldName] = _has(source, fieldName) && source[fieldName]
+                        ? DataMapperHelper.anyToSchema(source[fieldName], relationValueClass)
+                        : null;
                 } else {
-                    throw new Error('DataMapperHelper: relation is not a class');
+                    throw new DataMapperException(`Relation "${fieldName}" of schema "${SchemaClass?.name}"` +
+                        ` is not a class, ${relationValueClass?.name} is provided`);
                 }
             } else {
-                //TODO meta сейчас рассмматривается как IRelationFieldOptions, но в ней также лежит и другая информация
-                //@ts-ignore
-                const fieldNameFromMeta = (meta.sourceFieldName && source[meta.sourceFieldName]) ? meta.sourceFieldName: ''
-                const sourceFieldName = _has(source, fieldName) ? fieldName : fieldNameFromMeta
+                meta = meta as IAllFieldOptions & IExtendFieldOptions;
+                const fieldNameFromMeta = (meta.sourceFieldName && source[meta.sourceFieldName])
+                    ? meta.sourceFieldName
+                    : '';
+
+                const sourceFieldName = _has(source, fieldName) ? fieldName : fieldNameFromMeta;
 
                 const {isComputableField, computableCallback} = getComputableFieldCallback(SchemaClass, fieldName);
 
                 schema[fieldName] = isComputableField
                     ? computableCallback({
-                            value: source[sourceFieldName],
-                            source
+                        value: source[sourceFieldName],
+                        source
                     })
                     : source[sourceFieldName];
             }
