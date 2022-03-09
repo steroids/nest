@@ -57,12 +57,26 @@ export const getMetaFields = (MetaClass): string[] => {
     return Reflect.getMetadata(STEROIDS_META_KEYS, MetaClass.prototype) || [];
 }
 
-export const getMetaRelations = (MetaClass): string[] => {
+export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
     return getMetaFields(MetaClass)
         .filter(fieldName => {
             const options = getFieldOptions(MetaClass, fieldName);
             return ['relationId', 'relation'].includes(options.appType);
-        });
+        })
+        .reduce((allRelations, relationName) => {
+            allRelations.push(relationName);
+
+            let relationValue = Reflect.getOwnMetadata('design:type', MetaClass.prototype, relationName);
+
+            if (isMetaClass(relationValue)) {
+                const subRelationNames = getMetaRelations(relationValue, relationName).map(subRelationName => {
+                    return `${relationName}.${subRelationName}`;
+                })
+                allRelations = [...allRelations, ...subRelationNames];
+            }
+
+            return allRelations;
+        }, []);
 }
 
 export const getFieldDecorator = (targetClass, fieldName: string): (...args: any) => PropertyDecorator => {

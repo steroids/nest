@@ -37,7 +37,7 @@ export default class SearchQuery {
         searchQuery: SearchQuery,
     ) {
         const prefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '.' : '';
-        const relationPrefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '' : 'relation';
+        const relationPrefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '_' : 'relation';
         const table = dbRepository.target;
 
         // Get select and relations from search schema
@@ -55,10 +55,14 @@ export default class SearchQuery {
         // Find relations
         (searchQuery.relations || []).forEach(relation => {
             const options = getFieldOptions(table, relation);
-            if (!options) {
-                throw new Error('Not found relation "' + relation + '" for table "' + table + '"');
-            }
-            switch (options.appType) {
+
+            // TODO нужно рекурсивно (через точку в названии relation) брать fieldOptions
+            // if (!options) {
+            //     throw new Error('Not found relation "' + relation + '" for table "' + table + '"');
+            // }
+
+            // TODO убрать null-safe
+            switch (options?.appType) {
                 case 'relationId':
                     const relationIdOptions = options as IRelationIdFieldOptions;
                     dbQuery.loadRelationIdAndMap(
@@ -67,10 +71,26 @@ export default class SearchQuery {
                     );
                     break;
 
+                default:
                 case 'relation':
+                    let currentPrefix = prefix;
+                    let childRelation = null;
                     // TODO nested selects
+
+                    // TODO Код рабочий только до 1-го уровня вложенности
+                    // find parent relation name
+                    const parentRelation = /\./.test(relation)
+                        ? relation.replace(/\.\w+/, '')
+                        : null;
+
+                    if (parentRelation) {
+                        // current relations name is combined from all parents prefixes + current relation name
+                        currentPrefix = relationPrefix + parentRelation;
+                        childRelation = relation.replace(parentRelation, '');
+                    }
+
                     dbQuery.leftJoinAndSelect(
-                        prefix + relation,
+                        currentPrefix + (childRelation || relation),
                         relationPrefix + relation
                     );
                     break;
