@@ -93,6 +93,7 @@ export default class SearchQuery {
                         currentPrefix + (childRelation || relation),
                         relationPrefix + relation
                     );
+
                     break;
             }
         });
