@@ -17,6 +17,7 @@ export interface IRelationFieldManyToManyOptions extends IBaseFieldOptions {
     type: 'ManyToMany',
     isOwningSide: boolean,
     relationClass: () => any,
+    inverseSide?: string | ((object: any) => any),
 }
 
 export interface IRelationFieldManyToOneOptions extends IBaseFieldOptions {
