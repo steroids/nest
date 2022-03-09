@@ -14,6 +14,7 @@ export interface IQueryRelation {
 }
 
 export default class SearchQuery {
+    alias?: string;
     select?: string[];
     excludeSelect?: string[];
     relations?: string[];
