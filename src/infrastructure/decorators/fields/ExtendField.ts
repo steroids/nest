@@ -1,11 +1,12 @@
 import {getFieldDecorator, getFieldOptions, IBaseFieldOptions} from './BaseField';
 import {DataMapper} from '../../../usecases/helpers/DataMapper';
+import {IAllFieldOptions} from "./index";
 
-export interface IExtendFieldOptions extends IBaseFieldOptions {
-    sourceFieldName?: string,
+export interface IExtendFieldOptions {
+    sourceFieldName?: string
 }
 
-export function ExtendField(modelClass, options: string | IExtendFieldOptions = {}) {
+export function ExtendField(modelClass, options: string | IAllFieldOptions | any = {}) {
     return (object, propertyName) => {
         if (typeof options === 'string') {
             options = {sourceFieldName: options};
