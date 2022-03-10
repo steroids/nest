@@ -2,7 +2,12 @@ import {has as _has} from 'lodash';
 import {getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
-import {getTransformCallbacks, ITransformType, TRANSFORM_TYPE_DEFAULT} from '../../infrastructure/decorators/Transform';
+import {
+    getTransformCallbacks,
+    ITransformType,
+    TRANSFORM_TYPE_COMPUTABLE,
+    TRANSFORM_TYPE_DEFAULT
+} from '../../infrastructure/decorators/Transform';
 
 export class DataMapper {
 
@@ -28,6 +33,10 @@ export class DataMapper {
         const MetaClass = object.constructor;
         const keys = isMetaClass(MetaClass) ? getMetaFields(MetaClass) : Object.keys(values);
 
+        const transformTypes = transformType === TRANSFORM_TYPE_DEFAULT
+            ? [transformType, TRANSFORM_TYPE_COMPUTABLE]
+            : [transformType];
+
         keys.forEach(name => {
             const options = getFieldOptions(MetaClass, name);
             const sourceName = options?.sourceFieldName || name;
@@ -36,15 +45,17 @@ export class DataMapper {
                 object[name] = values[sourceName];
             }
 
-            if (_has(values, sourceName) || transformType !== TRANSFORM_TYPE_DEFAULT) {
-                const callbacks = getTransformCallbacks(MetaClass.prototype, name, transformType);
-                for (let callback of callbacks) {
-                    object[name] = callback({
-                        value: object[name],
-                        item: values,
-                        key: name,
-                        options,
-                    });
+            for (let type of transformTypes) {
+                if (_has(values, sourceName) || type !== TRANSFORM_TYPE_DEFAULT) {
+                    const callbacks = getTransformCallbacks(MetaClass.prototype, name, type);
+                    for (let callback of callbacks) {
+                        object[name] = callback({
+                            value: object[name],
+                            item: values,
+                            key: name,
+                            options,
+                        });
+                    }
                 }
             }
         });
