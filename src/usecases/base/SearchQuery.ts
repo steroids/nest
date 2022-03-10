@@ -1,17 +1,9 @@
 import {Repository} from 'typeorm';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getFieldOptions, getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
-import {DataMapper} from '../helpers/DataMapper';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
 import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
-
-export interface IQueryRelation {
-    name: string,
-    alias?: string,
-    isId?: boolean,
-}
 
 export default class SearchQuery {
     alias?: string;

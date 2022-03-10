@@ -3,6 +3,7 @@ import {
     StringField
 } from '../../../decorators/fields';
 import {UserModel} from './UserModel';
+import {FileModel} from './FileModel';
 
 export class UserInfoModel {
     @PrimaryKeyField()
@@ -10,6 +11,18 @@ export class UserInfoModel {
 
     @StringField()
     passport: string;
+
+    @RelationIdField({
+        relationName: 'passportScan',
+    })
+    passportScanId: number;
+
+    @RelationField({
+        type: 'ManyToOne',
+        relationClass: () => FileModel,
+        nullable: true,
+    })
+    passportScan: FileModel;
 
     @RelationIdField({
         relationName: 'user',

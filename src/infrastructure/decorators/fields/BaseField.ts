@@ -67,7 +67,8 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
         .reduce((allRelations, relationName) => {
             allRelations.push(relationName);
 
-            let relationValue = Reflect.getOwnMetadata('design:type', MetaClass.prototype, relationName);
+            const options = getFieldOptions(MetaClass, relationName);
+            let relationValue = options.relationClass();
 
             if (isMetaClass(relationValue)) {
                 const subRelationNames = getMetaRelations(relationValue, relationName).map(subRelationName => {

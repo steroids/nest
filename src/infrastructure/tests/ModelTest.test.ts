@@ -12,6 +12,7 @@ import {ImageModel} from './app/models/ImageModel';
 import {ArticleService} from './app/services/ArticleService';
 import {ArticleModel} from './app/models/ArticleModel';
 import {TagModel} from './app/models/TagModel';
+import {ArticleSchema} from './app/schemas/ArticleSchema';
 
 const createPhoto = (app) => {
     return app.get(FileService).create(DataMapper.create<FileModel>(FileModel, {
@@ -67,9 +68,20 @@ describe('ModelTest', () => {
      * - ManyToMany::data   v
      */
     it('ManyToMany data', async () => {
+        const passportScan = await createPhoto(app);
+
+        let user: UserModel = await app.get(UserService).create(DataMapper.create<UserModel>(UserModel, {
+            name: 'Test user ' + Date.now(),
+            info: DataMapper.create<UserInfoModel>(UserInfoModel, {
+                passport: '0409 123456',
+                passportScanId: passportScan.id,
+            }),
+        }));
+
         // Create file and image models with OneToMany::ids relations
         let article = await app.get(ArticleService).create(DataMapper.create<ArticleModel>(ArticleModel, {
-            title: 'War!',
+            title: 'How to load relations in entities',
+            creatorUserId: user.id,
             tags: [
                 DataMapper.create<TagModel>(TagModel, {title: 'Tag 1'}),
                 DataMapper.create<TagModel>(TagModel, {title: 'Tag 2'}),
@@ -78,13 +90,15 @@ describe('ModelTest', () => {
         expect(article?.id).toBeGreaterThan(0);
         expect(article?.tags?.length).toEqual(2);
 
-        article = await app.get(ArticleService).findOne(DataMapper.create(SearchQuery, {
-            relations: ['tags'],
-            condition: {id: article.id},
-        }));
+        article = await app.get(ArticleService).findById(article.id, null, ArticleSchema);
         expect(article?.id).toBeGreaterThan(0);
         expect(article?.tags?.length).toEqual(2);
+
+        // Check transform and computable decorators
+        expect(article?.title).toEqual('HOW TO LOAD RELATIONS IN ENTITIES');
+        expect(article?.shortTitle).toEqual('How t');
     });
+
 
     /**
      * Want test relations saves:
