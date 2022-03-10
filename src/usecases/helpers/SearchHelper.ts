@@ -44,9 +44,11 @@ export class SearchHelper {
         }
 
         // Pagination
-        dbQuery
-            .offset((dto.page - 1) * dto.pageSize)
-            .limit(dto.pageSize);
+        if (dto.pageSize > 0) {
+            dbQuery
+                .offset((dto.page - 1) * dto.pageSize)
+                .limit(dto.pageSize);
+        }
 
         // Execute query
         const [items, total] = await dbQuery.getManyAndCount();
