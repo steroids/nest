@@ -36,9 +36,7 @@ export default class SearchQuery {
         dbQuery: SelectQueryBuilder<any>,
         searchQuery: SearchQuery,
     ) {
-        const prefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '.' : '';
-        const relationPrefix = dbQuery.expressionMap?.mainAlias ? dbQuery.expressionMap.mainAlias.name + '_' : 'relation';
-        const table = dbRepository.target;
+        const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
         // Get select and relations from search schema
         let select = searchQuery.select;
@@ -49,58 +47,79 @@ export default class SearchQuery {
         }
 
         if (select) {
-            dbQuery.select(select.map(name => prefix + name));
+            dbQuery.select(select.map(name => `${prefix}.${name}`));
         }
 
         // Find relations
-        (searchQuery.relations || []).forEach(relation => {
-            const options = getFieldOptions(table, relation);
-
-            // TODO нужно рекурсивно (через точку в названии relation) брать fieldOptions
-            // if (!options) {
-            //     throw new Error('Not found relation "' + relation + '" for table "' + table + '"');
-            // }
-
-            // TODO убрать null-safe
-            switch (options?.appType) {
-                case 'relationId':
-                    const relationIdOptions = options as IRelationIdFieldOptions;
-                    dbQuery.loadRelationIdAndMap(
-                        prefix + relation,
-                        prefix + relationIdOptions.relationName,
-                    );
-                    break;
-
-                default:
-                case 'relation':
-                    let currentPrefix = prefix;
-                    let childRelation = null;
-                    // TODO nested selects
-
-                    // TODO Код рабочий только до 1-го уровня вложенности
-                    // find parent relation name
-                    const parentRelation = /\./.test(relation)
-                        ? relation.replace(/\.\w+/, '')
-                        : null;
-
-                    if (parentRelation) {
-                        // current relations name is combined from all parents prefixes + current relation name
-                        currentPrefix = relationPrefix + parentRelation;
-                        childRelation = relation.replace(parentRelation, '');
-                    }
-
-                    dbQuery.leftJoinAndSelect(
-                        currentPrefix + (childRelation || relation),
-                        relationPrefix + relation
-                    );
-
-                    break;
-            }
-        });
+        searchQuery.relations && SearchQuery.prepareRelations(
+            dbQuery,
+            searchQuery.relations,
+            prefix,
+            dbRepository.target
+        );
 
         // Condition
         if (searchQuery.condition) {
             dbQuery.andWhere(ConditionHelper.toTypeOrm(searchQuery.condition));
         }
+    }
+
+    private static prepareRelations(
+        dbQuery: SelectQueryBuilder<any>,
+        relations: string[],
+        parentPrefix: string,
+        parentTable: any
+    ) {
+        relations.forEach(relation => {
+            let fieldOptions;
+
+            const relationFullPath = [...parentPrefix.split('.'), ...relation.split('.')];
+            const relationRelativePath = relation.replace(parentPrefix, '').split('.');
+
+            const currentRelationField = relationRelativePath[0];
+
+            // nested relation case
+            if (relationRelativePath.length > 1) {
+                fieldOptions = getFieldOptions(parentTable, currentRelationField);
+
+                relationRelativePath.splice(0, 1);
+
+                const childRelationRelativePath = relationRelativePath.join('.');
+
+                SearchQuery.prepareRelations(
+                    dbQuery,
+                    [childRelationRelativePath],
+                    `${parentPrefix}.${currentRelationField}`,
+                    fieldOptions.relationClass()
+                );
+            } else {
+                fieldOptions = getFieldOptions(parentTable, currentRelationField) as IRelationIdFieldOptions;
+
+                if (!fieldOptions) {
+                    throw new Error('Not found meta data for relation "' + currentRelationField
+                        + '" for table "' + parentTable + '"');
+                }
+
+                // remove last item from path
+                relationFullPath.pop();
+                const parentAlias = relationFullPath.join('_');
+
+                switch (fieldOptions.appType) {
+                    case 'relationId':
+                        dbQuery.loadRelationIdAndMap(
+                            `${parentAlias}.${currentRelationField}`,
+                            `${parentAlias}.${fieldOptions.relationName}`
+                        );
+                        break;
+
+                    case 'relation':
+                        dbQuery.leftJoinAndSelect(
+                            `${parentAlias}.${currentRelationField}`,
+                            `${parentAlias}_${currentRelationField}`
+                        );
+                        break;
+                }
+            }
+        })
     }
 }
