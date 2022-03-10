@@ -107,6 +107,10 @@ export const relationTransform = ({value, options}) => {
 export function RelationField(options: IRelationFieldOptions) {
     const OwningDecorator = getOwningDecorator(options as any);
 
+    if (!options.transform) {
+        options.transform = relationTransform;
+    }
+
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -126,7 +130,6 @@ export function RelationField(options: IRelationFieldOptions) {
             Type(options.relationClass),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
-            Transform(options.transform || relationTransform),
         ].filter(Boolean)
     );
 }

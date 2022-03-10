@@ -53,6 +53,10 @@ export const relationTransform = ({value, options}) => {
 }
 
 export function RelationIdField(options: IRelationIdFieldOptions = {}) {
+    if (!options.transform) {
+        options.transform = relationTransform;
+    }
+
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -62,7 +66,6 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
             }),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
-            Transform(options.transform || relationTransform),
         ].filter(Boolean)
     );
 }

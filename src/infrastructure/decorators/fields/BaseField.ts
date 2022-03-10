@@ -3,7 +3,8 @@ import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty} from 'class-validator';
 import {IAllFieldOptions} from './index';
-import {ITransformCallback} from '../Transform';
+import {ITransformCallback, Transform} from '../Transform';
+import {relationTransform} from './RelationIdField';
 
 export const STEROIDS_META_FIELD = 'steroids_meta_field';
 export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
@@ -116,6 +117,7 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 required: options.nullable === false,
                 isArray: options.isArray,
             }),
+            options.transform && Transform(options.transform),
             options.required && IsNotEmpty({
                 message: 'Обязательно для заполнения',
             }),
