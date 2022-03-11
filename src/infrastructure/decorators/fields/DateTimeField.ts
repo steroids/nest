@@ -5,6 +5,7 @@ import {IsDate} from 'class-validator';
 import {Type} from 'class-transformer';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {formatISO9075, parseISO} from 'date-fns';
+import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 
 export const normalizeDateTime = value => {
     if (!value) {
@@ -21,6 +22,14 @@ export interface IDateTimeFieldColumnOptions extends IBaseFieldOptions {
     precision?: number,
 }
 
+export const dateTimeTransformFromDb = ({value}) => {
+    return normalizeDateTime(value);
+}
+
+export const dateTimeTransformToDb = ({value}) => {
+    return normalizeDateTime(value);
+}
+
 export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
     return applyDecorators(
         BaseField(options, {
@@ -33,14 +42,12 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
             precision: _has(options, 'precision') ? options.precision : 0,
             default: options.defaultValue,
             nullable: options.nullable,
-            transformer: {
-                from: normalizeDateTime,
-                to: normalizeDateTime,
-            },
         }),
         IsDate({
             message: 'Некорректный формат даты',
         }),
         Type(() => Date),
+        Transform(dateTimeTransformFromDb, TRANSFORM_TYPE_FROM_DB),
+        Transform(dateTimeTransformToDb, TRANSFORM_TYPE_TO_DB),
     );
 }

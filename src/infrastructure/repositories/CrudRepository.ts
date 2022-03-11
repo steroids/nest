@@ -124,8 +124,6 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     async save(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
         const saver = async (manager: EntityManager, nextModel: TModel) => {
             const entity = this.modelToEntity(nextModel);
-            console.log(nextModel);
-            console.log(entity);
             const newEntity = await manager.save(entity);
             DataMapper.applyValues(nextModel, newEntity, TRANSFORM_TYPE_FROM_DB);
         };

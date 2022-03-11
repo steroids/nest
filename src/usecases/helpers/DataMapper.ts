@@ -12,6 +12,11 @@ import {
 export class DataMapper {
 
     static create<T>(MetaClass, values: Partial<T>, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT) {
+        // Check empty
+        if (values === null) {
+            return null;
+        }
+
         const result = new MetaClass();
 
         /**
