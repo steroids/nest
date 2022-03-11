@@ -68,7 +68,10 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
             allRelations.push(relationName);
 
             const options = getFieldOptions(MetaClass, relationName);
-            let relationValue = options.relationClass();
+            if (options.appType === 'relationId') {
+                return allRelations;
+            }
+            const relationValue = options.relationClass();
 
             if (isMetaClass(relationValue)) {
                 const subRelationNames = getMetaRelations(relationValue, relationName).map(subRelationName => {
