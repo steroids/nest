@@ -59,32 +59,32 @@ const getOwningDecorator = (options: IRelationFieldOneToOneOptions | IRelationFi
     return null;
 }
 
-const transformInstances = (TargetClass, value, isArray = false) => {
+const transformInstances = (TargetClass, value, isArray, transformType) => {
     if (isArray && Array.isArray(value)) {
-        return value.map(item => transformInstances(TargetClass, item));
+        return value.map(item => transformInstances(TargetClass, item, false, transformType));
     }
     if (typeof value === 'object' && !(value instanceof TargetClass)) {
-        return DataMapper.create(TargetClass, value);
+        return DataMapper.create(TargetClass, value, transformType);
     }
     return value;
 }
-const transformIds = (TableClass, value, isArray = false) => {
+const transformIds = (TableClass, value, isArray, transformType) => {
     if (isArray && Array.isArray(value)) {
-        return value.map(item => transformIds(TableClass, item));
+        return value.map(item => transformIds(TableClass, item, false, transformType));
     }
     if (typeof value === 'number') {
         const primaryKey = getMetaPrimaryKey(TableClass);
-        return DataMapper.create(TableClass, {[primaryKey]: value});
+        return DataMapper.create(TableClass, {[primaryKey]: value}, transformType);
     }
     return value;
 }
 
-export const relationTransformFromDb = ({value, options}) => {
+export const relationTransformFromDb = ({value, options, transformType}) => {
     const ModelClass = options.relationClass();
-    return transformInstances(ModelClass, value, options.isArray);
+    return transformInstances(ModelClass, value, options.isArray, transformType);
 }
 
-export const relationTransformToDb = ({value, item, key, options}) => {
+export const relationTransformToDb = ({value, item, key, options, transformType}) => {
     const TableClass = getTableFromModel(options.relationClass());
 
     const relationIdName = getMetaFields(item.constructor).find(name => {
@@ -93,15 +93,15 @@ export const relationTransformToDb = ({value, item, key, options}) => {
     });
 
     if (relationIdName && item[relationIdName]) {
-        return transformIds(TableClass, item[relationIdName], options.isArray)
+        return transformIds(TableClass, item[relationIdName], options.isArray, transformType)
     }
 
-    return transformInstances(TableClass, value, options.isArray);
+    return transformInstances(TableClass, value, options.isArray, transformType);
 }
 
-export const relationTransform = ({value, options}) => {
+export const relationTransform = ({value, options, transformType}) => {
     const DtoClass = options.relationClass();
-    return transformInstances(DtoClass, value, options.isArray);
+    return transformInstances(DtoClass, value, options.isArray, transformType);
 }
 
 export function RelationField(options: IRelationFieldOptions) {

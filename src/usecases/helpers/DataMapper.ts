@@ -49,12 +49,16 @@ export class DataMapper {
                 if (_has(values, sourceName) || type !== TRANSFORM_TYPE_DEFAULT) {
                     const callbacks = getTransformCallbacks(MetaClass.prototype, name, type);
                     for (let callback of callbacks) {
-                        object[name] = callback({
+                        const value = callback({
                             value: object[name],
                             item: values,
                             key: name,
+                            transformType: type,
                             options,
                         });
+                        if (typeof value !== 'undefined') {
+                            object[name] = value;
+                        }
                     }
                 }
             }
