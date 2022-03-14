@@ -60,6 +60,7 @@ export class DataMapper {
                             key: name,
                             transformType: type,
                             options,
+                            object,
                         });
                         if (typeof value !== 'undefined') {
                             object[name] = value;

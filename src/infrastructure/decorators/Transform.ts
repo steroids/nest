@@ -2,7 +2,16 @@ import {IAllFieldOptions} from './fields';
 
 export const STEROIDS_META_TRANSFORM_PREFIX = 'steroids_meta_transform_';
 
-export type ITransformCallback = (options: {value: any, item: any, key: string, options: IAllFieldOptions, transformType: ITransformType}) => any;
+export interface ITransformCallbackEvent {
+    value: any,
+    item: any,
+    key: string,
+    options: IAllFieldOptions,
+    transformType: ITransformType,
+    object: any,
+}
+
+export type ITransformCallback = (event: ITransformCallbackEvent) => any;
 
 export type ITransformType = 'default' | 'computable' | 'from_db' | 'to_db' | string;
 export const TRANSFORM_TYPE_DEFAULT = 'default';
