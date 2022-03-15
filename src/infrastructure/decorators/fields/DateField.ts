@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsISO8601} from 'class-validator';
+import {IsISO8601, ValidateIf} from 'class-validator';
 import {formatISO9075, parseISO} from 'date-fns';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
@@ -17,23 +17,25 @@ export const normalizeDate = value => {
 
 export function DateField(options: IBaseFieldOptions = {}) {
     return applyDecorators(
-        BaseField(options, {
-            decoratorName: 'DateField',
-            appType: 'date',
-            jsType: 'string',
-        }),
-        Column({
-            type: 'date',
-            default: options.defaultValue,
-            nullable: options.nullable,
-            transformer: {
-                from: normalizeDate,
-                to: normalizeDate,
-            },
-        }),
-        IsISO8601({
-            message: 'Некорректный формат даты',
-        }),
-        //Type(() => Date),
+        ...[
+            BaseField(options, {
+                decoratorName: 'DateField',
+                appType: 'date',
+                jsType: 'string',
+            }),
+            Column({
+                type: 'date',
+                default: options.defaultValue,
+                nullable: options.nullable,
+                transformer: {
+                    from: normalizeDate,
+                    to: normalizeDate,
+                },
+            }),
+            options.nullable && ValidateIf((object, value) => value),
+            IsISO8601({
+                message: 'Некорректный формат даты',
+            }),
+        ].filter(Boolean)
     );
 }

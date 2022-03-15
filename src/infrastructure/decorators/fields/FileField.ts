@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsArray, IsInt, IsOptional} from 'class-validator';
+import {IsArray, IsInt, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IFileField extends IBaseFieldOptions {
@@ -9,17 +9,19 @@ export interface IFileField extends IBaseFieldOptions {
 
 export function FileField(options: IFileField = {}) {
     return applyDecorators(
-        BaseField(options, {
-            decoratorName: 'FileField',
-            appType: 'file',
-            jsType: 'number',
-        }),
-        Column({
-            type: options.multiple ? 'simple-array' : 'integer',
-            default: options.defaultValue,
-            nullable: options.nullable,
-        }),
-        IsOptional(),
-        options.multiple ? IsArray() : IsInt(),
+        ...[
+            BaseField(options, {
+                decoratorName: 'FileField',
+                appType: 'file',
+                jsType: 'number',
+            }),
+            Column({
+                type: options.multiple ? 'simple-array' : 'integer',
+                default: options.defaultValue,
+                nullable: options.nullable,
+            }),
+            options.nullable && ValidateIf((object, value) => value),
+            options.multiple ? IsArray() : IsInt(),
+        ].filter(Boolean)
     );
 }
