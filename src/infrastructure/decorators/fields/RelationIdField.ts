@@ -2,6 +2,7 @@ import {applyDecorators} from '@nestjs/common';
 import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
 import {getTableFromModel} from '../TableFromModel';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
+import {Column} from 'typeorm';
 
 export interface IRelationIdFieldOptions extends IBaseFieldOptions {
     relationName?: string,
@@ -51,6 +52,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
                 appType: 'relationId',
                 jsType: 'number',
             }),
+            !options.isArray && Column({type: 'int', nullable: true}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
         ].filter(Boolean)

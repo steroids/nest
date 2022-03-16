@@ -111,7 +111,9 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 label: null,
                 hint: null,
                 ...options,
-                isArray: internalOptions.isArray || null,
+                isArray: typeof options.isArray === 'boolean'
+                    ? options.isArray
+                    : (internalOptions.isArray || null),
                 appType: internalOptions.appType || null,
             }, internalOptions),
             ApiProperty({
