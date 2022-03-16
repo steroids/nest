@@ -33,6 +33,7 @@ export {UidField} from './UidField';
 export {UpdateTimeField} from './UpdateTimeField';
 export {RelationField} from './RelationField';
 export {RelationIdField} from './RelationIdField';
+export {ImageField} from './ImageField';
 
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
