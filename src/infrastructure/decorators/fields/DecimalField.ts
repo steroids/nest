@@ -6,6 +6,7 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
     precision?: number,
     scale?: number,
+    isDecimalConstraintMessage?: string,
 }
 
 export function DecimalField(options: IDecimalFieldOptions = {}) {
@@ -24,7 +25,7 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
             }),
             options.nullable && ValidateIf((object, value) => value !== null),
             IsString({
-                message: 'Должно быть строкой',
+                message: options.isDecimalConstraintMessage || 'Должно быть строкой',
             }),
         ].filter(Boolean)
     );
