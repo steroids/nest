@@ -9,7 +9,7 @@ import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transf
 
 export const normalizeDateTime = value => {
     if (!value) {
-        return null;
+        return value;
     }
     if (typeof value === 'string') {
         value = parseISO(value);
