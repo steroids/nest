@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
 import {Column} from 'typeorm';
-import {IsInt, IsNumberString, Max, Min, ValidateIf} from 'class-validator';
+import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from 'class-transformer';
 
@@ -27,7 +27,7 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             if (Array.isArray(value)) {
                 return value.map(valueItem => _toInteger(valueItem));
             }
-            return value === null ? value : _toInteger(value);
+            return value === null || value === undefined ? value : _toInteger(value);
         } ),
         IsInt({
             message: 'Должно быть числом',
