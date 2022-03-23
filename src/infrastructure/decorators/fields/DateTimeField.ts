@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {has as _has} from 'lodash';
 import {Column} from 'typeorm';
-import {IsDateString, ValidateIf} from 'class-validator';
+//import {IsDateString, ValidateIf} from 'class-validator';
 import {Type} from 'class-transformer';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {format, parseISO} from 'date-fns';
@@ -38,10 +38,10 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
                 default: options.defaultValue,
                 nullable: options.nullable,
             }),
-            options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-            IsDateString({
-                message: 'Некорректный формат даты',
-            }),
+            // options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+            // IsDateString({
+            //     message: 'Некорректный формат даты',
+            // }),
             Type(() => Date),
             Transform(
                 ({value}) => normalizeDateTime(value, options.skipSeconds),
