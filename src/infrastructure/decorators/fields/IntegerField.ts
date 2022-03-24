@@ -7,6 +7,7 @@ import {Transform} from 'class-transformer';
 
 export interface IIntegerFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
+    isIntConstraintMessage?: string,
 }
 
 export function IntegerField(options: IIntegerFieldOptions = {}) {
@@ -27,10 +28,10 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             if (Array.isArray(value)) {
                 return value.map(valueItem => _toInteger(valueItem));
             }
-            return value === null || value === undefined ? value : _toInteger(value);
-        } ),
+            return value === null ? value : _toInteger(value);
+        }),
         IsInt({
-            message: 'Должно быть числом',
+            message: options.isIntConstraintMessage || 'Должно быть числом',
             each: options.isArray,
         }),
         typeof options.min === 'number' && Min(options.min),

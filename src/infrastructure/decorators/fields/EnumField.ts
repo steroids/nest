@@ -6,6 +6,7 @@ import BaseEnum from '../../../domain/base/BaseEnum';
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum?: object | string[] | any,
+    isEnumConstraintMessage?: string;
 }
 
 export function EnumField(options: IEnumFieldOptions = {}) {
@@ -37,7 +38,9 @@ export function EnumField(options: IEnumFieldOptions = {}) {
                 nullable: options.nullable,
             }),
             options.nullable && ValidateIf((object, value) => value !== null),
-            IsEnum(options.enum),
+            IsEnum(options.enum, {
+                message: options.isEnumConstraintMessage || 'Выберите одно из значений'
+            }),
         ].filter(Boolean)
     );
 }
