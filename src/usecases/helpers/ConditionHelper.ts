@@ -1,4 +1,5 @@
-import {Between, Brackets, ILike, In, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not} from 'typeorm';
+import {set as _set} from 'lodash';
+import {Between, Brackets, ILike, In, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder} from 'typeorm';
 import {WhereExpressionBuilder} from 'typeorm/query-builder/WhereExpressionBuilder';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike'
@@ -10,16 +11,30 @@ export type ICondition = Record<string, unknown>
     | ICondition[]
     | ((qb: WhereExpressionBuilder) => any);
 
-const notCondition = (isNot, condition) => isNot ? Not(condition) : condition;
+const emptyCondition = {};
+const isEmpty = value => value === null || typeof value === 'undefined' || value === emptyCondition;
 
 export class ConditionHelper {
-    static toTypeOrm(condition: ICondition) {
+    static toTypeOrmFilter(condition: ICondition) {
+        return ConditionHelper.toTypeOrm(condition, true);
+    }
+
+    static toTypeOrm(condition: ICondition, filterEmpty = false) {
+        // TODO Вероятно стоит убрать это, чтобы не было соблазна использовать в сервисах
         if (typeof condition === 'function') {
             return new Brackets(condition);
         }
 
+        // {key: value, ...}
         if (typeof condition === 'object' && !Array.isArray(condition)) {
-            return condition;
+            const result = Object.keys(condition).reduce((obj, key) => {
+                const value = (condition as any)[key];
+                if (!filterEmpty || !isEmpty(value)) {
+                    _set(obj, key, value)
+                }
+                return obj;
+            }, {});
+            return Object.keys(result).length === 0 ? emptyCondition : result;
         }
 
         if (Array.isArray(condition) && condition.length > 1 && typeof condition[0] === 'string') {
@@ -31,60 +46,80 @@ export class ConditionHelper {
                 operator = operator.replace(/^not\s+/, '');
             }
 
+            const objectWhere = (isNot, isEmpty, key, value) => {
+                return !filterEmpty || !isEmpty
+                    ? _set({}, key, isNot ? Not(value) : value)
+                    : emptyCondition;
+            };
+
             const key = condition[1] as string;
             const value = condition[2];
             switch (operator) {
                 case '=': // ['=', 'age', 18]
-                    return {[key]: notCondition(isNot, value)};
+                    return objectWhere(isNot, isEmpty(value), key, value);
 
                 case '>': // ['>', 'age', 18]
-                    return {[key]: notCondition(isNot, MoreThan(value))};
+                    return objectWhere(isNot, isEmpty(value), key, MoreThan(value));
 
                 case '>=': // ['>=', 'age', 18]
                 case '=>':
-                    return {[key]: notCondition(isNot, MoreThanOrEqual(value))};
+                    return objectWhere(isNot, isEmpty(value), key, MoreThanOrEqual(value));
 
                 case '<': // ['<', 'age', 18]
-                    return {[key]: notCondition(isNot, LessThan(value))};
+                    return objectWhere(isNot, isEmpty(value), key, LessThan(value));
 
                 case '<=': // ['<=', 'age', 18]
                 case '=<':
-                    return {[key]: notCondition(isNot, LessThanOrEqual(value))};
+                    return objectWhere(isNot, isEmpty(value), key, LessThanOrEqual(value));
 
                 case 'like': // ['like', 'name', 'alex']
-                    return {[key]: notCondition(isNot, Like(value))};
-
                 case 'ilike': // ['ilike', 'name', 'alex']
-                    return {[key]: notCondition(isNot, ILike(value))};
+                    const likeMethod = operator === 'ilike' ? ILike : Like;
+                    return objectWhere(
+                        isNot,
+                        isEmpty(value),
+                        key,
+                        likeMethod(value.indexOf('%') !== -1 ? value : '%' + value + '%')
+                    );
 
                 case 'between': // ['between', 'size', 5, 10]
-                    return {[key]: notCondition(isNot, Between(condition[2], condition[3]))};
+                    return objectWhere(isNot, isEmpty(condition[2] || condition[3]), key, Between(condition[2], condition[3]));
 
                 case 'in': // ['in', 'ids', [5, 6, 10]]
-                    if (!Array.isArray(value)) {
+                    if (value && !Array.isArray(value)) {
                         throw Error('Wrong value for IN operator: ' + JSON.stringify(value));
                     }
-                    return {[key]: notCondition(isNot, In(value))};
+                    return objectWhere(isNot, isEmpty(value) || value.length === 0, key, In(value));
 
                 case 'and': // ['and', {isActive: true}, ['=', 'name', 'Ivan']]
                 case '&&':
-                    if (isNot) {
-                        throw Error('Unsupport NOT for AND operator. Operator: ' + operator);
-                    }
-                    return new Brackets(query2 => {
-                        condition.slice(1).forEach(item => {
-                            query2.andWhere(ConditionHelper.toTypeOrm(item));
-                        });
-                    });
-
                 case 'or': // ['or', {isAdmin: true}, ['=', 'name', 'Ivan']]
                 case '||':
                     if (isNot) {
-                        throw Error('Unsupport NOT for OR operator. Operator: ' + operator);
+                        throw Error('Unsupport NOT for AND/OR operator. Operator: ' + operator);
                     }
-                    return new Brackets(query2 => {
-                        condition.slice(1).forEach(item => {
-                            query2.orWhere(ConditionHelper.toTypeOrm(item));
+
+                    const isOr = ['or', '||'].includes(operator);
+                    const values = condition.slice(1)
+                        .map(item => ConditionHelper.toTypeOrm(item, filterEmpty))
+                        .filter(value => !isEmpty(value));
+
+                    if (values.length === 0) {
+                        return emptyCondition;
+                    }
+
+                    return new Brackets((query2: any) => {
+                        const parentQuery: QueryBuilder<any> = query2.parentQueryBuilder;
+
+                        // Hack for use relations
+                        query2.expressionMap.joinAttributes = parentQuery.expressionMap.joinAttributes;
+
+                        values.forEach(value => {
+                            if (isOr) {
+                                query2.orWhere(value);
+                            } else {
+                                query2.andWhere(value);
+                            }
                         });
                     });
 
