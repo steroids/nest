@@ -4,6 +4,7 @@ import {Column, getMetadataArgsStorage} from 'typeorm';
 import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
+import {IsString} from 'class-validator';
 
 export interface IUpdateTimeFieldOptions extends IBaseFieldOptions {
     precision?: number,
@@ -45,9 +46,10 @@ export function UpdateTimeField(options: IUpdateTimeFieldOptions = {}) {
             nullable: _has(options, 'nullable') ? options.nullable : false,
             transformer: {
                 from: normalizeDateTime,
-                to: normalizeDateTime,
+                to: () => normalizeDateTime(new Date()),
             },
         }),
         UpdateTimeBehaviour,
+        IsString(),
     );
 }
