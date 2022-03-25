@@ -11,6 +11,7 @@ export interface IRelationFieldOneToOneOptions extends IBaseFieldOptions {
     type: 'OneToOne',
     isOwningSide: boolean,
     relationClass: () => any,
+    inverseSide?: string | ((object: any) => any),
 }
 
 export interface IRelationFieldManyToManyOptions extends IBaseFieldOptions {

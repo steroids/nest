@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsEmail} from 'class-validator';
+import {IsEmail, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IEmailFieldOptions extends IBaseFieldOptions {
@@ -24,6 +24,7 @@ export function EmailField(options: IEmailFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
+        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsEmail({
             message: 'Некорректный email адрес',
         }),
