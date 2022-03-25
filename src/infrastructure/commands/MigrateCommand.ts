@@ -1,15 +1,16 @@
 import {Command, Positional} from 'nestjs-command';
 import {Injectable} from '@nestjs/common';
-import {Connection} from 'typeorm';
+import {Connection, getFromContainer, MigrationInterface} from 'typeorm';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
+import {ConnectionMetadataBuilder} from 'typeorm/connection/ConnectionMetadataBuilder';
+import {OrmUtils} from 'typeorm/util/OrmUtils';
+import {importClassesFromDirectories} from './importClassesFromDirectories';
 
-interface IMigrationData {
-    moduleDir: string,
-    modelName: string,
-    tableName: string,
-    upQueries: string[],
-    downQueries: string[]
+ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
+    const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
+    const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.connection.logger, migrationDirectories))];
+    return allMigrationClasses.map(migrationClass => getFromContainer<MigrationInterface>(migrationClass));
 }
 
 @Injectable()
