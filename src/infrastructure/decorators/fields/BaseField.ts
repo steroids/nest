@@ -4,7 +4,6 @@ import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
-import {relationTransform} from './RelationIdField';
 
 export const STEROIDS_META_FIELD = 'steroids_meta_field';
 export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
@@ -84,8 +83,12 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
         }, []);
 }
 
+export const getFieldDecoratorName = (targetClass, fieldName: string): string|undefined => {
+    return Reflect.getMetadata(STEROIDS_META_FIELD_DECORATOR, targetClass.prototype, fieldName);
+}
+
 export const getFieldDecorator = (targetClass, fieldName: string): (...args: any) => PropertyDecorator => {
-    const decoratorName: string = Reflect.getMetadata(STEROIDS_META_FIELD_DECORATOR, targetClass.prototype, fieldName);
+    const decoratorName: string = getFieldDecoratorName(targetClass, fieldName);
     const decorator = require('./index')[decoratorName];
     if (!decorator) {
         throw new Error(`Not found Field decorator ${decoratorName}, property: ${fieldName}`);

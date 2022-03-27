@@ -1,8 +1,7 @@
 import {Entity} from 'typeorm';
-import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {ExtendField} from './fields/ExtendField';
 import {applyDecorators} from '@nestjs/common';
-import {getMetaFields} from './fields/BaseField';
+import {getFieldDecoratorName, getMetaFields} from './fields/BaseField';
 
 export interface ITableOptions {
     name: string,
@@ -21,8 +20,15 @@ function TableFromModelInternal(ModelClass) {
         modelToTableMap[ModelClass.name] = target;
 
         getMetaFields(ModelClass).forEach(field => {
-            ExtendField(ModelClass)(target.prototype, field);
+            // считаем что поле модели полем таблицы, если для него задан декоратор,
+            // так как все steroids-поля задают декораторы
+            // @todo нужно определять является ли поле колонкой в бд более семантически логичным способом
+            const isTableColumn = !!getFieldDecoratorName(ModelClass, field);
+            if (isTableColumn) {
+                ExtendField(ModelClass)(target.prototype, field);
+            }
         });
+
     };
 }
 
