@@ -12,21 +12,22 @@ export function EmailField(options: IEmailFieldOptions = {}) {
         options.label = 'Email';
     }
 
-    return applyDecorators(
-        BaseField(options,{
-            decoratorName: 'EmailField',
-            appType: 'email',
-            jsType: 'string',
-        }),
-        Column({
-            type: 'varchar',
-            default: options.defaultValue,
-            unique: options.unique,
-            nullable: options.nullable,
-        }),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-        IsEmail({
-            message: 'Некорректный email адрес',
-        }),
+    return applyDecorators(...[
+            BaseField(options,{
+                decoratorName: 'EmailField',
+                appType: 'email',
+                jsType: 'string',
+            }),
+            Column({
+                type: 'varchar',
+                default: options.defaultValue,
+                unique: options.unique,
+                nullable: options.nullable,
+            }),
+            options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+            IsEmail({
+                message: 'Некорректный email адрес',
+            }),
+        ].filter(Boolean)
     );
 }
