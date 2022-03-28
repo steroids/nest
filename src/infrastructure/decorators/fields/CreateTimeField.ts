@@ -4,6 +4,7 @@ import {Column, getMetadataArgsStorage} from 'typeorm';
 import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
+import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 
 export interface ICreateTimeFieldOptions extends IBaseFieldOptions {
     precision?: number,
@@ -41,11 +42,9 @@ export function CreateTimeField(options: ICreateTimeFieldOptions = {}) {
             precision: _has(options, 'precision') ? options.precision : 0,
             default: _has(options, 'defaultValue') ? options.defaultValue : undefined,
             nullable: _has(options, 'nullable') ? options.nullable : false,
-            transformer: {
-                from: normalizeDateTime,
-                to: normalizeDateTime,
-            },
         }),
+        Transform(({value}) => normalizeDateTime(value), TRANSFORM_TYPE_FROM_DB),
+        Transform(({value}) => normalizeDateTime(value), TRANSFORM_TYPE_TO_DB),
         CreateTimeBehaviour,
     );
 }

@@ -4,7 +4,8 @@ import {Column, getMetadataArgsStorage} from 'typeorm';
 import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
-import {IsString} from 'class-validator';
+import {IsOptional, IsString} from 'class-validator';
+import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 
 export interface IUpdateTimeFieldOptions extends IBaseFieldOptions {
     precision?: number,
@@ -44,12 +45,11 @@ export function UpdateTimeField(options: IUpdateTimeFieldOptions = {}) {
             precision: _has(options, 'precision') ? options.precision : 0,
             default: _has(options, 'defaultValue') ? options.defaultValue : undefined,
             nullable: _has(options, 'nullable') ? options.nullable : false,
-            transformer: {
-                from: normalizeDateTime,
-                to: () => normalizeDateTime(new Date()),
-            },
         }),
+        Transform(({value}) => normalizeDateTime(value), TRANSFORM_TYPE_FROM_DB),
+        Transform(() => normalizeDateTime(new Date()), TRANSFORM_TYPE_TO_DB),
         UpdateTimeBehaviour,
+        IsOptional(),
         IsString(),
     );
 }
