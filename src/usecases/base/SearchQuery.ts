@@ -114,4 +114,46 @@ export default class SearchQuery {
             }
         })
     }
+
+    with(relation: string|string[]) {
+        if (!this.relations) {
+            this.relations = [];
+        }
+        [].concat(relation || []).forEach(name => {
+            if (!this.relations.includes(name)) {
+                this.relations.push(name);
+            }
+        });
+    }
+
+    where(condition) {
+        this.condition = condition;
+        return this;
+    }
+
+    andWhere(condition) {
+        if (this.condition) {
+            this.condition = [
+                'and',
+                this.condition,
+                condition,
+            ];
+            return this;
+        } else {
+            return this.where(condition);
+        }
+    }
+
+    orWhere(condition) {
+        if (this.condition) {
+            this.condition = [
+                'or',
+                this.condition,
+                condition,
+            ];
+            return this;
+        } else {
+            return this.where(condition);
+        }
+    }
 }

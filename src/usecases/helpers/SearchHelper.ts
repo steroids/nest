@@ -28,7 +28,7 @@ export class SearchHelper {
 
         // Sort
         const sort = typeof dto.sort === 'string' ? dto.sort.split(',') : (dto.sort || []);
-        if (sort.length === 0) {
+        if (sort.length > 0) {
             dbQuery.orderBy(sort.reduce((obj, value) => {
                 obj[value.replace('!', '')] = value.indexOf('!') === 0 ? 'DESC' : 'ASC';
                 return obj;
