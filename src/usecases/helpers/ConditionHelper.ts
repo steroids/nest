@@ -7,6 +7,7 @@ export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=
 export type IConditionOperatorAndOr = 'and' | '&&' | 'or' | '||';
 export type ICondition = Record<string, unknown>
     | [IConditionOperatorAndOr, ...any[]]
+    | ['filter', ICondition]
     | [IConditionOperatorSingle, string, ...any[]]
     | ICondition[]
     | ((qb: WhereExpressionBuilder) => any);
@@ -15,11 +16,12 @@ const emptyCondition = {};
 const isEmpty = value => value === null || typeof value === 'undefined' || value === emptyCondition;
 
 export class ConditionHelper {
-    static toTypeOrmFilter(condition: ICondition) {
-        return ConditionHelper.toTypeOrm(condition, true);
+
+    static toTypeOrm(condition: ICondition) {
+        return ConditionHelper._toTypeOrmInternal(condition);
     }
 
-    static toTypeOrm(condition: ICondition, filterEmpty = false) {
+    static _toTypeOrmInternal(condition: ICondition, filterEmpty = false) {
         // TODO Вероятно стоит убрать это, чтобы не было соблазна использовать в сервисах
         if (typeof condition === 'function') {
             return new Brackets(condition);
@@ -27,7 +29,7 @@ export class ConditionHelper {
 
         // {key: value, ...}
         if (typeof condition === 'object' && !Array.isArray(condition)) {
-            const result = Object.keys(condition).reduce((obj, key) => {
+            const result = Object.keys(condition || {}).reduce((obj, key) => {
                 const value = (condition as any)[key];
                 if (!filterEmpty || !isEmpty(value)) {
                     _set(obj, key, value)
@@ -55,6 +57,9 @@ export class ConditionHelper {
             const key = condition[1] as string;
             const value = condition[2];
             switch (operator) {
+                case 'filter': // ['filter', condition]
+                    return ConditionHelper._toTypeOrmInternal(value, true);
+
                 case '=': // ['=', 'age', 18]
                     return objectWhere(isNot, isEmpty(value), key, value);
 
@@ -101,7 +106,7 @@ export class ConditionHelper {
 
                     const isOr = ['or', '||'].includes(operator);
                     const values = condition.slice(1)
-                        .map(item => ConditionHelper.toTypeOrm(item, filterEmpty))
+                        .map(item => ConditionHelper._toTypeOrmInternal(item, filterEmpty))
                         .filter(value => !isEmpty(value));
 
                     if (values.length === 0) {
@@ -126,6 +131,10 @@ export class ConditionHelper {
                 default:
                     throw Error('Wrong operator: ' + operator);
             }
+        }
+
+        if (!condition) {
+            return emptyCondition;
         }
 
         throw Error('Wrong condition: ' + JSON.stringify(condition));

@@ -124,14 +124,19 @@ export default class SearchQuery {
                 this.relations.push(name);
             }
         });
+        return this;
     }
 
-    where(condition) {
+    where(condition: ICondition) {
         this.condition = condition;
         return this;
     }
 
-    andWhere(condition) {
+    filterWhere(condition: ICondition) {
+        return this.where(['filter', condition]);
+    }
+
+    andWhere(condition: ICondition) {
         if (this.condition) {
             this.condition = [
                 'and',
@@ -144,7 +149,11 @@ export default class SearchQuery {
         }
     }
 
-    orWhere(condition) {
+    andFilterWhere(condition: ICondition) {
+        return this.andWhere(['filter', condition]);
+    }
+
+    orWhere(condition: ICondition) {
         if (this.condition) {
             this.condition = [
                 'or',
@@ -155,5 +164,9 @@ export default class SearchQuery {
         } else {
             return this.where(condition);
         }
+    }
+
+    orFilterWhere(condition: ICondition) {
+        return this.orWhere(['filter', condition]);
     }
 }
