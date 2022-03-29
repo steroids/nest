@@ -6,8 +6,13 @@ import {plainToInstance} from 'class-transformer';
 @Injectable()
 export class CreateDtoPipe implements PipeTransform<any> {
     async transform(value: any, metadata: ArgumentMetadata): Promise<any> {
-        return isMetaClass(metadata.metatype)
-            ? DataMapper.create(metadata.metatype, value)
-            : plainToInstance(metadata.metatype, value);
+        // Оставляем plainToInstance для конвертации значений 'false' -> false, '10' -> 10, ...
+        value = plainToInstance(metadata.metatype, value);
+
+        if (isMetaClass(metadata.metatype)) {
+            value = DataMapper.create(metadata.metatype, value);
+        }
+
+        return value;
     }
 }
