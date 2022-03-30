@@ -1,4 +1,4 @@
-import {ApiProperty} from '@nestjs/swagger';
+import {IntegerField, StringField} from '../../infrastructure/decorators/fields';
 
 export interface ISearchInputDto {
     page?: number,
@@ -7,12 +7,13 @@ export interface ISearchInputDto {
 }
 
 export class SearchInputDto {
-    @ApiProperty({required: false})
+
+    @IntegerField({nullable: true})
     page?: number;
 
-    @ApiProperty({required: false})
+    @IntegerField({nullable: true})
     pageSize?: number;
 
-    @ApiProperty({required: false})
+    @StringField({nullable: true})
     sort?: string | string[];
 }
