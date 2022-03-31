@@ -42,6 +42,7 @@ export class ConditionHelper {
         if (Array.isArray(condition) && condition.length > 1 && typeof condition[0] === 'string') {
             let operator = condition[0].toLowerCase();
 
+
             // ['not', {role: 'admin'}]
             const isNot = operator.indexOf('not') === 0;
             if (isNot) {
@@ -56,10 +57,6 @@ export class ConditionHelper {
 
             const key = condition[1] as string;
             const value = condition[2];
-
-            if (Array.isArray(value)) {
-                operator = 'in';
-            }
 
             switch (operator) {
                 case 'filter': // ['filter', condition]
