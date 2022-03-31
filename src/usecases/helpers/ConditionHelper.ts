@@ -27,16 +27,16 @@ export class ConditionHelper {
             return new Brackets(condition);
         }
 
-        // {key: value, ...}
+        // {key: value, ...} -> ['and', ['=', key, value], ...]
         if (typeof condition === 'object' && !Array.isArray(condition)) {
-            const result = Object.keys(condition || {}).reduce((obj, key) => {
-                const value = (condition as any)[key];
-                if (!filterEmpty || !isEmpty(value)) {
-                    _set(obj, key, value)
-                }
-                return obj;
-            }, {});
-            return Object.keys(result).length === 0 ? emptyCondition : result;
+            return ConditionHelper._toTypeOrmInternal(
+                [
+                    'and',
+                    ...Object.keys(condition || {})
+                        .map(key => ['=', key, (condition as any)[key]]),
+                ],
+                filterEmpty
+            );
         }
 
         if (Array.isArray(condition) && condition.length > 1 && typeof condition[0] === 'string') {
@@ -56,6 +56,11 @@ export class ConditionHelper {
 
             const key = condition[1] as string;
             const value = condition[2];
+
+            if (Array.isArray(value)) {
+                operator = 'in';
+            }
+
             switch (operator) {
                 case 'filter': // ['filter', condition]
                     return ConditionHelper._toTypeOrmInternal(value, true);

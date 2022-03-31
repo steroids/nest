@@ -4,10 +4,11 @@ import {ICrudRepository} from '../interfaces/ICrudRepository';
 import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
-import {validateOrReject} from '../helpers/ValidationHelper';
+import {ValidationHelper} from '../helpers/ValidationHelper';
 import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
+import {IValidator, IValidatorParams} from '../interfaces/IValidator';
 
 /**
  * Generic CRUD service
@@ -32,6 +33,11 @@ export class CrudService<TModel,
      */
     protected modelClass;
 
+    /**
+     * Injected validator instances
+     */
+    public validators: IValidator[];
+
     init(repository: ICrudRepository<TModel>, ModelClass) {
         this.repository = repository;
         this.modelClass = ModelClass;
@@ -55,7 +61,9 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null
     ): Promise<SearchResultDto<TModel | Type<TSchema>>> {
-        await validateOrReject(dto);
+        await this.validate(dto, {
+            context,
+        });
 
         const result = await this.repository.search<TSchema>(
             dto,
@@ -125,9 +133,12 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        await validateOrReject(dto);
-
         const nextModel = await this.dtoToModel(dto);
+
+        await this.validate(dto, {
+            nextModel,
+            context,
+        });
 
         await this.saveInternal(null, nextModel, context);
         return schemaClass ? this.findById(nextModel[this.primaryKey], context, schemaClass) : nextModel;
@@ -156,15 +167,12 @@ export class CrudService<TModel,
     ): Promise<TModel | Type<TSchema>> {
         const id: number = _toInteger(rawId);
 
-        // Validate dto
-        await validateOrReject(dto);
-
-        const searchQuery = new SearchQuery();
-        searchQuery.condition = {[this.primaryKey]: id};
-        searchQuery.relations = getMetaRelations(dto.constructor);
-
         // Fetch previous model state
-        let prevModel = await this.findOne(searchQuery);
+        let prevModel = await this.findOne(
+            (new SearchQuery())
+                .where({[this.primaryKey]: id})
+                .with(getMetaRelations(dto.constructor))
+        );
         if (!prevModel) {
             throw new Error('Not found model by id: ' + id);
         }
@@ -181,6 +189,13 @@ export class CrudService<TModel,
 
         // Принудительно добавляем primary key, т.к. его зачастую нет в dto
         nextModel[this.primaryKey] = id;
+
+        // Validate dto
+        await this.validate(dto, {
+            prevModel,
+            nextModel,
+            context,
+        });
 
         // Save
         await this.saveInternal(prevModel, nextModel, context);
@@ -257,5 +272,9 @@ export class CrudService<TModel,
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
         return DataMapper.create(this.modelClass, dto);
+    }
+
+    protected async validate(dto: any, params?: IValidatorParams) {
+        await ValidationHelper.validate(dto, params, this.validators);
     }
 }
