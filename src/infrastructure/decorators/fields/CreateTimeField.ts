@@ -15,7 +15,7 @@ const CreateTimeBehaviour = (object, propertyName) => {
     if (!object[methodName]) {
         // eslint-disable-next-line func-names
         object[methodName] = function () {
-            this[propertyName] = normalizeDateTime(new Date());
+            this[propertyName] = normalizeDateTime(new Date(), false);
         };
     }
 
@@ -43,8 +43,8 @@ export function CreateTimeField(options: ICreateTimeFieldOptions = {}) {
             default: _has(options, 'defaultValue') ? options.defaultValue : undefined,
             nullable: _has(options, 'nullable') ? options.nullable : false,
         }),
-        Transform(({value}) => normalizeDateTime(value), TRANSFORM_TYPE_FROM_DB),
-        Transform(({value}) => normalizeDateTime(value), TRANSFORM_TYPE_TO_DB),
+        Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_FROM_DB),
+        Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_TO_DB),
         CreateTimeBehaviour,
     );
 }
