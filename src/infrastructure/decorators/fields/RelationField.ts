@@ -77,7 +77,9 @@ const transformIds = (TableClass, value, isArray, transformType) => {
     }
     if (typeof value === 'number') {
         const primaryKey = getMetaPrimaryKey(TableClass);
-        return DataMapper.create(TableClass, {[primaryKey]: value}, transformType);
+        const entity = new TableClass();
+        entity[primaryKey] = value;
+        return entity;
     }
     return value;
 }
