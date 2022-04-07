@@ -9,7 +9,7 @@ export class UserExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
         const message = exception.message;
         response
-            // TODO#Warning - ставим код 200, чтобы форма на фронте принимала массив ошибок
+            // TODO#Warning - ставим код 200, чтобы форма на принимала текст ошибки
             .status(HttpStatus.OK)
             .json({
                 statusCode: HttpStatus.BAD_REQUEST,
