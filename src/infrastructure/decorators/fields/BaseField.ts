@@ -83,7 +83,22 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
         }, []);
 }
 
-export const getFieldDecoratorName = (targetClass, fieldName: string): string|undefined => {
+export const getRelationsByFilter = (
+    MetaClass,
+    filterCallBack: (options: IAllFieldOptions) => void
+): string[] => {
+    return getMetaFields(MetaClass)
+        .filter(fieldName => {
+            const options = getFieldOptions(MetaClass, fieldName);
+            return ['relation'].includes(options.appType);
+        })
+        .filter((relationName) => {
+            const relationOptions = getFieldOptions(MetaClass, relationName);
+            return filterCallBack(relationOptions)
+        });
+}
+
+export const getFieldDecoratorName = (targetClass, fieldName: string): string | undefined => {
     return Reflect.getMetadata(STEROIDS_META_FIELD_DECORATOR, targetClass.prototype, fieldName);
 }
 

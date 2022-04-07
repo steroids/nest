@@ -7,8 +7,10 @@ import {SearchResultDto} from '../dtos/SearchResultDto';
 import {ValidationHelper} from '../helpers/ValidationHelper';
 import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
-import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
+import {getMetaRelations, getRelationsByFilter} from '../../infrastructure/decorators/fields/BaseField';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
+import {RelationTypeEnum} from '../../domain/enums/RelationTypeEnum';
+import {UserException, ValidationException} from "../exceptions";
 
 /**
  * Generic CRUD service
@@ -223,6 +225,25 @@ export class CrudService<TModel,
         // await this.repository.save(nextModel);
     }
 
+    async checkHasRelatedModels(id: string | number, service: CrudService<any>) {
+        const relations = getRelationsByFilter(this.modelClass,
+            (relation) => {
+                if (relation.type === RelationTypeEnum.OneToOne) {
+                    return !relation.isOwningSide
+                }
+                return RelationTypeEnum.OneToMany === relation.type
+            });
+        const searchQuery = new SearchQuery();
+        searchQuery.relations = relations;
+        searchQuery.condition = {id};
+        const model = await service.findOne(searchQuery);
+        relations.forEach((relation) => {
+            if (model[relation].length > 0) {
+                throw new UserException('Нельзя удалить, есть связные элементы')
+            }
+        });
+    }
+
     /**
      * Remove model
      * @param rawId
@@ -230,7 +251,7 @@ export class CrudService<TModel,
      */
     async remove(rawId: number | string, context: ContextDto = null): Promise<void> {
         const id: number = _toInteger(rawId);
-
+        await this.checkHasRelatedModels(id, this)
         await this.removeInternal(id, context);
     }
 

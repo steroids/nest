@@ -8,11 +8,7 @@ import {join} from 'path';
 import {ConfigModule, ConfigService} from '@nestjs/config';
 import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
 import {PostgresConnectionOptions} from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import {ArticleService} from './app/services/ArticleService';
-import {CommentService} from './app/services/CommentService';
-import {FileService} from './app/services/FileService';
-import {TagService} from './app/services/TagService';
-import {UserService} from './app/services/UserService';
+import {UserExceptionFilter} from "../filters/UserExceptionFilter";
 
 @Module({
     imports: [
@@ -50,7 +46,7 @@ export async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
     app.useGlobalPipes(new CreateDtoPipe());
-    app.useGlobalFilters(new ValidationExceptionFilter());
+    app.useGlobalFilters(new ValidationExceptionFilter(),new UserExceptionFilter());
     app.init();
 
     return app;
