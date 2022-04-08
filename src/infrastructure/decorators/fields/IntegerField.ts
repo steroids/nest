@@ -10,6 +10,8 @@ export interface IIntegerFieldOptions extends IBaseFieldOptions {
     isIntConstraintMessage?: string,
 }
 
+const isEmpty = value => !value && value !== 0 && value !== '0';
+
 export function IntegerField(options: IIntegerFieldOptions = {}) {
     return applyDecorators(...[
         BaseField(options, {
@@ -23,12 +25,12 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+        options.nullable && ValidateIf((object, value) => !isEmpty(value)),
         Transform(({value}) => {
             if (Array.isArray(value)) {
-                return value.map(valueItem => _toInteger(valueItem));
+                return value.map(valueItem => !isEmpty(valueItem) ? _toInteger(valueItem) : null);
             }
-            return value === null ? value : _toInteger(value);
+            return !isEmpty(value) ? _toInteger(value) : null;
         }),
         IsInt({
             message: options.isIntConstraintMessage || 'Должно быть числом',
