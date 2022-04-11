@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {ManyToMany, ManyToOne, OneToMany, OneToOne, JoinTable, JoinColumn} from 'typeorm';
-import {ValidateNested} from 'class-validator';
+import {ValidateIf, ValidateNested} from 'class-validator';
 import {Type} from 'class-transformer';
 import {BaseField, getFieldOptions, getMetaFields, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
 import {getTableFromModel} from '../TableFromModel';
@@ -143,6 +143,7 @@ export function RelationField(options: IRelationFieldOptions) {
             ),
             OwningDecorator && OwningDecorator(),
             //options.type === 'ManyToOne' && JoinColumn(),
+            ValidateIf((object, value) => !!value),
             ValidateNested({each: true}),
             Type(options.relationClass),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),

@@ -1,4 +1,5 @@
 import {has as _has} from 'lodash';
+import {isObject as _isObject} from 'lodash';
 import {getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
@@ -47,7 +48,18 @@ export class DataMapper {
             const sourceName = options?.sourceFieldName || name;
 
             if (_has(values, sourceName)) {
-                object[name] = values[sourceName];
+                if (options?.appType === 'relation') {
+                    if (options.isArray && Array.isArray(values[sourceName])) {
+                        values[sourceName] = values[sourceName]
+                            .map(item => DataMapper.create(options.relationClass(), item));
+                    } else if (_isObject(values[sourceName])) {
+                        object[name] = DataMapper.create(options.relationClass(), values[sourceName]);
+                    } else {
+                        object[name] = values[sourceName];
+                    }
+                } else {
+                    object[name] = values[sourceName];
+                }
             }
 
             for (let type of transformTypes) {
