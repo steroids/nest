@@ -43,12 +43,14 @@ export default class SearchQuery {
         }
 
         // Find relations
-        searchQuery.relations && SearchQuery.prepareRelations(
-            dbQuery,
-            searchQuery.relations,
-            prefix,
-            dbRepository.target
-        );
+        if (searchQuery.relations) {
+            SearchQuery.prepareRelations(
+                dbQuery,
+                searchQuery.relations,
+                prefix,
+                dbRepository.target
+            );
+        }
 
         // Condition
         if (searchQuery.condition) {

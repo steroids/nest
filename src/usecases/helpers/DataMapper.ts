@@ -50,7 +50,7 @@ export class DataMapper {
             if (_has(values, sourceName)) {
                 if (options?.appType === 'relation') {
                     if (options.isArray && Array.isArray(values[sourceName])) {
-                        values[sourceName] = values[sourceName]
+                        object[name] = values[sourceName]
                             .map(item => DataMapper.create(options.relationClass(), item));
                     } else if (_isObject(values[sourceName])) {
                         object[name] = DataMapper.create(options.relationClass(), values[sourceName]);
