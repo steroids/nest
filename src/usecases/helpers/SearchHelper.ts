@@ -23,6 +23,7 @@ export class SearchHelper {
 
         // Create query
         const dbQuery = repository.createQueryBuilder(searchQuery.alias || 'model');
+        const modelAlias = dbQuery.alias;
 
         SearchQuery.prepare(repository, dbQuery, searchQuery);
 
@@ -30,7 +31,8 @@ export class SearchHelper {
         const sort = typeof dto.sort === 'string' ? dto.sort.split(',') : (dto.sort || []);
         if (sort.length > 0) {
             dbQuery.orderBy(sort.reduce((obj, value) => {
-                obj[value.replace('!', '')] = value.indexOf('!') === 0 ? 'DESC' : 'ASC';
+                const fieldNameToSort = `${modelAlias}.${value.replace('!', '')}`;
+                obj[fieldNameToSort] = value.includes('!') ? 'DESC' : 'ASC';
                 return obj;
             }, {}));
         }
