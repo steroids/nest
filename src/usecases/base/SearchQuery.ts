@@ -3,7 +3,6 @@ import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getFieldOptions, getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
-import {IRelationIdFieldOptions} from '../../infrastructure/decorators/fields/RelationIdField';
 
 export default class SearchQuery {
     alias?: string;
@@ -60,64 +59,68 @@ export default class SearchQuery {
 
     private static prepareRelations(
         dbQuery: SelectQueryBuilder<any>,
-        relations: string[],
-        parentPrefix: string,
-        parentTable: any
+        relationsWithAliases: string[],
+        rootPrefix: string,
+        rootClass: any,
     ) {
-        relations.forEach(relation => {
-            let fieldOptions;
 
-            const relationFullPath = [...parentPrefix.split('.'), ...relation.split('.')];
-            const relationRelativePath = relation.replace(parentPrefix, '').split('.');
+        // Normalize relations: a.b.c -> a, a.b, a.b.c
+        const relationToAliasMap = {};
+        const relations = [];
+        relationsWithAliases.forEach(relationWithAlias => {
+            // Add root prefix
+            relationWithAlias = rootPrefix + '.' + relationWithAlias;
 
-            const currentRelationField = relationRelativePath[0];
+            // Store alias
+            const [relation, alias] = relationWithAlias.split(' ');
+            relationToAliasMap[relation] = alias || relation.split('.').join('_');
+            relations.push(relation);
 
-            // nested relation case
-            if (relationRelativePath.length > 1) {
-                fieldOptions = getFieldOptions(parentTable, currentRelationField);
+            // Store intermediate relations
+            let path;
+            relation.split('.').forEach(name => {
+                path = [path, name].filter(Boolean).join('.');
+                if (!relationToAliasMap[path]) {
+                    relationToAliasMap[path] = path.split('.').join('_');
+                    if (path !== rootPrefix) {
+                        relations.push(path);
+                    }
+                }
+            });
+        });
 
-                relationRelativePath.splice(0, 1);
+        const classesMap = {
+            [rootPrefix]: rootClass,
+        };
+        relations
+            .sort()
+            .forEach(path => {
+                // Separate: aaa.bbb.ccc -> aaa.bbb + ccc
+                const parentPath = path.split('.').slice(0, -1).join('.');
+                const relationName = path.split('.').slice(-1).join('.');
 
-                const childRelationRelativePath = relationRelativePath.join('.');
-
-                SearchQuery.prepareRelations(
-                    dbQuery,
-                    [childRelationRelativePath],
-                    `${parentPrefix}.${currentRelationField}`,
-                    fieldOptions.relationClass()
-                );
-            } else {
-                fieldOptions = getFieldOptions(parentTable, currentRelationField) as IRelationIdFieldOptions;
-
-                if (!fieldOptions) {
-                    throw new Error('Not found meta data for relation "' + currentRelationField
-                        + '" for table "' + parentTable + '"');
+                const options = getFieldOptions(classesMap[parentPath], relationName);
+                if (options.appType === 'relation') {
+                    classesMap[path] = options.relationClass();
                 }
 
-                // remove last item from path
-                relationFullPath.pop();
-                const parentAlias = relationFullPath.join('_');
-
-                switch (fieldOptions.appType) {
-                    case 'relationId':
-                        dbQuery.loadRelationIdAndMap(
-                            `${parentAlias}.${currentRelationField}`,
-                            `${parentAlias}.${fieldOptions.relationName}`
-                        );
-                        break;
-
-                    case 'relation':
-                        dbQuery.leftJoinAndSelect(
-                            `${parentAlias}.${currentRelationField}`,
-                            `${parentAlias}_${currentRelationField}`
-                        );
-                        break;
+                const property = relationToAliasMap[parentPath] + '.' + relationName;
+                const alias = relationToAliasMap[path];
+                if (options.relationName) {
+                    dbQuery.loadRelationIdAndMap(
+                        property,
+                        relationToAliasMap[parentPath] + '.' + options.relationName,
+                    );
+                } else {
+                    dbQuery.leftJoinAndSelect(
+                        property,
+                        alias,
+                    );
                 }
-            }
-        })
+            });
     }
 
-    with(relation: string|string[]) {
+    with(relation: string | string[]) {
         if (!this.relations) {
             this.relations = [];
         }

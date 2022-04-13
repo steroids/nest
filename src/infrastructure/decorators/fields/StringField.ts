@@ -25,7 +25,7 @@ export function StringField(options: IStringFieldOptions = {}) {
             each: options.isArray,
             message: 'Должна быть строка',
         }),
-        IsOptional(), // TODO check nullable and required
+        !options.required && IsOptional(), // TODO check nullable and required
         typeof options.min === 'number' && MinLength(options.min),
         typeof options.max === 'number' && MaxLength(options.max),
     ].filter(Boolean));
