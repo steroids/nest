@@ -23,7 +23,7 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
                 precision: options.precision || 10,
                 scale: options.scale || 2,
             }),
-            options.nullable && ValidateIf((object, value) => value !== null),
+            options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             IsString({
                 message: options.isDecimalConstraintMessage || 'Должно быть строкой',
             }),
