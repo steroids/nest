@@ -100,22 +100,24 @@ export default class SearchQuery {
                 const relationName = path.split('.').slice(-1).join('.');
 
                 const options = getFieldOptions(classesMap[parentPath], relationName);
-                if (options.appType === 'relation') {
-                    classesMap[path] = options.relationClass();
-                }
+                if (options) {
+                    if (options.appType === 'relation') {
+                        classesMap[path] = options.relationClass();
+                    }
 
-                const property = relationToAliasMap[parentPath] + '.' + relationName;
-                const alias = relationToAliasMap[path];
-                if (options.relationName) {
-                    dbQuery.loadRelationIdAndMap(
-                        property,
-                        relationToAliasMap[parentPath] + '.' + options.relationName,
-                    );
-                } else {
-                    dbQuery.leftJoinAndSelect(
-                        property,
-                        alias,
-                    );
+                    const property = relationToAliasMap[parentPath] + '.' + relationName;
+                    const alias = relationToAliasMap[path];
+                    if (options.relationName) {
+                        dbQuery.loadRelationIdAndMap(
+                            property,
+                            relationToAliasMap[parentPath] + '.' + options.relationName,
+                        );
+                    } else {
+                        dbQuery.leftJoinAndSelect(
+                            property,
+                            alias,
+                        );
+                    }
                 }
             });
     }

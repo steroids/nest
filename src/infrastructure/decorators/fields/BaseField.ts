@@ -58,29 +58,37 @@ export const getMetaFields = (MetaClass): string[] => {
 }
 
 export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
-    return getMetaFields(MetaClass)
-        .filter(fieldName => {
-            const options = getFieldOptions(MetaClass, fieldName);
-            return ['relationId', 'relation'].includes(options.appType);
-        })
-        .reduce((allRelations, relationName) => {
-            allRelations.push(relationName);
 
-            const options = getFieldOptions(MetaClass, relationName);
-            if (options.appType === 'relationId') {
+    const findRelationsRecursive = (MetaClass, finedClasses, parentPrefix = null) => {
+        return getMetaFields(MetaClass)
+            .filter(fieldName => {
+                const options = getFieldOptions(MetaClass, fieldName);
+                return ['relationId', 'relation'].includes(options?.appType);
+            })
+            .reduce((allRelations, relationName) => {
+                allRelations.push(relationName);
+
+                const options = getFieldOptions(MetaClass, relationName);
+                if (options.appType === 'relationId') {
+                    return allRelations;
+                }
+
+                const relationValue = options.relationClass();
+                if (finedClasses.includes(relationValue)) {
+                    return allRelations;
+                }
+                finedClasses.push(relationValue);
+
+                if (isMetaClass(relationValue)) {
+                    const subRelationNames = findRelationsRecursive(relationValue, finedClasses, relationName)
+                        .map(subRelationName => `${relationName}.${subRelationName}`)
+                    allRelations = [...allRelations, ...subRelationNames];
+                }
+
                 return allRelations;
-            }
-            const relationValue = options.relationClass();
-
-            if (isMetaClass(relationValue)) {
-                const subRelationNames = getMetaRelations(relationValue, relationName).map(subRelationName => {
-                    return `${relationName}.${subRelationName}`;
-                })
-                allRelations = [...allRelations, ...subRelationNames];
-            }
-
-            return allRelations;
-        }, []);
+            }, []);
+    }
+    return findRelationsRecursive(MetaClass, []);
 }
 
 export const getRelationsByFilter = (

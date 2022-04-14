@@ -66,8 +66,8 @@ export class ValidationHelper {
             const nextParams = {
                 ...params,
                 name: key,
-                prevModel: params.prevModel?.[key] || null,
-                nextModel: params.nextModel?.[key] || null,
+                prevModel: params?.prevModel?.[key] || null,
+                nextModel: params?.nextModel?.[key] || null,
             };
 
             try {
