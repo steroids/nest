@@ -96,9 +96,13 @@ export class CrudService<TModel,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
         const searchQuery = schemaClass ? SearchQuery.createFromSchema(schemaClass) : new SearchQuery();
-        searchQuery.condition = {[this.primaryKey]: _toInteger(id)};
+        searchQuery.andWhere({[this.primaryKey]: _toInteger(id)});
         const model = await this.findOne(searchQuery);
         return schemaClass ? this.modelToSchema<TSchema>(model, schemaClass) : model;
+    }
+
+    createQuery(): SearchQuery {
+        return this.repository.createQuery();
     }
 
     /**
@@ -234,8 +238,8 @@ export class CrudService<TModel,
                 return RelationTypeEnum.OneToMany === relation.type
             });
         const searchQuery = new SearchQuery();
-        searchQuery.relations = relations;
-        searchQuery.condition = {id};
+        searchQuery.with(relations)
+        searchQuery.where({id});
         const model = await service.findOne(searchQuery);
         relations.forEach((relation) => {
             if (model[relation].length > 0) {

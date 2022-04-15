@@ -53,6 +53,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
         return result;
     }
 
+    createQuery(): SearchQuery {
+        return new SearchQuery(this);
+    }
+
     /**
      * Find item by condition
      * @param conditionOrQuery
@@ -84,7 +88,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
         let searchQuery = conditionOrQuery as SearchQuery;
         if (!(conditionOrQuery instanceof SearchQuery)) {
             searchQuery = new SearchQuery();
-            searchQuery.condition = conditionOrQuery;
+            searchQuery.where(conditionOrQuery);
         }
 
         const dbQuery = this.dbRepository.createQueryBuilder('model');

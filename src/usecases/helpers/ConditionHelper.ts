@@ -86,7 +86,7 @@ export class ConditionHelper {
                         isNot,
                         isEmpty(value),
                         key,
-                        likeMethod(value.indexOf('%') !== -1 ? value : '%' + value + '%')
+                        likeMethod( value ? (value.indexOf('%') !== -1 ? value : '%' + value + '%') : '')
                     );
 
                 case 'between': // ['between', 'size', 5, 10]

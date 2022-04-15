@@ -22,7 +22,7 @@ export class SearchHelper {
         };
 
         // Create query
-        const dbQuery = repository.createQueryBuilder(searchQuery.alias || 'model');
+        const dbQuery = repository.createQueryBuilder(searchQuery.getAlias() || 'model');
         const modelAlias = dbQuery.alias;
 
         SearchQuery.prepare(repository, dbQuery, searchQuery);

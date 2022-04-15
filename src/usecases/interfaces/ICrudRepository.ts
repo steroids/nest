@@ -10,6 +10,7 @@ export interface ICrudRepository<TModel> {
     search: <TItem>(dto: SearchInputDto, searchQuery: SearchQuery) => Promise<SearchResultDto<TModel | Type<TItem>>>,
     findOne: (conditionOrQuery: ICondition | SearchQuery) => Promise<TModel | null>,
     findMany: (conditionOrQuery: ICondition | SearchQuery) => Promise<TModel[]>,
+    createQuery: () => SearchQuery,
     create: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
     update: (id: number, model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
     save: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,

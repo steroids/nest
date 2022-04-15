@@ -3,21 +3,32 @@ import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getFieldOptions, getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ConditionHelper, ICondition} from '../helpers/ConditionHelper';
+import {ICrudRepository} from '../interfaces/ICrudRepository';
+
+export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export default class SearchQuery {
-    alias?: string;
-    select?: string[];
-    excludeSelect?: string[];
-    relations?: string[];
-    condition?: ICondition;
+    protected _select?: string[];
+    protected _excludeSelect?: string[];
+    protected _alias?: string;
+    protected _relations?: string[];
+    protected _condition?: ICondition;
+    protected _orders?: ISearchQueryOrder;
+    protected _limit?: number;
+    protected _offset?: number;
+    protected _repository?: ICrudRepository<any>;
 
-    static createFromSchema(SchemaClass) {
+    constructor(repository = null) {
+        this._repository = repository;
+    }
+
+    static createFromSchema(SchemaClass): SearchQuery {
         const searchQuery = new SearchQuery();
 
         const options = getSchemaSelectOptions(SchemaClass);
-        searchQuery.select = options?.search;
-        searchQuery.excludeSelect = options?.excludeSelect;
-        searchQuery.relations = getMetaRelations(SchemaClass);
+        searchQuery._select = options?.search;
+        searchQuery._excludeSelect = options?.excludeSelect;
+        searchQuery._relations = getMetaRelations(SchemaClass);
 
         return searchQuery;
     }
@@ -30,11 +41,11 @@ export default class SearchQuery {
         const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
         // Get select and relations from search schema
-        let select = searchQuery.select;
-        if (searchQuery.excludeSelect) {
+        let select = searchQuery._select;
+        if (searchQuery._excludeSelect) {
             select = dbRepository.metadata.columns
                 .map(column => column.propertyName)
-                .filter(name => !searchQuery.excludeSelect.includes(name));
+                .filter(name => !searchQuery._excludeSelect.includes(name));
         }
 
         if (select) {
@@ -42,18 +53,36 @@ export default class SearchQuery {
         }
 
         // Find relations
-        if (searchQuery.relations) {
+        if (searchQuery._relations) {
             SearchQuery.prepareRelations(
                 dbQuery,
-                searchQuery.relations,
+                searchQuery._relations,
                 prefix,
                 dbRepository.target
             );
         }
 
         // Condition
-        if (searchQuery.condition) {
-            dbQuery.andWhere(ConditionHelper.toTypeOrm(searchQuery.condition));
+        if (searchQuery._condition) {
+            dbQuery.andWhere(ConditionHelper.toTypeOrm(searchQuery._condition));
+        }
+
+        // Order
+        if (searchQuery._orders) {
+            dbQuery.orderBy(
+                Object.keys(searchQuery._orders).reduce((obj, key) => {
+                    obj[key] = searchQuery._orders[key].toUpperCase();
+                    return obj;
+                }, {})
+            );
+        }
+
+        // Limit & offset
+        if (searchQuery._limit) {
+            dbQuery.limit(searchQuery._limit);
+        }
+        if (searchQuery._offset) {
+            dbQuery.offset(searchQuery._offset);
         }
     }
 
@@ -122,20 +151,59 @@ export default class SearchQuery {
             });
     }
 
+    select(value: string | string[]) {
+        this._select = [].concat(value || []);
+        return this;
+    }
+
+    addSelect(value: string | string[]) {
+        this._select = [
+            ...this._select,
+            ...[].concat(value || []),
+        ];
+        return this;
+    }
+
+    getSelect() {
+        return this._select;
+    }
+
+    excludeSelect(value: string | string[]) {
+        this._excludeSelect = [].concat(value || []);
+        return this;
+    }
+
+    getExcludeSelect() {
+        return this._excludeSelect;
+    }
+
+    alias(value: string) {
+        this._alias = value;
+        return this;
+    }
+
+    getAlias() {
+        return this._alias;
+    }
+
     with(relation: string | string[]) {
-        if (!this.relations) {
-            this.relations = [];
+        if (!this._relations) {
+            this._relations = [];
         }
         [].concat(relation || []).forEach(name => {
-            if (!this.relations.includes(name)) {
-                this.relations.push(name);
+            if (!this._relations.includes(name)) {
+                this._relations.push(name);
             }
         });
         return this;
     }
 
+    getWith() {
+        return this._relations;
+    }
+
     where(condition: ICondition) {
-        this.condition = condition;
+        this._condition = condition;
         return this;
     }
 
@@ -144,10 +212,10 @@ export default class SearchQuery {
     }
 
     andWhere(condition: ICondition) {
-        if (this.condition) {
-            this.condition = [
+        if (this._condition) {
+            this._condition = [
                 'and',
-                this.condition,
+                this._condition,
                 condition,
             ];
             return this;
@@ -161,10 +229,10 @@ export default class SearchQuery {
     }
 
     orWhere(condition: ICondition) {
-        if (this.condition) {
-            this.condition = [
+        if (this._condition) {
+            this._condition = [
                 'or',
-                this.condition,
+                this._condition,
                 condition,
             ];
             return this;
@@ -175,5 +243,69 @@ export default class SearchQuery {
 
     orFilterWhere(condition: ICondition) {
         return this.orWhere(['filter', condition]);
+    }
+
+    getWhere() {
+        return this._condition;
+    }
+
+    orderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
+        this._orders = typeof value === 'string' ? {[value]: direction} : value;
+        return this;
+    }
+
+    addOrderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
+        this._orders = {
+            ...this._orders,
+            ...(typeof value === 'string' ? {[value]: direction} : value),
+        };
+        return this;
+    }
+
+    getOrderBy() {
+        return this._orders;
+    }
+
+    limit(value) {
+        this._limit = value;
+        return this;
+    }
+
+    getLimit() {
+        return this._limit;
+    }
+
+    offset(value) {
+        this._offset = value;
+        return this;
+    }
+
+    getOffset() {
+        return this._offset;
+    }
+
+    _getRepository() {
+        if (!this._repository) {
+            throw new Error('Not found repository, you need create instance as "new SearchQuery(repository)"');
+        }
+        return this._repository;
+    }
+
+    async one() {
+        return this._getRepository().findOne(this);
+    }
+
+    async many() {
+        return this._getRepository().findMany(this);
+    }
+
+    async scalar() {
+        const row = await this._getRepository().findOne(this);
+        return row && Object.values(row)?.[0] || null;
+    }
+
+    async column() {
+        const rows = await this._getRepository().findMany(this);
+        return (rows || []).map(row => Object.values(row)?.[0] || null);
     }
 }
