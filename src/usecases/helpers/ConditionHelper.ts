@@ -13,7 +13,7 @@ export type ICondition = Record<string, unknown>
     | ((qb: WhereExpressionBuilder) => any);
 
 const emptyCondition = {};
-const isEmpty = value => value === null || typeof value === 'undefined' || value === emptyCondition;
+const isEmpty = value => value === null || typeof value === 'undefined' || value === emptyCondition || value === '';
 
 export class ConditionHelper {
 
@@ -60,7 +60,7 @@ export class ConditionHelper {
 
             switch (operator) {
                 case 'filter': // ['filter', condition]
-                    return ConditionHelper._toTypeOrmInternal(value, true);
+                    return ConditionHelper._toTypeOrmInternal(condition[1], true);
 
                 case '=': // ['=', 'age', 18]
                     return objectWhere(isNot, isEmpty(value), key, value);
@@ -113,6 +113,9 @@ export class ConditionHelper {
 
                     if (values.length === 0) {
                         return emptyCondition;
+                    }
+                    if (values.length === 1) {
+                        return values[0];
                     }
 
                     return new Brackets((query2: any) => {
