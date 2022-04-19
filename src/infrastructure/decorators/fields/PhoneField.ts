@@ -8,7 +8,12 @@ export interface IPhoneFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
 }
 
-const findCharsExceptPhoneSymbolsRegExp = /[^+\d]/g;
+export const normalizePhone = value => value
+    ? String(value)
+        .replace(/[^+\d]/g, '')
+        .replace(/^8/, '+7')
+        .replace(/^00/, '+')
+    : value;
 
 export function PhoneField(options: IPhoneFieldOptions = {}) {
     if (!options.label) {
@@ -30,7 +35,7 @@ export function PhoneField(options: IPhoneFieldOptions = {}) {
                 nullable: options.nullable,
             }),
             options.nullable && ValidateIf((object, value) => value),
-            Transform(({value}) => value ? value.replace(findCharsExceptPhoneSymbolsRegExp, '') : value),
+            Transform(({value}) => normalizePhone(value)),
             IsPhoneNumber(null, {
                 message: 'Некорректный номер телефона',
             }),

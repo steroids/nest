@@ -2,8 +2,9 @@ import {set as _set} from 'lodash';
 import {Between, Brackets, ILike, In, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder} from 'typeorm';
 import {WhereExpressionBuilder} from 'typeorm/query-builder/WhereExpressionBuilder';
 
-export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike'
-    | 'between' | 'in' | 'and' | '&&' | 'or' | '||';
+export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
+    | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
+    | 'not like' | 'not ilike' | 'not between' | 'not in' | 'not and' | 'not &&' | 'not or' | 'not ||';
 export type IConditionOperatorAndOr = 'and' | '&&' | 'or' | '||';
 export type ICondition = Record<string, unknown>
     | [IConditionOperatorAndOr, ...any[]]
