@@ -5,7 +5,7 @@ export interface IValidatorParams {
     prevModel?: any,
     nextModel?: any,
     context?: ContextDto,
-    params?: Record<string, unknown>,
+    params?: any,
 }
 
 export interface IValidator {

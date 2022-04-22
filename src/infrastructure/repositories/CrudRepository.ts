@@ -8,13 +8,14 @@ import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../../usecases/helpers/ConditionHelper';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
-import {getTableFromModel} from '../decorators/TableFromModel';
+import {getTableFromModel, setModelBuilder} from '../decorators/TableFromModel';
 import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
+import {OnModuleInit} from '@nestjs/common';
 
 /**
  * Generic CRUD repository
  */
-export class CrudRepository<TModel> implements ICrudRepository<TModel> {
+export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModuleInit {
     /**
      * Table primary key
      */
@@ -26,6 +27,12 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
     public dbRepository: Repository<any>;
 
     protected modelClass;
+
+    onModuleInit() {
+        if (this.modelClass) {
+            setModelBuilder(this.modelClass, this.entityToModel.bind(this));
+        }
+    }
 
     /**
      * Manually initialize database repository (without extend class CrudRepository)
@@ -199,6 +206,6 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel> {
             throw new Error('Property modelClass is not set in repository: ' + this.constructor.name);
         }
 
-        return DataMapper.create(this.modelClass, obj, TRANSFORM_TYPE_FROM_DB);
+        return DataMapper.create(this.modelClass, obj, TRANSFORM_TYPE_FROM_DB, true);
     }
 }

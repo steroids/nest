@@ -25,6 +25,10 @@ export const relationTransformFromDb = ({value, item, options, transformType}) =
     }
 
     const relationOptions = getFieldOptions(item.constructor, options.relationName);
+    if (!relationOptions) {
+        return value;
+    }
+
     const TableClass = getTableFromModel(relationOptions.relationClass());
     const relationValue = item[options.relationName];
 

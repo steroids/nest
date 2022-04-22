@@ -31,6 +31,7 @@ export interface IBaseFieldOptions {
     items?: string,
     plainName?: string,
     transform?: ITransformCallback,
+    noColumn?: boolean,
 }
 
 export interface IInternalFieldOptions {

@@ -9,13 +9,19 @@ import {
     TRANSFORM_TYPE_COMPUTABLE,
     TRANSFORM_TYPE_DEFAULT
 } from '../../infrastructure/decorators/Transform';
+import {getModelBuilder} from '../../infrastructure/decorators/TableFromModel';
 
 export class DataMapper {
 
-    static create<T>(MetaClass, values: Partial<T>, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT) {
+    static create<T>(MetaClass, values: Partial<T>, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT, skipBuilder = false) {
         // Check empty
         if (values === null) {
             return null;
+        }
+
+        const builder = !skipBuilder && getModelBuilder(MetaClass);
+        if (builder) {
+            return builder(values);
         }
 
         const result = new MetaClass();
@@ -51,9 +57,9 @@ export class DataMapper {
                 if (options?.appType === 'relation') {
                     if (options.isArray && Array.isArray(values[sourceName])) {
                         object[name] = values[sourceName]
-                            .map(item => DataMapper.create(options.relationClass(), item));
+                            .map(item => DataMapper.create(options.relationClass(), item, transformType));
                     } else if (_isObject(values[sourceName])) {
-                        object[name] = DataMapper.create(options.relationClass(), values[sourceName]);
+                        object[name] = DataMapper.create(options.relationClass(), values[sourceName], transformType);
                     } else {
                         object[name] = values[sourceName];
                     }
