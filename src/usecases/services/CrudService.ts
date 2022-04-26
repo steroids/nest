@@ -34,15 +34,7 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        const nextModel = await this.dtoToModel(dto);
-
-        await this.validate(dto, {
-            nextModel,
-            context,
-        });
-
-        await this.saveInternal(null, nextModel, context);
-        return schemaClass ? this.findById(nextModel[this.primaryKey], context, schemaClass) : nextModel;
+        return this.update(null, dto, context, schemaClass);
     }
 
     async update<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
@@ -66,16 +58,43 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        const id: number = _toInteger(rawId);
+        return this.update(rawId, dto, context, schemaClass);
+    }
+
+    async save<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
+    async save<TSchema>(
+        id: number | string,
+        dto: TSaveDto,
+        context?: ContextDto | null,
+        schemaClass?: Type<TSchema>,
+    ): Promise<Type<TSchema>>
+
+    /**
+     * Update model
+     * @param rawId
+     * @param dto
+     * @param context
+     * @param schemaClass
+     */
+    async save<TSchema>(
+        rawId: number | string | null,
+        dto: TSaveDto,
+        context: ContextDto = null,
+        schemaClass: Type<TSchema> = null,
+    ): Promise<TModel | Type<TSchema>> {
+        const id: number = rawId ? _toInteger(rawId) : null;
 
         // Fetch previous model state
-        let prevModel = await this.findOne(
-            (new SearchQuery())
-                .where({[this.primaryKey]: id})
-                .with(getMetaRelations(dto.constructor))
-        );
-        if (!prevModel) {
-            throw new Error('Not found model by id: ' + id);
+        let prevModel = null;
+        if (id) {
+            prevModel = await this.findOne(
+                (new SearchQuery())
+                    .where({[this.primaryKey]: id})
+                    .with(getMetaRelations(dto.constructor))
+            );
+            if (!prevModel) {
+                throw new Error('Not found model by id: ' + id);
+            }
         }
 
         // Create next model state
@@ -83,13 +102,17 @@ export class CrudService<TModel,
         const nextModel = new ModelClass();
 
         // Сперва добавляем данные для новой модели из старой
-        DataMapper.applyValues(nextModel, prevModel);
+        if (prevModel) {
+            DataMapper.applyValues(nextModel, prevModel);
+        }
 
         // Затем накатываем изменения
         DataMapper.applyValues(nextModel, this.dtoToModel(dto));
 
         // Принудительно добавляем primary key, т.к. его зачастую нет в dto
-        nextModel[this.primaryKey] = id;
+        if (id) {
+            nextModel[this.primaryKey] = id;
+        }
 
         // Validate dto
         await this.validate(dto, {
@@ -102,7 +125,7 @@ export class CrudService<TModel,
         await this.saveInternal(prevModel, nextModel, context);
 
         // Convert to schema, if need
-        return schemaClass ? this.findById(id, context, schemaClass) : nextModel;
+        return schemaClass ? this.findById(nextModel[this.primaryKey], context, schemaClass) : nextModel;
     }
 
     /**
