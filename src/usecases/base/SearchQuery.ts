@@ -301,7 +301,8 @@ export default class SearchQuery {
 
     async scalar() {
         const row = await this._getRepository().findOne(this);
-        return row && Object.values(row)?.[0] || null;
+        const key = this._select?.[0];
+        return row && row?.[key] || Object.values(row)?.[0] || null;
     }
 
     async column() {

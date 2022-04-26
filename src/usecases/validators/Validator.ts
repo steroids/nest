@@ -1,11 +1,5 @@
 export const STEROIDS_META_VALIDATOR_CLASSES = 'steroids_meta_validator_classes';
 
-export interface ITableOptions {
-    name: string,
-    label?: string,
-    modelClass?: any,
-}
-
 export const getFieldValidators = (MetaClass, fieldName) => {
     return Reflect.getMetadata(STEROIDS_META_VALIDATOR_CLASSES, MetaClass.prototype, fieldName) || [];
 }
