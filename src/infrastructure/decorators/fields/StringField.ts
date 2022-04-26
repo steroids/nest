@@ -5,6 +5,9 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IStringFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
+    isStringConstraintMessage?: string,
+    minConstraintMessage?: string,
+    maxConstraintMessage?: string,
 }
 
 export function StringField(options: IStringFieldOptions = {}) {
@@ -23,10 +26,14 @@ export function StringField(options: IStringFieldOptions = {}) {
         }),
         IsString({
             each: options.isArray,
-            message: 'Должна быть строка',
+            message: options.isStringConstraintMessage || 'Должна быть строка',
         }),
         !options.required && IsOptional(), // TODO check nullable and required
-        typeof options.min === 'number' && MinLength(options.min),
-        typeof options.max === 'number' && MaxLength(options.max),
+        typeof options.min === 'number' && MinLength(options.min, {
+            message: options.minConstraintMessage
+        }),
+        typeof options.max === 'number' && MaxLength(options.max, {
+            message: options.maxConstraintMessage
+        }),
     ].filter(Boolean));
 }
