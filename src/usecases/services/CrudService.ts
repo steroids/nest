@@ -34,7 +34,7 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        return this.update(null, dto, context, schemaClass);
+        return this.save(null, dto, context, schemaClass);
     }
 
     async update<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
@@ -58,7 +58,7 @@ export class CrudService<TModel,
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        return this.update(rawId, dto, context, schemaClass);
+        return this.save(rawId, dto, context, schemaClass);
     }
 
     async save<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
