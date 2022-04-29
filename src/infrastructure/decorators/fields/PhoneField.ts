@@ -6,6 +6,7 @@ import {Transform} from "class-transformer";
 
 export interface IPhoneFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
+    constraintMessage?: string,
 }
 
 export const normalizePhone = value => value
@@ -37,7 +38,7 @@ export function PhoneField(options: IPhoneFieldOptions = {}) {
             options.nullable && ValidateIf((object, value) => value),
             Transform(({value}) => normalizePhone(value)),
             IsPhoneNumber(null, {
-                message: 'Некорректный номер телефона',
+                message: options.constraintMessage || 'Некорректный номер телефона',
             }),
         ].filter(Boolean)
     );
