@@ -75,9 +75,12 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
                 }
 
                 const relationValue = options.relationClass();
-                if (finedClasses.includes(relationValue)) {
-                    return allRelations;
-                }
+                // Из-за этого кода возвращаются не все реляции в случаях, когда у одного MetaClass'а
+                // есть несколько реляций с одним и тем же классом (см. ImageDownloadSchema для примера)
+                // @todo нужно исправить этот баг, иначе реализовав кэширование уже обработанных классов
+                // if (finedClasses.includes(relationValue)) {
+                //     return allRelations;
+                // }
                 finedClasses.push(relationValue);
 
                 if (isMetaClass(relationValue)) {
