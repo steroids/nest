@@ -191,8 +191,23 @@ export default class SearchQuery {
             this._relations = [];
         }
         [].concat(relation || []).forEach(name => {
-            if (!this._relations.includes(name)) {
+            const existingRelationIndex = this._relations.findIndex(_relation => (
+                _relation.split(' ')[0] === name.split(' ')[0]
+            ));
+
+            if (existingRelationIndex === -1) {
                 this._relations.push(name);
+                return;
+            }
+            const existingRelation = this._relations[existingRelationIndex];
+
+            const existingRelationAlias = existingRelation.split(' ')[1];
+            const newRelationAlias = name.split(' ')[1];
+            if (newRelationAlias) {
+                this._relations[existingRelationIndex] = name;
+            }
+            if (newRelationAlias && existingRelationAlias) {
+                console.warn(`[@steroidsjs/nest] There are multiple aliases (${name}, ${existingRelation}) in SearchQuery for ${this._repository?.constructor?.name}. The last one will be used.`);
             }
         });
         return this;
