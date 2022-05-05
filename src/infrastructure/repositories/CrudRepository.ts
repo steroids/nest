@@ -10,12 +10,12 @@ import {ICondition} from '../../usecases/helpers/ConditionHelper';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
 import {getTableFromModel, setModelBuilder} from '../decorators/TableFromModel';
 import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
-import {OnModuleInit} from '@nestjs/common';
+import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 
 /**
  * Generic CRUD repository
  */
-export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModuleInit {
+export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModuleInit, OnModuleDestroy {
     /**
      * Table primary key
      */
@@ -31,6 +31,12 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     onModuleInit() {
         if (this.modelClass) {
             setModelBuilder(this.modelClass, this.entityToModel.bind(this));
+        }
+    }
+
+    onModuleDestroy() {
+        if (this.modelClass) {
+            setModelBuilder(this.modelClass, null);
         }
     }
 
