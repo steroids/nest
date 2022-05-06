@@ -30,8 +30,11 @@ export const relationTransformFromDb = ({value, item, options, transformType}) =
     }
 
     const TableClass = getTableFromModel(relationOptions.relationClass());
-    const relationValue = item[options.relationName];
+    if (!TableClass) {
+        return value;
+    }
 
+    const relationValue = item[options.relationName];
     return relationTransformFromDbInternal(TableClass, relationValue, relationOptions.isArray, transformType);
 }
 
