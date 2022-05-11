@@ -78,10 +78,11 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
                 // Из-за этого кода возвращаются не все реляции в случаях, когда у одного MetaClass'а
                 // есть несколько реляций с одним и тем же классом (см. ImageDownloadSchema для примера)
                 // @todo нужно исправить этот баг, иначе реализовав кэширование уже обработанных классов
-                // if (finedClasses.includes(relationValue)) {
-                //     return allRelations;
-                // }
-                finedClasses.push(relationValue);
+                const key = [relationName, relationValue.name].join('.');
+                if (finedClasses.includes(key)) {
+                    return allRelations;
+                }
+                finedClasses.push(key);
 
                 if (isMetaClass(relationValue)) {
                     const subRelationNames = findRelationsRecursive(relationValue, finedClasses, relationName)
