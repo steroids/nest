@@ -1,3 +1,4 @@
+import {trim as _trim} from 'lodash';
 import {Repository} from 'typeorm';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
@@ -316,7 +317,7 @@ export default class SearchQuery {
 
     async scalar() {
         const row = await this._getRepository().findOne(this);
-        const key = this._select?.[0];
+        const key = _trim(this._select?.[0], '"');
         return row && (row?.[key] || Object.values(row)?.[0]) || null;
     }
 

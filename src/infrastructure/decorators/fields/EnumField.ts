@@ -39,6 +39,7 @@ export function EnumField(options: IEnumFieldOptions = {}) {
             }),
             options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             IsEnum(options.enum, {
+                each: options.isArray,
                 message: options.isEnumConstraintMessage || 'Выберите одно из значений'
             }),
         ].filter(Boolean)

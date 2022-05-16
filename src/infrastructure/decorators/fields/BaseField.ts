@@ -55,6 +55,9 @@ export const isMetaClass = (MetaClass): boolean => {
 }
 
 export const getMetaFields = (MetaClass): string[] => {
+    if (!MetaClass?.prototype) {
+        throw new Error('Wrong meta class, prototype not found: ' + String(MetaClass));
+    }
     return Reflect.getMetadata(STEROIDS_META_KEYS, MetaClass.prototype) || [];
 }
 
