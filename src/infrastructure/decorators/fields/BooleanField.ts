@@ -5,13 +5,13 @@ import {IsBoolean, IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from "class-transformer";
 
+const TRUE_VALUES = [true, 1, 'true', '1', 'y', 'yes', 'д', 'да'];
+
+export const normalizeBoolean = (value) => {
+    return TRUE_VALUES.includes(value);
+}
+
 export function BooleanField(options: IBaseFieldOptions = {}) {
-    const parseBoolean = (value) => {
-        if (value === 'false' || !value) {
-            return false;
-        }
-        return true;
-    }
 
     return applyDecorators(
         BaseField(options, {
@@ -26,9 +26,9 @@ export function BooleanField(options: IBaseFieldOptions = {}) {
         }),
         Transform(({value}) => {
             if (Array.isArray(value)) {
-                return value.map(parseBoolean);
+                return value.map(normalizeBoolean);
             }
-            return value === null ? value : parseBoolean(value);
+            return normalizeBoolean(value);
         }),
         IsBoolean({
             message: 'Должен быть булевом',
