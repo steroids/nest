@@ -18,13 +18,15 @@ export default class SearchQuery {
     protected _limit?: number;
     protected _offset?: number;
     protected _repository?: ICrudRepository<any>;
+    protected _useShortAliases: boolean;
 
-    constructor(repository = null) {
+    constructor(repository = null, useShortAliases = false) {
         this._repository = repository;
+        this._useShortAliases = useShortAliases;
     }
 
-    static createFromSchema(SchemaClass): SearchQuery {
-        const searchQuery = new SearchQuery();
+    static createFromSchema(SchemaClass, useShortAliases = false): SearchQuery {
+        const searchQuery = new SearchQuery(null, useShortAliases);
 
         const options = getSchemaSelectOptions(SchemaClass);
         searchQuery._select = options?.search;
@@ -103,7 +105,7 @@ export default class SearchQuery {
 
             // Store alias
             const [relation, alias] = relationWithAlias.split(' ');
-            relationToAliasMap[relation] = alias || relation.split('.').join('_');
+            relationToAliasMap[relation] = alias || SearchQuery.getRelationAlias(relation);
             relations.push(relation);
 
             // Store intermediate relations
@@ -111,7 +113,7 @@ export default class SearchQuery {
             relation.split('.').forEach(name => {
                 path = [path, name].filter(Boolean).join('.');
                 if (!relationToAliasMap[path]) {
-                    relationToAliasMap[path] = path.split('.').join('_');
+                    relationToAliasMap[path] = SearchQuery.getRelationAlias(path);
                     if (path !== rootPrefix) {
                         relations.push(path);
                     }
@@ -137,6 +139,7 @@ export default class SearchQuery {
 
                     const property = relationToAliasMap[parentPath] + '.' + relationName;
                     const alias = relationToAliasMap[path];
+
                     if (options.relationName) {
                         dbQuery.loadRelationIdAndMap(
                             property,
@@ -150,6 +153,39 @@ export default class SearchQuery {
                     }
                 }
             });
+    }
+
+    /**
+     * Short aliases primary usage is to avoid DB's alias length restriction. It's disabled by default.
+     *
+     * @param {string} relationPath
+     * @example model.firstRelation.secondRelation
+     *
+     * @param {boolean} isShort
+     */
+    public static getRelationAlias(relationPath: string, isShort = true) {
+        const relationsArray = relationPath.split('.');
+
+        if (!isShort) {
+            return relationsArray.join('_');
+        } else {
+            // first letter + the uppercase letters + relation index in path + relation length
+            // model.firstRelation.secondRelation -> m0_fr113_sr214
+            return relationsArray.map((relation, index) => {
+                // root alias shouldn't change
+                if (index === 0) {
+                    return relation;
+                }
+
+                return relation[0]
+                    + relation.split('')
+                        .filter(letter => /\w/.test(letter) && letter === letter.toUpperCase())
+                        .map(letter => letter.toLowerCase())
+                        .join('')
+                    + String(index)
+                    + relation.length;
+            }).join('_');
+        }
     }
 
     select(value: string | string[]) {
@@ -185,6 +221,10 @@ export default class SearchQuery {
 
     getAlias() {
         return this._alias;
+    }
+
+    getShortAliasesAreUsed(): boolean {
+        return this._useShortAliases;
     }
 
     with(relation: string | string[]) {
