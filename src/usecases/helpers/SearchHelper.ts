@@ -45,18 +45,23 @@ export class SearchHelper {
 
         const [allItems, total] = await dbQuery.getManyAndCount();
 
-        // Pagination
-        let itemsIds = allItems.map(item => item.id);
-        if (dto.pageSize > 0) {
-            const begin = (dto.page - 1) * dto.pageSize;
-            itemsIds = itemsIds.slice(begin, begin + dto.pageSize);
-        }
-        dbQuery.andWhere(`"${searchQuery.getAlias()}".id IN (:...itemsIds)`, {itemsIds});
+        if (total === 0) {
+            result.items = [];
+            result.total = 0;
+        } else {
+            // Pagination
+            let itemsIds = allItems.map(item => item.id);
+            if (dto.pageSize > 0) {
+                const begin = (dto.page - 1) * dto.pageSize;
+                itemsIds = itemsIds.slice(begin, begin + dto.pageSize);
+            }
+            dbQuery.andWhere(`"${searchQuery.getAlias()}".id IN (:...itemsIds)`, {itemsIds: itemsIds});
 
-        // Execute query
-        const items = await dbQuery.getMany();
-        result.items = items;
-        result.total = total;
+            // Execute query
+            const items = await dbQuery.getMany();
+            result.items = items;
+            result.total = total;
+        }
 
         return result;
     }
