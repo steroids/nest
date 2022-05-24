@@ -43,6 +43,7 @@ export default class SearchQuery {
         dbRepository: Repository<any>,
         dbQuery: SelectQueryBuilder<any>,
         searchQuery: SearchQuery,
+        eagerLoading: boolean = true,
     ) {
         const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
@@ -65,7 +66,8 @@ export default class SearchQuery {
                 searchQuery._relations,
                 prefix,
                 dbRepository.target,
-                searchQuery.getShortAliasesAreUsed()
+                searchQuery.getShortAliasesAreUsed(),
+                eagerLoading,
             );
         }
 
@@ -99,6 +101,7 @@ export default class SearchQuery {
         rootPrefix: string,
         rootClass: any,
         useShortAliases: boolean = false,
+        eagerLoading: boolean = true,
     ) {
 
         // Normalize relations: a.b.c -> a, a.b, a.b.c
@@ -151,10 +154,14 @@ export default class SearchQuery {
                             relationToAliasMap[parentPath] + '.' + options.relationName,
                         );
                     } else {
-                        dbQuery.leftJoinAndSelect(
-                            property,
-                            alias,
-                        );
+                        if (eagerLoading) {
+                            dbQuery.leftJoinAndSelect(
+                                property,
+                                alias,
+                            );
+                        } else {
+                            dbQuery.leftJoin(property, alias);
+                        }
                     }
                 }
             });

@@ -43,25 +43,17 @@ export class SearchHelper {
             prepareHandler.call(null, dbQuery);
         }
 
-        const [allItems, total] = await dbQuery.getManyAndCount();
-
-        if (total === 0) {
-            result.items = [];
-            result.total = 0;
-        } else {
-            // Pagination
-            let itemsIds = allItems.map(item => item.id);
-            if (dto.pageSize > 0) {
-                const begin = (dto.page - 1) * dto.pageSize;
-                itemsIds = itemsIds.slice(begin, begin + dto.pageSize);
-            }
-            dbQuery.andWhere(`"${searchQuery.getAlias()}".id IN (:...itemsIds)`, {itemsIds: itemsIds});
-
-            // Execute query
-            const items = await dbQuery.getMany();
-            result.items = items;
-            result.total = total;
+        // Pagination
+        if (dto.pageSize > 0) {
+            dbQuery
+                .offset((dto.page - 1) * dto.pageSize)
+                .limit(dto.pageSize);
         }
+
+        // Execute query
+        const [items, total] = await dbQuery.getManyAndCount();
+        result.items = items;
+        result.total = total;
 
         return result;
     }
