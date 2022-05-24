@@ -104,7 +104,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
             searchQuery.where(conditionOrQuery);
         }
 
-        const dbQuery = this.dbRepository.createQueryBuilder('model');
+        const dbQuery = this.dbRepository.createQueryBuilder(searchQuery.getAlias());
         SearchQuery.prepare(this.dbRepository, dbQuery, searchQuery);
 
         return dbQuery;

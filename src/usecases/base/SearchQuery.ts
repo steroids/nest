@@ -8,6 +8,8 @@ import {ICrudRepository} from '../interfaces/ICrudRepository';
 
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
+export const DEFAULT_ALIAS = 'model';
+
 export default class SearchQuery {
     protected _select?: string[];
     protected _excludeSelect?: string[];
@@ -23,6 +25,7 @@ export default class SearchQuery {
     constructor(repository = null, useShortAliases = false) {
         this._repository = repository;
         this._useShortAliases = useShortAliases;
+        this._alias = DEFAULT_ALIAS;
     }
 
     static createFromSchema(SchemaClass, useShortAliases = false): SearchQuery {
@@ -61,7 +64,8 @@ export default class SearchQuery {
                 dbQuery,
                 searchQuery._relations,
                 prefix,
-                dbRepository.target
+                dbRepository.target,
+                searchQuery.getShortAliasesAreUsed()
             );
         }
 
@@ -94,6 +98,7 @@ export default class SearchQuery {
         relationsWithAliases: string[],
         rootPrefix: string,
         rootClass: any,
+        useShortAliases: boolean = false,
     ) {
 
         // Normalize relations: a.b.c -> a, a.b, a.b.c
@@ -105,7 +110,7 @@ export default class SearchQuery {
 
             // Store alias
             const [relation, alias] = relationWithAlias.split(' ');
-            relationToAliasMap[relation] = alias || SearchQuery.getRelationAlias(relation);
+            relationToAliasMap[relation] = alias || SearchQuery.getRelationAlias(relation, useShortAliases);
             relations.push(relation);
 
             // Store intermediate relations
@@ -113,7 +118,7 @@ export default class SearchQuery {
             relation.split('.').forEach(name => {
                 path = [path, name].filter(Boolean).join('.');
                 if (!relationToAliasMap[path]) {
-                    relationToAliasMap[path] = SearchQuery.getRelationAlias(path);
+                    relationToAliasMap[path] = SearchQuery.getRelationAlias(path, useShortAliases);
                     if (path !== rootPrefix) {
                         relations.push(path);
                     }
@@ -163,7 +168,7 @@ export default class SearchQuery {
      *
      * @param {boolean} isShort
      */
-    public static getRelationAlias(relationPath: string, isShort = true) {
+    public static getRelationAlias(relationPath: string, isShort = false) {
         const relationsArray = relationPath.split('.');
 
         if (!isShort) {
@@ -221,6 +226,18 @@ export default class SearchQuery {
 
     getAlias() {
         return this._alias;
+    }
+
+    /**
+     * Short name for getRelationAlias
+     * @param {string} relationPath
+     */
+    public a(relationPath) {
+        return this.getRelationAlias(relationPath);
+    }
+
+    public getRelationAlias(relationPath) {
+        return SearchQuery.getRelationAlias([this._alias, relationPath].join('.'), this._useShortAliases);
     }
 
     getShortAliasesAreUsed(): boolean {

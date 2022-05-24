@@ -173,7 +173,7 @@ export class CrudService<TModel,
      */
     async remove(rawId: number | string, context: ContextDto = null): Promise<void> {
         const id: number = _toInteger(rawId);
-        await this.checkHasRelatedModels(id, this)
+        await this.checkHasRelatedModels(id, this);
         await this.removeInternal(id, context);
     }
 
