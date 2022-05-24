@@ -1,5 +1,6 @@
 import {Repository} from 'typeorm';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
+import {cloneDeep as _cloneDeep} from 'lodash';
 import {SearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import SearchQuery from '../base/SearchQuery';
@@ -42,15 +43,18 @@ export class SearchHelper {
             prepareHandler.call(null, dbQuery);
         }
 
+        const [allItems, total] = await dbQuery.getManyAndCount();
+
         // Pagination
+        let itemsIds = allItems.map(item => item.id);
         if (dto.pageSize > 0) {
-            dbQuery
-                .offset((dto.page - 1) * dto.pageSize)
-                .limit(dto.pageSize);
+            const begin = (dto.page - 1) * dto.pageSize;
+            itemsIds = itemsIds.slice(begin, begin + dto.pageSize);
         }
+        dbQuery.andWhere(`"${searchQuery.getAlias()}".id IN (:...itemsIds)`, {itemsIds});
 
         // Execute query
-        const [items, total] = await dbQuery.getManyAndCount();
+        const items = await dbQuery.getMany();
         result.items = items;
         result.total = total;
 
