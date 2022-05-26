@@ -3,7 +3,7 @@ import {has as _has} from 'lodash';
 import {Column} from 'typeorm';
 import {IsBoolean, IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
-import {Transform} from "class-transformer";
+import {Transform} from '../Transform';
 
 const TRUE_VALUES = [true, 1, 'true', '1', 'y', 'yes', 'д', 'да'];
 
@@ -12,7 +12,6 @@ export const normalizeBoolean = (value) => {
 }
 
 export function BooleanField(options: IBaseFieldOptions = {}) {
-
     return applyDecorators(
         BaseField(options, {
             decoratorName: 'BooleanField',
