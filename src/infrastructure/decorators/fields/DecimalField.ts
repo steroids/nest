@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
-import {IsString, ValidateIf} from 'class-validator';
+import {IsDecimal, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
@@ -24,8 +24,10 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
                 scale: options.scale || 2,
             }),
             options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-            IsString({
-                message: options.isDecimalConstraintMessage || 'Должно быть строкой',
+            IsDecimal({
+                decimal_digits: options.scale || 2,
+            },{
+                message: options.isDecimalConstraintMessage || 'Должно быть числом',
             }),
         ].filter(Boolean)
     );
