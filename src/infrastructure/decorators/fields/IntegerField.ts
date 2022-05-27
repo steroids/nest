@@ -3,7 +3,7 @@ import {toInteger as _toInteger} from 'lodash';
 import {Column} from 'typeorm';
 import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
-import {Transform} from 'class-transformer';
+import {Transform} from '../Transform';
 
 export interface IIntegerFieldOptions extends IBaseFieldOptions {
     unique?: boolean,

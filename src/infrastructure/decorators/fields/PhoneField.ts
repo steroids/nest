@@ -2,7 +2,7 @@ import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
 import {IsPhoneNumber, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
-import {Transform} from "class-transformer";
+import {Transform} from '../Transform';
 
 export interface IPhoneFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
