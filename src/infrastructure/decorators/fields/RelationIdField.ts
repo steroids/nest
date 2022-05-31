@@ -3,9 +3,11 @@ import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from '
 import {getTableFromModel} from '../TableFromModel';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {Column} from 'typeorm';
+import {ArrayNotEmpty} from "class-validator";
 
 export interface IRelationIdFieldOptions extends IBaseFieldOptions {
     relationName?: string,
+    isFieldValidConstraintMessage?: string,
 }
 
 // From db
@@ -60,6 +62,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
                 jsType: 'number',
             }),
             !options.isArray && Column({type: 'int', nullable: true}),
+            !options.nullable && options.isArray && ArrayNotEmpty({message: options.isFieldValidConstraintMessage}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
         ].filter(Boolean)
