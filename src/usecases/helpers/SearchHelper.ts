@@ -1,6 +1,5 @@
 import {Repository} from 'typeorm';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {cloneDeep as _cloneDeep} from 'lodash';
 import {SearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import SearchQuery from '../base/SearchQuery';
@@ -46,8 +45,8 @@ export class SearchHelper {
         // Pagination
         if (dto.pageSize > 0) {
             dbQuery
-                .offset((dto.page - 1) * dto.pageSize)
-                .limit(dto.pageSize);
+                .skip((dto.page - 1) * dto.pageSize)
+                .take(dto.pageSize);
         }
 
         // Execute query
