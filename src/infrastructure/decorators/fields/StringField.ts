@@ -1,5 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from 'typeorm';
+import {toInteger as _toInteger} from 'lodash';
 import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
@@ -9,6 +10,8 @@ export interface IStringFieldOptions extends IBaseFieldOptions {
     minConstraintMessage?: string,
     maxConstraintMessage?: string,
 }
+
+const STRING_FIELD_DEFAULT_MAX_LENGTH = 250;
 
 export function StringField(options: IStringFieldOptions = {}) {
     return applyDecorators(...[
@@ -30,10 +33,12 @@ export function StringField(options: IStringFieldOptions = {}) {
         }),
         !options.required && IsOptional(), // TODO check nullable and required
         typeof options.min === 'number' && MinLength(options.min, {
-            message: options.minConstraintMessage
+            message: options.minConstraintMessage,
+            each: options.isArray,
         }),
-        typeof options.max === 'number' && MaxLength(options.max, {
-            message: options.maxConstraintMessage
+        MaxLength(_toInteger(options.max) || STRING_FIELD_DEFAULT_MAX_LENGTH, {
+            message: options.maxConstraintMessage,
+            each: options.isArray,
         }),
     ].filter(Boolean));
 }
