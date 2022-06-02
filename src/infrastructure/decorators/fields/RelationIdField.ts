@@ -64,7 +64,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
             }),
             !options.isArray && Column({type: 'int', nullable: true}),
             options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
-            options.isArray && ArrayNotEmpty({message: options.isFieldValidConstraintMessage}),
+            options.isArray && !options.nullable && ArrayNotEmpty({message: options.isFieldValidConstraintMessage}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
         ].filter(Boolean)
