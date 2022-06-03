@@ -49,15 +49,11 @@ export function DateField(options: IDateFieldOptions = {}) {
             options.nullable && ValidateIf((object, value) => value),
             options.minDate && MinDate(options.minDate, {
                 each: options.isArray,
-                message: (args) => `Выбрана дата раньше минимально допустимой (${
-                    typeof options.minDate === 'function' ? normalizeFunctionDate(options.minDate, args) : normalizeDate(options.minDate)
-                })`,
+                message: (args) => `Выбрана дата раньше минимально допустимой (${normalizeFunctionDate(options.minDate, args)})`,
             }),
             options.maxDate && MaxDate(options.maxDate, {
                 each: options.isArray,
-                message: (args) => `Выбрана дата позже максимально допустимой (${
-                    typeof options.maxDate === 'function' ? normalizeFunctionDate(options.maxDate, args) : normalizeDate(options.maxDate)
-                })`,
+                message: (args) => `Выбрана дата позже максимально допустимой (${normalizeFunctionDate(options.maxDate, args)})`,
             }),
             IsISO8601({
                 message: 'Некорректный формат даты',
