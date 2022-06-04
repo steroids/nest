@@ -11,6 +11,7 @@ import {IEmailFieldOptions} from './EmailField';
 import {IPhoneFieldOptions} from './PhoneField';
 import {IStringFieldOptions} from './StringField';
 import {IIntegerFieldOptions} from './IntegerField';
+import {IDateFieldOptions} from './DateField';
 
 export {BooleanField} from './BooleanField';
 export {CoordinateField} from './CoordinateField';
@@ -37,4 +38,5 @@ export {ImageField} from './ImageField';
 
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
-    & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions;
+    & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions
+    & IDateFieldOptions;

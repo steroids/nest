@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.4.29",
+  "version": "1.4.32",
   "scripts": {
     "build": "tsc && copyfiles ./{package.json,LICENSE,README.md} dist/",
     "watch": "tsc -p tsconfig-debug.json",

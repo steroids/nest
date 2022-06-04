@@ -26,6 +26,8 @@ export function EmailField(options: IEmailFieldOptions = {}) {
             }),
             options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             IsEmail({
+                allow_display_name: true,
+            }, {
                 message: 'Некорректный email адрес',
             }),
         ].filter(Boolean)
