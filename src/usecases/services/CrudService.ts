@@ -161,7 +161,7 @@ export class CrudService<TModel,
         const model = await service.findOne(searchQuery);
         relations.forEach((relation) => {
             if (model?.[relation]?.length > 0) {
-                throw new UserException('Нельзя удалить, есть связные элементы')
+                throw new UserException('Нельзя удалить, есть связные элементы (' + relation + ')')
             }
         });
     }
