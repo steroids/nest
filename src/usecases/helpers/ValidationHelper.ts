@@ -34,8 +34,11 @@ export async function validateOrReject(dto: any, validatorOptions?: ValidatorOpt
  */
 export class ValidationHelper {
     static async validate(dto: any, params: IValidatorParams = null, allValidators: IValidator[] = null) {
-        await ValidationHelper.validateSingle(dto)
-        await ValidationHelper.validateByInstances(dto, params, allValidators);
+        await ValidationHelper.validateSingle(dto);
+        const errors = await ValidationHelper.validateByInstances(dto, params, allValidators);
+        if (errors && Object.keys(errors)?.length > 0) {
+            throw new ValidationException(errors);
+        }
     }
 
     /**
@@ -74,14 +77,27 @@ export class ValidationHelper {
                 nextModel: params?.nextModel?.[key] || null,
             };
 
+            let error = null;
+
             try {
                 if (Array.isArray(value)) {
-                    for (const valueItem of value) {
-                        await ValidationHelper.validateByInstances(valueItem, nextParams, validatorsInstances);
+                    for (const valueItemIndex in value) {
+                        error = await ValidationHelper.validateByInstances(value[valueItemIndex], nextParams, validatorsInstances);
+
+                        if (error) {
+                            errors[key] = {
+                                ...(errors?.[key] || {}),
+                                [valueItemIndex]: error,
+                            };
+                        }
                     }
                 } else if (value && _isObject(value)) {
                     // Nested validation for object
-                    await ValidationHelper.validateByInstances(value, nextParams, validatorsInstances);
+                    error = await ValidationHelper.validateByInstances(value, nextParams, validatorsInstances)
+
+                    if (error) {
+                        errors[key] = error;
+                    }
                 } else {
                     // Get field validators
                     const validatorsClasses = getFieldValidators(dto.constructor, key);
@@ -107,15 +123,15 @@ export class ValidationHelper {
                 // Check validator is throw specific exception
                 if (e instanceof FieldValidatorException) {
                     errors[e.params?.name || key] = e.message;
-                } else {
-                    throw e;
                 }
             }
         }
 
+
         // Has errors?
         if (Object.keys(errors).length > 0) {
-            throw new ValidationException(errors);
+            return errors;
         }
+        return null;
     }
 }
