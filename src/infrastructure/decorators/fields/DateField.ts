@@ -15,7 +15,11 @@ export const normalizeDate = (value) => {
         value = parseISO(value);
     }
 
-    return formatISO9075(value, { representation: 'date' });
+    try {
+        return formatISO9075(value, { representation: 'date' });
+    } catch (e) {
+        throw new Error('Wrong date: ' + value);
+    }
 };
 
 export const normalizeFunctionDate = (value, args?: ValidationArguments) => {

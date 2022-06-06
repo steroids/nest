@@ -58,6 +58,10 @@ export class ValidationHelper {
      * @protected
      */
     protected static async validateByInstances(dto: any, params: IValidatorParams = null, validatorsInstances: IValidator[] = null) {
+        if (!dto) {
+            return;
+        }
+
         const errors = {};
 
         const keys = isMetaClass(dto.constructor) ? getMetaFields(dto.constructor) : Object.keys(dto);
