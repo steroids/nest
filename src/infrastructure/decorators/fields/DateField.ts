@@ -15,11 +15,11 @@ export const normalizeDate = (value) => {
         value = parseISO(value);
     }
 
-    try {
-        return formatISO9075(value, { representation: 'date' });
-    } catch (e) {
+    if (!(value instanceof Date) && !isNaN(value)) {
         throw new Error('Wrong date: ' + value);
     }
+
+    return formatISO9075(value, { representation: 'date' });
 };
 
 export const normalizeFunctionDate = (value, args?: ValidationArguments) => {
