@@ -7,19 +7,21 @@ import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transf
 import {MinDate} from '../validators/MinDate';
 import {MaxDate} from '../validators/MaxDate';
 
-export const normalizeDate = (value) => {
-    if (!value) {
-        return value;
+export const normalizeDate = (rawValue) => {
+    if (!rawValue) {
+        return rawValue;
     }
+
+    let value = rawValue;
     if (typeof value === 'string') {
-        value = parseISO(value);
+        value = parseISO(rawValue);
     }
 
-    if (!(value instanceof Date) && !isNaN(value)) {
-        throw new Error('Wrong date: ' + value);
+    try {
+        return formatISO9075(value, { representation: 'date' });
+    } catch (e) {
+        throw new Error('Wrong date: ' + rawValue);
     }
-
-    return formatISO9075(value, { representation: 'date' });
 };
 
 export const normalizeFunctionDate = (value, args?: ValidationArguments) => {
