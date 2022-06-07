@@ -28,12 +28,14 @@ export class ModuleHelper {
             provide: Type,
             useFactory: (...args) => {
                 const instances = [];
-                let index = 0;
+                let injectIndex = 0;
+                let argsIndex = 0;
                 inject.forEach(() => {
-                    if (Array.isArray(inject[index])) {
-                        instances.push(inject[index].map(() => args[index++]));
+                    if (Array.isArray(inject[injectIndex])) {
+                        instances.push(inject[injectIndex++].map(() => args[argsIndex++]));
                     } else {
-                        instances.push(args[index++]);
+                        instances.push(args[argsIndex++]);
+                        injectIndex++;
                     }
                 });
 
