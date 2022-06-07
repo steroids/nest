@@ -36,7 +36,7 @@ export function StringField(options: IStringFieldOptions = {}) {
             message: options.minConstraintMessage,
             each: options.isArray,
         }),
-        MaxLength(_toInteger(options.max) || STRING_FIELD_DEFAULT_MAX_LENGTH, {
+        typeof options.max === 'number' && MaxLength(_toInteger(options.max) || STRING_FIELD_DEFAULT_MAX_LENGTH, {
             message: options.maxConstraintMessage,
             each: options.isArray,
         }),
