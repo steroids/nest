@@ -20,7 +20,7 @@ export const normalizeDate = (rawValue) => {
     try {
         return formatISO9075(value, { representation: 'date' });
     } catch (e) {
-        throw new Error('Wrong date: ' + rawValue);
+        return null;
     }
 };
 
