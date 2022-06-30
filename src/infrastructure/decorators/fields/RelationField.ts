@@ -19,6 +19,7 @@ export interface IRelationFieldManyToManyOptions extends IBaseFieldOptions {
     isOwningSide: boolean,
     relationClass: () => any,
     inverseSide?: string | ((object: any) => any),
+    tableName?: string,
 }
 
 export interface IRelationFieldManyToOneOptions extends IBaseFieldOptions {
@@ -128,6 +129,13 @@ export function RelationField(options: IRelationFieldOptions) {
         options.transform = relationTransform;
     }
 
+    let owningDecoratorOptions;
+    if ('tableName' in options) {
+        owningDecoratorOptions = {
+            name: options.tableName,
+        }
+    }
+
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -141,7 +149,7 @@ export function RelationField(options: IRelationFieldOptions) {
                 (options as any).inverseSide,
                 {cascade: ['insert', 'update'], onUpdate: 'CASCADE'}
             ),
-            OwningDecorator && OwningDecorator(),
+            OwningDecorator && OwningDecorator(owningDecoratorOptions),
             //options.type === 'ManyToOne' && JoinColumn(),
             ValidateIf((object, value) => !!value),
             ValidateNested({each: true}),
