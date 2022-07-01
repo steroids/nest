@@ -45,6 +45,9 @@ export default class SearchQuery {
         searchQuery: SearchQuery,
         eagerLoading: boolean = true,
     ) {
+        let result = {
+            hasManyRelations: false,
+        };
         const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
         // Get select and relations from search schema
@@ -61,14 +64,17 @@ export default class SearchQuery {
 
         // Find relations
         if (searchQuery._relations) {
-            SearchQuery.prepareRelations(
-                dbQuery,
-                searchQuery._relations,
-                prefix,
-                dbRepository.target,
-                searchQuery.getShortAliasesAreUsed(),
-                eagerLoading,
-            );
+            result = {
+                ...result,
+                ...SearchQuery.prepareRelations(
+                    dbQuery,
+                    searchQuery._relations,
+                    prefix,
+                    dbRepository.target,
+                    searchQuery.getShortAliasesAreUsed(),
+                    eagerLoading,
+                ),
+            };
         }
 
         // Condition
@@ -93,6 +99,8 @@ export default class SearchQuery {
         if (searchQuery._offset) {
             dbQuery.offset(searchQuery._offset);
         }
+
+        return result;
     }
 
     private static prepareRelations(
@@ -103,6 +111,9 @@ export default class SearchQuery {
         useShortAliases: boolean = false,
         eagerLoading: boolean = true,
     ) {
+        const result = {
+            hasManyRelations: false,
+        };
 
         // Normalize relations: a.b.c -> a, a.b, a.b.c
         const relationToAliasMap = {};
@@ -148,6 +159,10 @@ export default class SearchQuery {
                     const property = relationToAliasMap[parentPath] + '.' + relationName;
                     const alias = relationToAliasMap[path];
 
+                    if (options.isArray) {
+                        result.hasManyRelations = true;
+                    }
+
                     if (options.relationName) {
                         dbQuery.loadRelationIdAndMap(
                             property,
@@ -165,6 +180,8 @@ export default class SearchQuery {
                     }
                 }
             });
+
+        return result;
     }
 
     /**

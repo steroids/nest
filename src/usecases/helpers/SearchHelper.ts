@@ -25,7 +25,7 @@ export class SearchHelper {
         const dbQuery = repository.createQueryBuilder(searchQuery.getAlias());
         const modelAlias = dbQuery.alias;
 
-        SearchQuery.prepare(repository, dbQuery, searchQuery);
+        const {hasManyRelations} = SearchQuery.prepare(repository, dbQuery, searchQuery);
 
         // Sort
         const sort = typeof dto.sort === 'string' ? dto.sort.split(',') : (dto.sort || []);
@@ -44,9 +44,15 @@ export class SearchHelper {
 
         // Pagination
         if (dto.pageSize > 0) {
-            dbQuery
-                .skip((dto.page - 1) * dto.pageSize)
-                .take(dto.pageSize);
+            if (hasManyRelations) {
+                dbQuery
+                    .skip((dto.page - 1) * dto.pageSize)
+                    .take(dto.pageSize);
+            } else {
+                dbQuery
+                    .offset((dto.page - 1) * dto.pageSize)
+                    .limit(dto.pageSize);
+            }
         }
 
         // Execute query
