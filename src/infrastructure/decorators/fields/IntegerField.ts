@@ -11,6 +11,7 @@ export interface IIntegerFieldOptions extends IBaseFieldOptions {
 }
 
 const isEmpty = value => !value && value !== 0 && value !== '0';
+const isArrayEmpty = value => !value || (Array.isArray(value) && value?.length === 0);
 
 export function IntegerField(options: IIntegerFieldOptions = {}) {
     return applyDecorators(...[
@@ -25,7 +26,7 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             unique: options.unique,
             nullable: options.nullable,
         }),
-        options.nullable && ValidateIf((object, value) => !isEmpty(value)),
+        options.nullable && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
         Transform(({value}) => {
             if (Array.isArray(value)) {
                 return value.map(valueItem => !isEmpty(valueItem) ? _toInteger(valueItem) : null);
