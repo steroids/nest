@@ -55,6 +55,8 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
         options.transform = relationTransform;
     }
 
+    const arrayNotEmptyMessage = options.isFieldValidConstraintMessage || 'Не должно быть пустым';
+
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -64,7 +66,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
             }),
             !options.isArray && Column({type: 'int', nullable: true}),
             options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
-            options.isArray && !options.nullable && ArrayNotEmpty({message: options.isFieldValidConstraintMessage}),
+            options.isArray && !options.nullable && ArrayNotEmpty({message: arrayNotEmptyMessage}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
         ].filter(Boolean)

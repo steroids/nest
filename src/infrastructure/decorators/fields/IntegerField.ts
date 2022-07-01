@@ -8,6 +8,8 @@ import {Transform} from '../Transform';
 export interface IIntegerFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
     isIntConstraintMessage?: string,
+    minIntConstraintMessage?: string,
+    maxIntConstraintMessage?: string,
 }
 
 const isEmpty = value => !value && value !== 0 && value !== '0';
@@ -37,7 +39,13 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             message: options.isIntConstraintMessage || 'Должно быть числом',
             each: options.isArray,
         }),
-        typeof options.min === 'number' && Min(options.min),
-        typeof options.max === 'number' && Max(options.max),
+        typeof options.min === 'number' && Min(options.min, {
+            each: options.isArray,
+            message: `Должно быть не меньше ${options.min}` || options.minIntConstraintMessage,
+        }),
+        typeof options.max === 'number' && Max(options.max, {
+            each: options.isArray,
+            message: `Должно быть не больше ${options.max}` || options.maxIntConstraintMessage,
+        }),
     ].filter(Boolean));
 }

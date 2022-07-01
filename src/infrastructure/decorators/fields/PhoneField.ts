@@ -13,6 +13,7 @@ export const normalizePhone = value => value
     ? String(value)
         .replace(/[^+\d]/g, '')
         .replace(/^8/, '+7')
+        .replace(/^7/, '+7')
         .replace(/^00/, '+')
     : value;
 
