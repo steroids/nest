@@ -1,0 +1,18 @@
+import {Repository} from 'typeorm';
+import {Injectable} from '@nestjs/common';
+import {InjectRepository} from '@nestjs/typeorm';
+import {CrudRepository} from '@steroidsjs/nest/src/infrastructure/repositories/CrudRepository';
+import {%entityName%Model} from '../../domain/models/%entityName%Model';
+import {%entityName%Table} from '../tables/%entityName%Table';
+
+@Injectable()
+export class %entityName%Repository extends CrudRepository<%entityName%Model> {
+    constructor(
+        @InjectRepository(%entityName%Table)
+        public dbRepository: Repository<%entityName%Table>,
+    ) {
+        super();
+    }
+
+    protected modelClass = %entityName%Model;
+}
