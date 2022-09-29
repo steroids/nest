@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.4.44",
+  "version": "1.4.45",
   "scripts": {
     "copy-assets": "copyfiles ./{package.json,LICENSE,README.md} dist/ && copyfiles src/infrastructure/commands/entity-generator/templates/*.txt dist/",
     "build": "tsc && npm run copy-assets",

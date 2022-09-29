@@ -2,5 +2,5 @@ import {DeepPartial} from 'typeorm';
 import {TableFromModel} from '@steroidsjs/nest/src/infrastructure/decorators/TableFromModel';
 import {%entityName%Model} from '../../domain/models/%entityName%Model';
 
-@TableFromModel(%entityName%Model, '%entityName%')
+@TableFromModel(%entityName%Model, '%tableName%')
 export class %entityName%Table implements DeepPartial<%entityName%Model> {}

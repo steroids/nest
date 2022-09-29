@@ -1,8 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'path';
-import {escapeRegExp} from 'lodash';
+import {escapeRegExp, snakeCase} from 'lodash';
 
 const ENTITY_NAME_PLACEHOLDER = '%entityName%';
+const TABLE_NAME_PLACEHOLDER = '%tableName%';
 
 const resultPaths = {
     model: 'domain/models/%entityName%Model.ts',
@@ -27,8 +28,10 @@ const templates = {
 export class EntityCodeGenerator {
     readonly entityName: string;
     readonly moduleName: string;
+    readonly tableName: string;
     readonly projectRootPath: string
     readonly modulePath: string;
+    readonly placeholdersValuesMap: Record<string, string> = {};
 
     constructor(
         entityName: string,
@@ -45,6 +48,12 @@ export class EntityCodeGenerator {
         this.moduleName = moduleName;
         this.projectRootPath = rootPath || process.cwd();
         this.modulePath = this.findModulePath(moduleName);
+        this.tableName = this.getTableName();
+
+        this.placeholdersValuesMap = {
+            [ENTITY_NAME_PLACEHOLDER]: this.entityName,
+            [TABLE_NAME_PLACEHOLDER]: this.tableName,
+        }
     }
 
     public generate() {
@@ -58,15 +67,17 @@ export class EntityCodeGenerator {
     private generateFileByType(fileType) {
         const templatePath = path.resolve(__dirname, 'templates');
 
-        let templateContent = fs.readFileSync(
+        let resultFileContent = fs.readFileSync(
             path.resolve(templatePath, templates[fileType]),
             'utf8',
         );
 
-        const resultFileContent = templateContent.replace(
-            new RegExp(`${escapeRegExp(ENTITY_NAME_PLACEHOLDER)}`, 'g'),
-            this.entityName,
-        );
+        for (const placeholder in this.placeholdersValuesMap) {
+            resultFileContent = resultFileContent.replace(
+                new RegExp(`${escapeRegExp(placeholder)}`, 'g'),
+                this.placeholdersValuesMap[placeholder],
+            );
+        }
 
         let resultFilePath = path.resolve(
             this.modulePath,
@@ -100,5 +111,20 @@ export class EntityCodeGenerator {
         }
 
         throw new Error('No module with a provided name is found');
+    }
+
+    private getTableName() {
+        let tableName = snakeCase(this.entityName)
+        const isTableNameContainsModuleName = (
+            new RegExp(`^${this.moduleName}.*`)
+        ).test(tableName);
+
+        console.log('check', this.entityName, this.moduleName, isTableNameContainsModuleName);
+
+        if (!isTableNameContainsModuleName) {
+            tableName = this.moduleName + '_' + tableName;
+        }
+
+        return tableName;
     }
 }
