@@ -1,0 +1,13 @@
+scripts:
+  copyAssets: >-
+    copyfiles ./{package.json,LICENSE,README.md} dist/ && copyfiles
+    src/infrastructure/commands/entity-generator/templates/*.txt dist/
+  build: tsc && nps copy-assets
+  watch: tsc -p tsconfig-debug.json
+  test: jest --config jest.e2e.config.ts
+  publish:
+    prepare: yarn && yarn upgrade @steroidsjs/core && nps build
+    manual:
+      script: npm whoami && nps publish.prepare && cd dist && npm publish
+      description: 'Use it to publish to NPM manually (authorize to NPM first)'
+
