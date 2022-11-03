@@ -371,12 +371,12 @@ export default class SearchQuery {
         return this._repository;
     }
 
-    async one() {
-        return this._getRepository().findOne(this);
+    async one(eagerLoading: boolean = true) {
+        return this._getRepository().findOne(this, eagerLoading);
     }
 
-    async many() {
-        return this._getRepository().findMany(this);
+    async many(eagerLoading: boolean = true) {
+        return this._getRepository().findMany(this, eagerLoading);
     }
 
     async scalar() {
