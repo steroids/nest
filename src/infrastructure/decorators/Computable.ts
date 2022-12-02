@@ -4,6 +4,6 @@ export type IComputableCallback = ITransformCallback;
 
 export const Computable = (
     callback: IComputableCallback,
-    transformType = TRANSFORM_TYPE_COMPUTABLE
+    transformType = TRANSFORM_TYPE_COMPUTABLE,
 ) => Transform(callback, transformType);
 

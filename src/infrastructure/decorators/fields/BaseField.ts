@@ -67,16 +67,29 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
         return getMetaFields(MetaClass)
             .filter(fieldName => {
                 const options = getFieldOptions(MetaClass, fieldName);
+                if (fieldName === 'previewPhoto') {
+                    console.log(666, options)
+                }
+
+                if (options?.appType === 'computable' && options?.relationName) {
+                    return true;
+                }
+
                 return ['relationId', 'relation'].includes(options?.appType);
             })
             .reduce((allRelations, relationName) => {
-                allRelations.push(relationName);
-
                 const options = getFieldOptions(MetaClass, relationName);
-                if (options.appType === 'relationId') {
+
+                if (options?.appType === 'computable' && options?.relationName) {
+                    relationName = options.relationName;
+                }
+                console.log(333,MetaClass, allRelations, relationName)
+
+                allRelations.push(relationName);
+                if (options?.appType === 'relationId') {
                     return allRelations;
                 }
-
+                console.log(999 ,options)
                 const relationValue = options.relationClass();
                 // Из-за этого кода возвращаются не все реляции в случаях, когда у одного MetaClass'а
                 // есть несколько реляций с одним и тем же классом (см. ImageDownloadSchema для примера)
@@ -92,10 +105,12 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
                         .map(subRelationName => `${relationName}.${subRelationName}`)
                     allRelations = [...allRelations, ...subRelationNames];
                 }
+                console.log(111, allRelations)
 
                 return allRelations;
             }, []);
     }
+    console.log(777, findRelationsRecursive(MetaClass, []))
     return findRelationsRecursive(MetaClass, []);
 }
 
@@ -129,6 +144,7 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
 };
 
 const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
+   //проверить getOwnMetadata
     Reflect.defineMetadata(STEROIDS_META_FIELD, options, object, propertyName);
     Reflect.defineMetadata(STEROIDS_META_FIELD_DECORATOR, internalOptions.decoratorName, object, propertyName);
 
