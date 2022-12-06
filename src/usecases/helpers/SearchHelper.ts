@@ -1,4 +1,5 @@
 import {Repository} from 'typeorm';
+import * as Promise from 'bluebird';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {SearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
@@ -50,7 +51,7 @@ export class SearchHelper {
         }
 
         // Execute query
-        const [items, total] = await dbQuery.getManyAndCount();
+        const [items, total] = await Promise.resolve(dbQuery.getManyAndCount());
         result.items = items;
         result.total = total;
 
