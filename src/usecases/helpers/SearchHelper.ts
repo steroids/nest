@@ -1,4 +1,4 @@
-import {Repository} from 'typeorm';
+import {DeepPartial, Repository} from 'typeorm';
 import * as Promise from 'bluebird';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {SearchInputDto} from '../dtos/SearchInputDto';
@@ -8,7 +8,7 @@ import SearchQuery from '../base/SearchQuery';
 export class SearchHelper {
 
     static async search<TTable>(
-        repository: Repository<any>,
+        repository: Repository<DeepPartial<TTable>>,
         dto: SearchInputDto,
         searchQuery: SearchQuery,
         prepareHandler: (query: SelectQueryBuilder<TTable>) => void | null = null,

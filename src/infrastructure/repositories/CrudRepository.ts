@@ -24,7 +24,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * TypeORM repository instance
      */
-    public dbRepository: Repository<any>;
+    public dbRepository: Repository<unknown>;
 
     protected modelClass;
 
@@ -45,7 +45,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param dbRepository
      * @param modelClass
      */
-    public init(dbRepository: Repository<any>, modelClass: any) {
+    public init(dbRepository: Repository<unknown>, modelClass: any) {
         this.dbRepository = dbRepository;
         this.modelClass = modelClass;
     }
@@ -57,7 +57,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      */
     async search(dto: SearchInputDto, searchQuery: SearchQuery): Promise<SearchResultDto<TModel>> {
         const result = await SearchHelper.search<TModel>(
-            this.dbRepository,
+            this.dbRepository as any,
             dto,
             searchQuery,
             null
