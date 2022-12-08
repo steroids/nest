@@ -1,5 +1,6 @@
 import {set as _set} from 'lodash';
-import {Between, Brackets, ILike, In, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder} from 'typeorm';
+import {Between, Brackets, ILike, In,
+    IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder} from 'typeorm';
 import {WhereExpressionBuilder} from 'typeorm/query-builder/WhereExpressionBuilder';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
@@ -64,7 +65,7 @@ export class ConditionHelper {
                     return ConditionHelper._toTypeOrmInternal(condition[1], true);
 
                 case '=': // ['=', 'age', 18]
-                    return objectWhere(isNot, isEmpty(value), key, value);
+                    return objectWhere(isNot, isEmpty(value), key, isEmpty(value) ? IsNull() : value);
 
                 case '>': // ['>', 'age', 18]
                     return objectWhere(isNot, isEmpty(value), key, MoreThan(value));
