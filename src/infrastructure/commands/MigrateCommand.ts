@@ -2,16 +2,16 @@ import {Command, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
-import { DataSource } from 'typeorm';
-// import {ConnectionMetadataBuilder} from 'typeorm/connection/ConnectionMetadataBuilder';
-// import {OrmUtils} from 'typeorm/util/OrmUtils';
-// import {importClassesFromDirectories} from './importClassesFromDirectories';
+import {DataSource, getFromContainer, MigrationInterface} from 'typeorm';
+import {ConnectionMetadataBuilder} from 'typeorm/connection/ConnectionMetadataBuilder';
+import {OrmUtils} from 'typeorm/util/OrmUtils';
+import {importClassesFromDirectories} from './importClassesFromDirectories';
 
-// ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
-//     const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
-//     const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.connection.logger, migrationDirectories))];
-//     return allMigrationClasses.map(migrationClass => getFromContainer<MigrationInterface>(migrationClass));
-// }
+ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
+    const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
+    const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.connection.logger, migrationDirectories))];
+    return allMigrationClasses.map(migrationClass => getFromContainer<MigrationInterface>(migrationClass));
+}
 
 @Injectable()
 export class MigrateCommand {
