@@ -1,7 +1,10 @@
 import {set as _set} from 'lodash';
-import {Between, Brackets, ILike, In,
-    IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder} from 'typeorm';
-import {WhereExpressionBuilder} from 'typeorm/query-builder/WhereExpressionBuilder';
+import {
+    And, Between, Brackets, ILike, In,
+    IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder
+} from 'typeorm';
+import {setProperty} from 'dot-prop';
+import {merge as _merge} from 'lodash';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
     | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
@@ -11,8 +14,7 @@ export type ICondition = Record<string, unknown>
     | [IConditionOperatorAndOr, ...any[]]
     | ['filter', ICondition]
     | [IConditionOperatorSingle, string, ...any[]]
-    | ICondition[]
-    | ((qb: WhereExpressionBuilder) => any);
+    | ICondition[];
 
 const emptyCondition = {};
 const isEmpty = value => value === null || typeof value === 'undefined' || value === emptyCondition || value === '';
@@ -24,11 +26,6 @@ export class ConditionHelper {
     }
 
     static _toTypeOrmInternal(condition: ICondition, filterEmpty = false) {
-        // TODO Вероятно стоит убрать это, чтобы не было соблазна использовать в сервисах
-        if (typeof condition === 'function') {
-            return new Brackets(condition);
-        }
-
         // {key: value, ...} -> ['and', ['=', key, value], ...]
         if (typeof condition === 'object' && !Array.isArray(condition)) {
             return ConditionHelper._toTypeOrmInternal(
@@ -134,6 +131,11 @@ export class ConditionHelper {
                             }
                         });
                     });
+                    // if (isOr) {
+                    //     return values;
+                    // } else {
+                    //     return _merge(values);
+                    // }
 
                 default:
                     throw Error('Wrong operator: ' + operator);
