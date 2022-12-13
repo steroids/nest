@@ -1,11 +1,11 @@
 import {applyDecorators} from '@nestjs/common';
 import {BaseField, IBaseFieldOptions, IRelationData} from './BaseField';
-import {Computable} from '../Computable';
+import {Computable, IComputableCallback} from '../Computable';
 
 export interface IComputableFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
     requiredRelations?: Array<IRelationData | string>,
-    callback?: any,
+    callback?: IComputableCallback,
 }
 
 export function ComputableField(options: IComputableFieldOptions) {
