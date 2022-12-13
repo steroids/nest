@@ -15,4 +15,3 @@ export function Validator(ValidatorClass) {
         Reflect.defineMetadata(STEROIDS_META_VALIDATOR_CLASSES, validatorClasses, object, fieldName);
     };
 }
-
