@@ -4,8 +4,7 @@ import {ValidationException} from '../exceptions';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
 import {FieldValidatorException} from '../exceptions/FieldValidatorException';
 import {getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
-import {getFieldValidators} from '../validators/Validator';
-import {getFieldValidatorFunctions} from '../validators/ValidatorFunction';
+import {getFieldValidators, getFieldValidatorsFunctions} from '../validators/Validator';
 
 const defaultValidatorOptions: ValidatorOptions = {
     whitelist: false,
@@ -120,7 +119,7 @@ export class ValidationHelper {
                         });
                     }
 
-                    const validatorsFunctions = getFieldValidatorFunctions(dto.constructor, key);
+                    const validatorsFunctions = getFieldValidatorsFunctions(dto.constructor, key);
                     for (const validatorFunction of validatorsFunctions) {
                         await validatorFunction(dto, {
                             ...params,
