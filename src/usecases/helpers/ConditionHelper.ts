@@ -1,10 +1,8 @@
 import {set as _set} from 'lodash';
 import {
-    And, Between, Brackets, ILike, In,
+    Between, Brackets, ILike, In,
     IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder
 } from 'typeorm';
-import {setProperty} from 'dot-prop';
-import {merge as _merge} from 'lodash';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
     | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
