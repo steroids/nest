@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
-import {IsNotEmpty} from 'class-validator';
+import {IsNotEmpty, isString} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
 
@@ -34,6 +34,11 @@ export interface IBaseFieldOptions {
     noColumn?: boolean,
 }
 
+export interface IRelationData {
+    relationName: string,
+    relationClass: () => any
+}
+
 export interface IInternalFieldOptions {
     appType?: AppColumnType,
     jsType?: ColumnType,
@@ -63,33 +68,66 @@ export const getMetaFields = (MetaClass): string[] => {
 
 export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
 
-    const findRelationsRecursive = (MetaClass, finedClasses, parentPrefix = null) => {
+    const findRelationsRecursive = (MetaClass, foundClasses, parentPrefix = null) => {
         return getMetaFields(MetaClass)
             .filter(fieldName => {
                 const options = getFieldOptions(MetaClass, fieldName);
+
+                if (options?.appType === 'computable' && options?.requiredRelations) {
+                    return true;
+                }
+
                 return ['relationId', 'relation'].includes(options?.appType);
             })
-            .reduce((allRelations, relationName) => {
-                allRelations.push(relationName);
-
+            .reduce((allRelationsData, relationName) => {
                 const options = getFieldOptions(MetaClass, relationName);
-                if (options.appType === 'relationId') {
+
+                if (options?.appType === 'relationId') {
+                    return allRelationsData;
+                }
+
+                if (options?.appType === 'computable' && options?.requiredRelations) {
+                    allRelationsData.push(...options.requiredRelations);
+                }
+
+                if (options?.appType !== 'computable') {
+                    allRelationsData.push({
+                        relationName,
+                        relationClass: options.relationClass,
+                    })
+                }
+
+                return allRelationsData;
+            }, [])
+            .reduce((allRelations, relationData: IRelationData | string) => {
+
+                if (isString(relationData)) {
+                    allRelations.push(relationData);
                     return allRelations;
                 }
 
-                const relationValue = options.relationClass();
+                if (!allRelations.includes(relationData.relationName)) {
+                    allRelations.push(relationData.relationName);
+                }
+
+                if (!relationData.relationClass) {
+                    return allRelations;
+                }
+
+                const relationValue = relationData.relationClass();
                 // Из-за этого кода возвращаются не все реляции в случаях, когда у одного MetaClass'а
                 // есть несколько реляций с одним и тем же классом (см. ImageDownloadSchema для примера)
                 // @todo нужно исправить этот баг, иначе реализовав кэширование уже обработанных классов
-                const key = [relationName, relationValue.name].join('.');
-                if (finedClasses.includes(key)) {
+                const key = [relationData.relationName, relationValue.name].join('.');
+
+                if (foundClasses.includes(key)) {
                     return allRelations;
                 }
-                finedClasses.push(key);
+                foundClasses.push(key);
 
                 if (isMetaClass(relationValue)) {
-                    const subRelationNames = findRelationsRecursive(relationValue, finedClasses, relationName)
-                        .map(subRelationName => `${relationName}.${subRelationName}`)
+                    const subRelationNames = findRelationsRecursive(relationValue, foundClasses, relationData.relationName)
+                        .map(subRelationName => `${relationData.relationName}.${subRelationName}`)
                     allRelations = [...allRelations, ...subRelationNames];
                 }
 
@@ -129,6 +167,7 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
 };
 
 const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
+   //проверить getOwnMetadata
     Reflect.defineMetadata(STEROIDS_META_FIELD, options, object, propertyName);
     Reflect.defineMetadata(STEROIDS_META_FIELD_DECORATOR, internalOptions.decoratorName, object, propertyName);
 

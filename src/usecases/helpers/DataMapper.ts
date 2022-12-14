@@ -53,6 +53,10 @@ export class DataMapper {
             const options = getFieldOptions(MetaClass, name);
             const sourceName = options?.sourceFieldName || name;
 
+            if (!options && isMetaClass(MetaClass)) {
+                return;
+            }
+
             if (_has(values, sourceName)) {
                 if (options?.appType === 'relation') {
                     if (options.isArray && Array.isArray(values[sourceName])) {
