@@ -188,11 +188,7 @@ export class ConditionHelperTypeORM {
                     let resultCondition;
                     if (operator === 'some') {
                         resultCondition = `${dbQuery.alias}.${primaryKey} IN (${subQueryString})`;
-                    }
-                    if (operator === 'none') {
-                        resultCondition = `${dbQuery.alias}.${primaryKey} NOT IN (${subQueryString})`;
-                    }
-                    if (operator === 'every') {
+                    } else {
                         resultCondition = `${dbQuery.alias}.${primaryKey} NOT IN (${subQueryString})`;
                     }
 
