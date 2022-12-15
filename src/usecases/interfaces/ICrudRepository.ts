@@ -3,7 +3,7 @@ import {SearchResultDto} from '../dtos/SearchResultDto';
 import {SearchInputDto} from '../dtos/SearchInputDto';
 import {Type} from '@nestjs/common';
 import SearchQuery from '../base/SearchQuery';
-import {ICondition} from '../helpers/ConditionHelper';
+import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
 
 export interface ICrudRepository<TModel> {
     dbRepository: Repository<any>;

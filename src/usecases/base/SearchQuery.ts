@@ -1,7 +1,7 @@
 import {trim as _trim} from 'lodash';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
-import {ICondition} from '../helpers/ConditionHelper';
+import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
 
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
@@ -139,6 +139,7 @@ export default class SearchQuery<TModel>{
 
             if (existingRelationIndex === -1) {
                 this._relations.push(name);
+                this._relations.sort();
                 return;
             }
             const existingRelation = this._relations[existingRelationIndex];

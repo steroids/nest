@@ -1,6 +1,6 @@
 import {Repository} from 'typeorm';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {ConditionHelper} from '../../usecases/helpers/ConditionHelper';
+import {ConditionHelperTypeORM} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {getFieldOptions} from '../decorators/fields/BaseField';
 import SearchQuery from '../../usecases/base/SearchQuery';
 
@@ -37,21 +37,13 @@ export class QueryAdapterTypeORM {
             );
         }
 
-        // dbQuery.setFindOptions({
-        //     relations: {
-        //         application: true,
-        //     },
-        //     where: {
-        //         application: {
-        //             id: 2
-        //         }
-        //     },
-        // });
-
         // Condition
         if (searchQuery.getWhere()) {
-            dbQuery.andWhere(ConditionHelper.toTypeOrm(searchQuery.getWhere()));
-            // where: ConditionHelper.toTypeOrm(searchQuery.getWhere()),
+            dbQuery.andWhere(ConditionHelperTypeORM.toTypeOrm(
+                searchQuery.getWhere(),
+                dbQuery,
+                dbRepository.target,
+            ));
         }
 
         // Order

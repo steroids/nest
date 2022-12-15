@@ -1,12 +1,12 @@
 import {EntityManager, Repository} from 'typeorm';
-import {SearchHelperTypeORM} from '../helpers/SearchHelperTypeORM';
+import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 import SearchQuery from '../../usecases/base/SearchQuery';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {ICondition} from '../../usecases/helpers/ConditionHelper';
+import {ICondition} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
 import {getTableFromModel, setModelBuilder} from '../decorators/TableFromModel';
 import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
@@ -74,7 +74,6 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      */
     async findOne(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel | null> {
         const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
-
         const row = await dbQuery.getOne();
         return row ? this.entityToModel(row) : null;
     }

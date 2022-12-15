@@ -1,10 +1,10 @@
 import {DeepPartial, Repository} from 'typeorm';
 import * as Promise from 'bluebird';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
-import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
-import SearchQuery from '../../usecases/base/SearchQuery';
-import {QueryAdapterTypeORM} from '../adapters/QueryAdapterTypeORM';
+import {SearchInputDto} from '../../../usecases/dtos/SearchInputDto';
+import {SearchResultDto} from '../../../usecases/dtos/SearchResultDto';
+import SearchQuery from '../../../usecases/base/SearchQuery';
+import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 
 export class SearchHelperTypeORM {
 
