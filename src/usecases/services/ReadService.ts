@@ -113,12 +113,11 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     }
 
     createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
-        const searchQuery = new SearchQuery<TModel>({
+        return new SearchQuery<TModel>({
             onGetMany: this.findMany.bind(this),
             onGetOne: this.findOne.bind(this),
             ...(config || {}),
         });
-        return searchQuery;
     }
 
     /**

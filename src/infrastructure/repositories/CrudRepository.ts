@@ -3,7 +3,7 @@ import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
-import SearchQuery from '../../usecases/base/SearchQuery';
+import SearchQuery, {ISearchQueryConfig} from '../../usecases/base/SearchQuery';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../helpers/typeORM/ConditionHelperTypeORM';
@@ -88,6 +88,14 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
 
         const rows = await dbQuery.getMany();
         return rows.map(row => this.entityToModel(row));
+    }
+
+    createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
+        return new SearchQuery<TModel>({
+            onGetMany: this.findMany.bind(this),
+            onGetOne: this.findOne.bind(this),
+            ...(config || {}),
+        });
     }
 
     /**
