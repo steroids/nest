@@ -2,7 +2,7 @@ import {Repository} from 'typeorm';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {SearchInputDto} from '../dtos/SearchInputDto';
 import {Type} from '@nestjs/common';
-import SearchQuery from '../base/SearchQuery';
+import SearchQuery, {ISearchQueryConfig} from '../base/SearchQuery';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
 
 export interface ICrudRepository<TModel> {
@@ -14,4 +14,5 @@ export interface ICrudRepository<TModel> {
     update: (id: number, model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
     save: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
     remove: (id: number, transactionHandler?: (callback) => Promise<void>) => Promise<void>,
+    createQuery: (config?: ISearchQueryConfig<TModel>) => SearchQuery<TModel>,
 }
