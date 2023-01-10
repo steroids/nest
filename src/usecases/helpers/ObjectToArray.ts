@@ -1,4 +1,7 @@
 export function ObjectToArray(object: Record<string, any>, keyPrefix: string = ''): any {
+    if (!object) {
+        return object;
+    }
     return Object
         .entries(object)
         .reduce((array, [key, value]) => {

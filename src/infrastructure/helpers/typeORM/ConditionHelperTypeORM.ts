@@ -11,7 +11,7 @@ import {ObjectToArray} from '../../../usecases/helpers/ObjectToArray';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
     | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
-    | 'not like' | 'not ilike' | 'not between' | 'not in' | 'not and' | 'not &&' | 'not or' | 'not ||' | 'some';
+    | 'not like' | 'not ilike' | 'not between' | 'not in' | 'not and' | 'not &&' | 'not or' | 'not ||';
 export type IConditionOperatorAndOr = 'and' | '&&' | 'or' | '||' | 'not and' | 'not &&' | 'not or' | 'not ||';
 export type IConditionOperatorSubquery = 'some' | 'every' | 'none';
 export type ICondition = Record<string, unknown>
