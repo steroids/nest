@@ -8,6 +8,7 @@ import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 import SearchQuery from '../../../usecases/base/SearchQuery';
 import {getMetaPrimaryKey} from '../../decorators/fields/BaseField';
 import {ObjectToArray} from '../../../usecases/helpers/ObjectToArray';
+import * as util from 'util';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
     | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
@@ -181,7 +182,7 @@ export class ConditionHelperTypeORM {
                     });
 
                     const subQueryString = subQuery.getQuery().replace(
-                        'orm_param_',
+                        /orm_param_/g,
                         `steroids_${paramsKey}_orm_param_`,
                     );
 

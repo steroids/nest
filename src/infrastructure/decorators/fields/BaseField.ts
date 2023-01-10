@@ -83,6 +83,7 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
                 const options = getFieldOptions(MetaClass, relationName);
 
                 if (options?.appType === 'relationId') {
+                    allRelationsData.push(relationName);
                     return allRelationsData;
                 }
 
