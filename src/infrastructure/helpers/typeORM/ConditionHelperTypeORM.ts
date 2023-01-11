@@ -2,8 +2,8 @@ import {set as _set, keys} from 'lodash';
 import {
     Between, Brackets, ILike, In,
     IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder
-} from 'typeorm';
-import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
+} from 'typeorm-steroids';
+import {SelectQueryBuilder} from 'typeorm-steroids/query-builder/SelectQueryBuilder';
 import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 import SearchQuery from '../../../usecases/base/SearchQuery';
 import {getMetaPrimaryKey} from '../../decorators/fields/BaseField';

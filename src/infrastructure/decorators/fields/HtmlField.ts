@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from 'typeorm';
+import {Column} from 'typeorm-steroids';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function HtmlField(options: IBaseFieldOptions = {}) {

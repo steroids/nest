@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {has as _has} from 'lodash';
-import {Column, getMetadataArgsStorage} from 'typeorm';
-import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
+import {Column, getMetadataArgsStorage} from 'typeorm-steroids';
+import {EventListenerTypes} from 'typeorm-steroids/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
 import {IsOptional, IsString} from 'class-validator';

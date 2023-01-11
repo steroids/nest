@@ -7,7 +7,7 @@ import {ModuleHelper} from '../helpers/ModuleHelper';
 import {join} from 'path';
 import {ConfigModule, ConfigService} from '@nestjs/config';
 import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
-import {PostgresConnectionOptions} from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import {PostgresConnectionOptions} from 'typeorm-steroids/driver/postgres/PostgresConnectionOptions';
 import {UserExceptionFilter} from "../filters/UserExceptionFilter";
 
 @Module({

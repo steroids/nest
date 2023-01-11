@@ -1,5 +1,5 @@
-import {snakeCase} from 'typeorm/util/StringUtils';
-import {DefaultNamingStrategy} from 'typeorm';
+import {snakeCase} from 'typeorm-steroids/util/StringUtils';
+import {DefaultNamingStrategy} from 'typeorm-steroids';
 
 export class DatabaseNamingStrategy extends DefaultNamingStrategy {
 

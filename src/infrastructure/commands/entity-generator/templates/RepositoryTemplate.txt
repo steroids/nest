@@ -1,4 +1,4 @@
-import {Repository} from 'typeorm';
+import {Repository} from 'typeorm-steroids';
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {CrudRepository} from '@steroidsjs/nest/src/infrastructure/repositories/CrudRepository';

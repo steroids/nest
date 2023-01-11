@@ -10,7 +10,7 @@ import {
 } from 'lodash';
 import * as pluralize from 'pluralize';
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
-import {CommandUtils} from 'typeorm/commands/CommandUtils';
+import {CommandUtils} from 'typeorm-steroids/commands/CommandUtils';
 import {exporter} from '@dbml/core';
 import {templateModel, templateModelField, templateModelRelation, templateTable} from './templates';
 

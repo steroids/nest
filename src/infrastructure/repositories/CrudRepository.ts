@@ -1,11 +1,11 @@
-import {EntityManager, Repository} from 'typeorm';
+import {EntityManager, Repository} from 'typeorm-steroids';
 import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 import SearchQuery, {ISearchQueryConfig} from '../../usecases/base/SearchQuery';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
-import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
+import {SelectQueryBuilder} from 'typeorm-steroids/query-builder/SelectQueryBuilder';
 import {ICondition} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
 import {getTableFromModel, setModelBuilder} from '../decorators/TableFromModel';

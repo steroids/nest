@@ -1,4 +1,4 @@
-import {Repository} from 'typeorm';
+import {Repository} from 'typeorm-steroids';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {SearchInputDto} from '../dtos/SearchInputDto';
 import {Type} from '@nestjs/common';

@@ -1,6 +1,6 @@
-import {DeepPartial, Repository} from 'typeorm';
+import {DeepPartial, Repository} from 'typeorm-steroids';
 import * as Promise from 'bluebird';
-import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
+import {SelectQueryBuilder} from 'typeorm-steroids/query-builder/SelectQueryBuilder';
 import {SearchInputDto} from '../../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../../usecases/dtos/SearchResultDto';
 import SearchQuery from '../../../usecases/base/SearchQuery';

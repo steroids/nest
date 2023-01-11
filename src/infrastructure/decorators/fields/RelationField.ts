@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {ManyToMany, ManyToOne, OneToMany, OneToOne, JoinTable, JoinColumn} from 'typeorm';
+import {ManyToMany, ManyToOne, OneToMany, OneToOne, JoinTable, JoinColumn} from 'typeorm-steroids';
 import {ValidateIf, ValidateNested} from 'class-validator';
 import {Type} from 'class-transformer';
 import {BaseField, getFieldOptions, getMetaFields, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';

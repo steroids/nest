@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
-import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
+import {ColumnType} from 'typeorm-steroids/driver/types/ColumnTypes';
 import {IsNotEmpty, isString} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
