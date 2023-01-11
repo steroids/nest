@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {NestFactory} from '@nestjs/core';
 import {ValidationExceptionFilter} from '../filters/ValidationExceptionFilter';
 import {CreateDtoPipe} from '../pipes/CreateDtoPipe';
-import {TypeOrmModule} from '@nestjs/typeorm';
+import {TypeOrmModule} from 'nest-typeorm-steroids';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 import {join} from 'path';
 import {ConfigModule, ConfigService} from '@nestjs/config';

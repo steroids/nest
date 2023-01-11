@@ -1,6 +1,6 @@
 import {Repository} from 'typeorm-steroids';
 import {Injectable} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
+import {InjectRepository} from 'nest-typeorm-steroids';
 import {CrudRepository} from '../../../repositories/CrudRepository';
 import {FileModel} from '../models/FileModel';
 import {FileTable} from '../tables/FileTable';
