@@ -1,8 +1,8 @@
 import * as glob from "glob";
-import {PlatformTools} from "typeorm/platform/PlatformTools";
-import {EntitySchema} from "typeorm/entity-schema/EntitySchema";
-import {Logger} from "typeorm/logger/Logger";
-import {importOrRequireFile} from "typeorm/util/ImportUtils";
+import {PlatformTools} from "typeorm-steroids/platform/PlatformTools";
+import {EntitySchema} from "typeorm-steroids/entity-schema/EntitySchema";
+import {Logger} from "typeorm-steroids/logger/Logger";
+import {importOrRequireFile} from "typeorm-steroids/util/ImportUtils";
 
 class MockMigration {
     name: string;
