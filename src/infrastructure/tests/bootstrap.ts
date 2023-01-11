@@ -1,13 +1,13 @@
 import {Module} from '@nestjs/common';
 import {NestFactory} from '@nestjs/core';
+import {TypeOrmModule} from '@steroidsjs/nest-typeorm';
+import {PostgresConnectionOptions} from '@steroidsjs/typeorm/driver/postgres/PostgresConnectionOptions';
 import {ValidationExceptionFilter} from '../filters/ValidationExceptionFilter';
 import {CreateDtoPipe} from '../pipes/CreateDtoPipe';
-import {TypeOrmModule} from 'nest-typeorm-steroids';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 import {join} from 'path';
 import {ConfigModule, ConfigService} from '@nestjs/config';
 import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
-import {PostgresConnectionOptions} from 'typeorm-steroids/driver/postgres/PostgresConnectionOptions';
 import {UserExceptionFilter} from "../filters/UserExceptionFilter";
 
 @Module({

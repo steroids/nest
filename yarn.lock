@@ -700,6 +700,36 @@
   resolved "https://registry.npmjs.org/@sqltools/formatter/-/formatter-1.2.3.tgz"
   integrity sha512-O3uyB/JbkAEMZaP3YqyHH7TMnex7tWyCbCI4EfJdOCoN6HIhqdJBWTM6aCCiWQ/5f5wxjgU735QAIpJbjDvmzg==
 
+"@steroidsjs/nest-typeorm@^9.0.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/@steroidsjs/nest-typeorm/-/nest-typeorm-9.0.1.tgz#1bcd424e63df59df493c9e6d1f9f8e11d8f5e1a5"
+  integrity sha512-dpMSTu7oZObq95bVpeFPY897UWbROwiMEc3/OtxzLqxQLiyut2qpQjWSq3DF1dxlZFZIXVB2xt4FoB7ZFRiH3A==
+  dependencies:
+    uuid "9.0.0"
+
+"@steroidsjs/typeorm@^0.3.11":
+  version "0.3.11"
+  resolved "https://registry.yarnpkg.com/@steroidsjs/typeorm/-/typeorm-0.3.11.tgz#09f0050664f03d1bb0fc05282cffe4fd8d0b2c45"
+  integrity sha512-MR8kHKHrbey5fUCl3P2PQkltTS7THoFlH1t3L4isDYMFmbLAZyW6n+MEE/g0x/+Uj/hfLbB0FDeJggVhqlk75g==
+  dependencies:
+    "@sqltools/formatter" "^1.2.2"
+    app-root-path "^3.0.0"
+    buffer "^6.0.3"
+    chalk "^4.1.0"
+    cli-highlight "^2.1.11"
+    date-fns "^2.28.0"
+    debug "^4.3.3"
+    dotenv "^16.0.0"
+    glob "^7.2.0"
+    js-yaml "^4.1.0"
+    mkdirp "^1.0.4"
+    reflect-metadata "^0.1.13"
+    sha.js "^2.4.11"
+    tslib "^2.3.1"
+    uuid "^8.3.2"
+    xml2js "^0.4.23"
+    yargs "^17.3.1"
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
@@ -3473,13 +3503,6 @@ neo-async@^2.6.2:
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.2.tgz"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
-nest-typeorm-steroids@^9.0.1:
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/nest-typeorm-steroids/-/nest-typeorm-steroids-9.0.1.tgz#0df41aa65e854bebd731b3ffb22e9d07298abb74"
-  integrity sha512-mcZD7+UUtoQLUVTONEY2lxZbjXBPbzVsKTd+L5SN7mwsjHSpwix+6EiT8NAX6qPMiJ/OZ8BKOA0ywHHyKaHjGw==
-  dependencies:
-    uuid "9.0.0"
-
 nestjs-command@^3.1.1:
   version "3.1.1"
   resolved "https://registry.npmjs.org/nestjs-command/-/nestjs-command-3.1.1.tgz"
@@ -4734,29 +4757,6 @@ typedi@^0.10.0:
   version "0.10.0"
   resolved "https://registry.npmjs.org/typedi/-/typedi-0.10.0.tgz"
   integrity sha512-v3UJF8xm68BBj6AF4oQML3ikrfK2c9EmZUyLOfShpJuItAqVBHWP/KtpGinkSsIiP6EZyyb6Z3NXyW9dgS9X1w==
-
-typeorm-steroids@^0.3.11-beta1:
-  version "0.3.11-beta1"
-  resolved "https://registry.yarnpkg.com/typeorm-steroids/-/typeorm-steroids-0.3.11-beta1.tgz#2896059971f3456a8f0d037dd6e6d293ea81a78d"
-  integrity sha512-VR/ypTNutaOBXHTLfExeBlNZuJT/BjuzCb/rrlFgMScxoPdjUigiD1CP2Y7c0JkJdFcGoqGNStl1XMlLQVaDlg==
-  dependencies:
-    "@sqltools/formatter" "^1.2.2"
-    app-root-path "^3.0.0"
-    buffer "^6.0.3"
-    chalk "^4.1.0"
-    cli-highlight "^2.1.11"
-    date-fns "^2.28.0"
-    debug "^4.3.3"
-    dotenv "^16.0.0"
-    glob "^7.2.0"
-    js-yaml "^4.1.0"
-    mkdirp "^1.0.4"
-    reflect-metadata "^0.1.13"
-    sha.js "^2.4.11"
-    tslib "^2.3.1"
-    uuid "^8.3.2"
-    xml2js "^0.4.23"
-    yargs "^17.3.1"
 
 typescript@4.6.2:
   version "4.6.2"

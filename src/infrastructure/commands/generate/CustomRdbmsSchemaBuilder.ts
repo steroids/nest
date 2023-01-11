@@ -1,8 +1,8 @@
-import {Table} from 'typeorm-steroids/schema-builder/table/Table';
-import {TableForeignKey} from 'typeorm-steroids/schema-builder/table/TableForeignKey';
-import {EntityMetadata} from 'typeorm-steroids/metadata/EntityMetadata';
-import {View} from 'typeorm-steroids/schema-builder/view/View';
-import {RdbmsSchemaBuilder} from 'typeorm-steroids/schema-builder/RdbmsSchemaBuilder';
+import {Table} from '@steroidsjs/typeorm/schema-builder/table/Table';
+import {TableForeignKey} from '@steroidsjs/typeorm/schema-builder/table/TableForeignKey';
+import {EntityMetadata} from '@steroidsjs/typeorm/metadata/EntityMetadata';
+import {View} from '@steroidsjs/typeorm/schema-builder/view/View';
+import {RdbmsSchemaBuilder} from '@steroidsjs/typeorm/schema-builder/RdbmsSchemaBuilder';
 import {CustomPostgresQueryRunner, TableSqlInMemory} from './CustomPostgresQueryRunner';
 
 export class CustomRdbmsSchemaBuilder extends RdbmsSchemaBuilder {

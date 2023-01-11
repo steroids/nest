@@ -2,7 +2,7 @@ import {applyDecorators} from '@nestjs/common';
 import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
 import {getTableFromModel} from '../TableFromModel';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {ArrayNotEmpty, ValidateIf} from "class-validator";
 import {isEmpty as _isEmpty} from 'lodash';
 

@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.5.0-beta.14",
+  "version": "1.5.0-beta.15",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",
@@ -27,7 +27,8 @@
     "@nestjs/core": "^8.4.1",
     "@nestjs/platform-express": "^8.4.1",
     "@nestjs/swagger": "^5.2.0",
-    "nest-typeorm-steroids": "^9.0.1",
+    "@steroidsjs/nest-typeorm": "^9.0.1",
+    "@steroidsjs/typeorm": "^0.3.11",
     "@sqltools/formatter": "^1.2.3",
     "bluebird": "^3.7.2",
     "class-transformer": "^0.5.1",
@@ -39,7 +40,6 @@
     "pluralize": "^8.0.0",
     "rxjs": "^7.2.0",
     "typedi": "^0.10.0",
-    "typeorm-steroids": "^0.3.11-beta1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

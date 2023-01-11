@@ -1,5 +1,5 @@
-import {Repository} from 'typeorm-steroids';
-import {SelectQueryBuilder} from 'typeorm-steroids/query-builder/SelectQueryBuilder';
+import {Repository} from '@steroidsjs/typeorm';
+import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
 import {ConditionHelperTypeORM} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {getFieldOptions} from '../decorators/fields/BaseField';
 import SearchQuery from '../../usecases/base/SearchQuery';

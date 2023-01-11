@@ -2,9 +2,9 @@ import {Command, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
-import {DataSource, getFromContainer, MigrationInterface} from 'typeorm-steroids';
-import {ConnectionMetadataBuilder} from 'typeorm-steroids/connection/ConnectionMetadataBuilder';
-import {OrmUtils} from 'typeorm-steroids/util/OrmUtils';
+import {DataSource, getFromContainer, MigrationInterface} from '@steroidsjs/typeorm';
+import {ConnectionMetadataBuilder} from '@steroidsjs/typeorm/connection/ConnectionMetadataBuilder';
+import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
 import {importClassesFromDirectories} from './importClassesFromDirectories';
 
 ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {

@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {toInteger as _toInteger} from 'lodash';
 import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';

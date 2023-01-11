@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {IsISO8601, ValidateIf, ValidationArguments} from 'class-validator';
 import {formatISO9075, parseISO} from 'date-fns';
 import {BaseField, IBaseFieldOptions} from './BaseField';

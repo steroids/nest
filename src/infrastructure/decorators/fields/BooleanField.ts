@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {has as _has} from 'lodash';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {IsBoolean, IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';

@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {IsEnum, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';

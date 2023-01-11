@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {IsPhoneNumber, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';

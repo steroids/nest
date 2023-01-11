@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {Column} from 'typeorm-steroids';
+import {Column} from '@steroidsjs/typeorm';
 import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';

@@ -1,4 +1,4 @@
-import {Entity} from 'typeorm-steroids';
+import {Entity} from '@steroidsjs/typeorm';
 import {ExtendField} from './fields/ExtendField';
 import {applyDecorators} from '@nestjs/common';
 import {getFieldDecoratorName, getFieldOptions, getMetaFields} from './fields/BaseField';

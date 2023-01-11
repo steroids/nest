@@ -1,8 +1,8 @@
 import * as glob from "glob";
-import {PlatformTools} from "typeorm-steroids/platform/PlatformTools";
-import {EntitySchema} from "typeorm-steroids/entity-schema/EntitySchema";
-import {Logger} from "typeorm-steroids/logger/Logger";
-import {importOrRequireFile} from "typeorm-steroids/util/ImportUtils";
+import {PlatformTools} from "@steroidsjs/typeorm/platform/PlatformTools";
+import {EntitySchema} from "@steroidsjs/typeorm/entity-schema/EntitySchema";
+import {Logger} from "@steroidsjs/typeorm/logger/Logger";
+import {importOrRequireFile} from "@steroidsjs/typeorm/util/ImportUtils";
 
 class MockMigration {
     name: string;
