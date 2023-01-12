@@ -139,7 +139,6 @@ export default class SearchQuery<TModel>{
 
             if (existingRelationIndex === -1) {
                 this._relations.push(name);
-                this._relations.sort();
                 return;
             }
             const existingRelation = this._relations[existingRelationIndex];
@@ -153,6 +152,7 @@ export default class SearchQuery<TModel>{
                 console.warn(`[@steroidsjs/nest] There are multiple aliases (${name}, ${existingRelation}) in SearchQuery. The last one will be used.`);
             }
         });
+        this._relations.sort();
         return this;
     }
 
