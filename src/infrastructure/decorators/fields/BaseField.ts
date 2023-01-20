@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
-import {ColumnType} from 'typeorm/driver/types/ColumnTypes';
+import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty, isString} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
@@ -83,6 +83,7 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
                 const options = getFieldOptions(MetaClass, relationName);
 
                 if (options?.appType === 'relationId') {
+                    allRelationsData.push(relationName);
                     return allRelationsData;
                 }
 

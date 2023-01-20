@@ -88,7 +88,7 @@ export class CrudService<TModel,
         let prevModel = null;
         if (id) {
             prevModel = await this.findOne(
-                (new SearchQuery())
+                (new SearchQuery<TModel>())
                     .where({[this.primaryKey]: id})
                     .with(getMetaRelations(dto.constructor))
             );

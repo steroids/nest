@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {PrimaryGeneratedColumn} from 'typeorm';
+import {PrimaryGeneratedColumn} from '@steroidsjs/typeorm';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function PrimaryKeyField(options: IBaseFieldOptions = {}) {

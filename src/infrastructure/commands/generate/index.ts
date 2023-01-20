@@ -2,8 +2,8 @@ import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {join} from 'path';
 import * as lodash from 'lodash';
 import * as fs from 'fs';
-import {CommandUtils} from 'typeorm/commands/CommandUtils';
-import {Connection} from 'typeorm';
+import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
+import {Connection} from '@steroidsjs/typeorm';
 import {format} from '@sqltools/formatter';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
 
@@ -28,7 +28,7 @@ const prettifyQuery = (query: string) => {
 const getTemplate = (name: string, timestamp: number, upSqls: string[], downSqls: string[]): string => {
     const migrationName = `${name}${timestamp}`;
 
-    return `import {MigrationInterface, QueryRunner} from 'typeorm';
+    return `import {MigrationInterface, QueryRunner} from '@steroidsjs/typeorm';
 
 export class ${migrationName} implements MigrationInterface {
     name = '${migrationName}'

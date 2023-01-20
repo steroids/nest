@@ -1,16 +1,17 @@
-import {EntityManager, Repository} from 'typeorm';
-import {SearchHelper} from '../../usecases/helpers/SearchHelper';
+import {EntityManager, Repository} from '@steroidsjs/typeorm';
+import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
-import SearchQuery from '../../usecases/base/SearchQuery';
+import SearchQuery, {ISearchQueryConfig} from '../../usecases/base/SearchQuery';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
-import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {ICondition} from '../../usecases/helpers/ConditionHelper';
+import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {ICondition} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
 import {getTableFromModel, setModelBuilder} from '../decorators/TableFromModel';
 import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
 import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
+import {QueryAdapterTypeORM} from '../adapters/QueryAdapterTypeORM';
 
 /**
  * Generic CRUD repository
@@ -24,7 +25,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * TypeORM repository instance
      */
-    public dbRepository: Repository<any>;
+    public dbRepository: Repository<unknown>;
 
     protected modelClass;
 
@@ -45,7 +46,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param dbRepository
      * @param modelClass
      */
-    public init(dbRepository: Repository<any>, modelClass: any) {
+    public init(dbRepository: Repository<unknown>, modelClass: any) {
         this.dbRepository = dbRepository;
         this.modelClass = modelClass;
     }
@@ -55,9 +56,9 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param dto
      * @param searchQuery
      */
-    async search(dto: SearchInputDto, searchQuery: SearchQuery): Promise<SearchResultDto<TModel>> {
-        const result = await SearchHelper.search<TModel>(
-            this.dbRepository,
+    async search(dto: SearchInputDto, searchQuery: SearchQuery<TModel>): Promise<SearchResultDto<TModel>> {
+        const result = await SearchHelperTypeORM.search<TModel>(
+            this.dbRepository as any,
             dto,
             searchQuery,
             null
@@ -66,18 +67,13 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         return result;
     }
 
-    createQuery(): SearchQuery {
-        return new SearchQuery(this);
-    }
-
     /**
      * Find item by condition
      * @param conditionOrQuery
      * @param eagerLoading
      */
-    async findOne(conditionOrQuery: ICondition | SearchQuery, eagerLoading = true): Promise<TModel | null> {
+    async findOne(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel | null> {
         const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
-
         const row = await dbQuery.getOne();
         return row ? this.entityToModel(row) : null;
     }
@@ -87,11 +83,19 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param conditionOrQuery
      * @param eagerLoading
      */
-    async findMany(conditionOrQuery: ICondition | SearchQuery, eagerLoading = true): Promise<TModel[]> {
+    async findMany(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel[]> {
         const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
 
         const rows = await dbQuery.getMany();
         return rows.map(row => this.entityToModel(row));
+    }
+
+    createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
+        return new SearchQuery<TModel>({
+            onGetMany: this.findMany.bind(this),
+            onGetOne: this.findOne.bind(this),
+            ...(config || {}),
+        });
     }
 
     /**
@@ -100,15 +104,15 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param eagerLoading
      * @protected
      */
-    protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery, eagerLoading: boolean = true): SelectQueryBuilder<any> {
-        let searchQuery = conditionOrQuery as SearchQuery;
+    protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading: boolean = true): SelectQueryBuilder<any> {
+        let searchQuery = conditionOrQuery as SearchQuery<TModel>;
         if (!(conditionOrQuery instanceof SearchQuery)) {
-            searchQuery = new SearchQuery();
+            searchQuery = new SearchQuery<TModel>();
             searchQuery.where(conditionOrQuery);
         }
 
         const dbQuery = this.dbRepository.createQueryBuilder(searchQuery.getAlias());
-        SearchQuery.prepare(this.dbRepository, dbQuery, searchQuery, eagerLoading);
+        QueryAdapterTypeORM.prepare(this.dbRepository, dbQuery, searchQuery, eagerLoading);
 
         return dbQuery;
     }

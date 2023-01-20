@@ -1,6 +1,6 @@
-import {DeepPartial} from 'typeorm';
+import {IDeepPartial} from '@steroidsjs/nest/src/usecases/interfaces/IDeepPartial';
 import {TableFromModel} from '@steroidsjs/nest/src/infrastructure/decorators/TableFromModel';
 import {%entityName%Model} from '../../domain/models/%entityName%Model';
 
 @TableFromModel(%entityName%Model, '%tableName%')
-export class %entityName%Table implements DeepPartial<%entityName%Model> {}
+export class %entityName%Table implements IDeepPartial<%entityName%Model> {}

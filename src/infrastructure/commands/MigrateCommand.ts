@@ -1,10 +1,10 @@
 import {Command, Positional} from 'nestjs-command';
-import {Injectable} from '@nestjs/common';
-import {Connection, getFromContainer, MigrationInterface} from 'typeorm';
+import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
-import {ConnectionMetadataBuilder} from 'typeorm/connection/ConnectionMetadataBuilder';
-import {OrmUtils} from 'typeorm/util/OrmUtils';
+import {DataSource, getFromContainer, MigrationInterface} from '@steroidsjs/typeorm';
+import {ConnectionMetadataBuilder} from '@steroidsjs/typeorm/connection/ConnectionMetadataBuilder';
+import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
 import {importClassesFromDirectories} from './importClassesFromDirectories';
 
 ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
@@ -16,7 +16,8 @@ ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations
 @Injectable()
 export class MigrateCommand {
     constructor(
-        private connection: Connection,
+        @Inject(DataSource)
+        private dataSource: DataSource,
     ) {
     }
 
@@ -25,7 +26,7 @@ export class MigrateCommand {
         describe: 'Run migrations',
     })
     async index() {
-        await this.connection.runMigrations({
+        await this.dataSource.runMigrations({
             transaction: 'each',
         });
         process.exit();
@@ -36,7 +37,7 @@ export class MigrateCommand {
         describe: 'Revert last migration',
     })
     async redo() {
-        await this.connection.undoLastMigration({
+        await this.dataSource.undoLastMigration({
             transaction: 'each',
         });
     }
@@ -46,7 +47,7 @@ export class MigrateCommand {
         describe: 'Show migrations list',
     })
     async show() {
-        await this.connection.showMigrations();
+        await this.dataSource.showMigrations();
     }
 
     @Command({
@@ -70,7 +71,7 @@ export class MigrateCommand {
         describe: 'Create migrations for each model changes',
     })
     async generate() {
-        await generate(this.connection);
+        await generate(this.dataSource);
     }
 
 }

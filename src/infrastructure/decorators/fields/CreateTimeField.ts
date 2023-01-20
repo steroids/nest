@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {has as _has} from 'lodash';
-import {Column, getMetadataArgsStorage} from 'typeorm';
-import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
+import {Column, getMetadataArgsStorage} from '@steroidsjs/typeorm';
+import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';

@@ -4,9 +4,15 @@ import {getFieldValidators, Validator} from '../../../usecases/validators/Valida
 
 export interface IExtendFieldOptions {
     sourceFieldName?: string,
+    extendValidators?: boolean,
 }
 
-export function ExtendField(ModelClass, options: (string | Partial<IAllFieldOptions>) = {}) {
+export function ExtendField(
+    ModelClass,
+    options: (string | Partial<IAllFieldOptions>) = {
+        extendValidators: true,
+    }
+) {
     return (object, propertyName) => {
         if (typeof options === 'string') {
             options = {sourceFieldName: options};
@@ -22,9 +28,11 @@ export function ExtendField(ModelClass, options: (string | Partial<IAllFieldOpti
         const decorator = getFieldDecorator(ModelClass, modelFieldName);
         decorator({...extendOptions, ...options})(object, propertyName);
 
-        // Extend validators
-        getFieldValidators(ModelClass, modelFieldName).forEach(ValidatorClass => {
-            Validator(ValidatorClass)(object, propertyName);
-        });
+        if (options.extendValidators) {
+            // Extend validators
+            getFieldValidators(ModelClass, modelFieldName).forEach(ValidatorClass => {
+                Validator(ValidatorClass)(object, propertyName);
+            });
+        }
     };
 }

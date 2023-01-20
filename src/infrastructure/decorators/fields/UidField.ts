@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {v4 as uuidv4} from 'uuid';
-import {Column, getMetadataArgsStorage} from 'typeorm';
-import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
+import {Column, getMetadataArgsStorage} from '@steroidsjs/typeorm';
+import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export const generateUid = (): string => uuidv4();

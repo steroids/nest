@@ -4,7 +4,7 @@ import {ValidationException} from '../exceptions';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
 import {FieldValidatorException} from '../exceptions/FieldValidatorException';
 import {getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
-import {getFieldValidators, getFieldValidatorsFunctions} from '../validators/Validator';
+import {getFieldValidators} from '../validators/Validator';
 
 const defaultValidatorOptions: ValidatorOptions = {
     whitelist: false,
@@ -100,11 +100,17 @@ export class ValidationHelper {
                     }
                 } else {
                     // Get field validators
-                    const validatorsClasses = getFieldValidators(dto.constructor, key);
+                    const validatorsInstances = getFieldValidators(dto.constructor, key);
 
-                    for (const validatorClass of validatorsClasses) {
+                    for (const validatorInctance of validatorsInstances) {
+                        if (typeof validatorInctance === 'function') {
+                            await validatorInctance(dto, {
+                                ...params,
+                                name: key,
+                            });
+                        }
                         // Find validator instance
-                        const validator = (validatorsInstances || []).find(item => item instanceof validatorClass);
+                        const validator = (validatorsInstances || []).find(item => item instanceof validatorInctance);
                         if (!validator) {
                             throw new Error(
                                 `Not found validator instance for "${dto.constructor.name}.${key}."`
@@ -114,14 +120,6 @@ export class ValidationHelper {
 
                         // Run validator
                         await validator.validate(dto, {
-                            ...params,
-                            name: key,
-                        });
-                    }
-
-                    const validatorsFunctions = getFieldValidatorsFunctions(dto.constructor, key);
-                    for (const validatorFunction of validatorsFunctions) {
-                        await validatorFunction(dto, {
                             ...params,
                             name: key,
                         });

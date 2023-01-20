@@ -5,7 +5,7 @@ import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import {SearchResultDto} from '../dtos/SearchResultDto';
 import {ValidationHelper} from '../helpers/ValidationHelper';
-import SearchQuery from '../base/SearchQuery';
+import SearchQuery, {ISearchQueryConfig} from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
 
@@ -64,7 +64,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
 
         const result = await this.repository.search<TSchema>(
             dto,
-            schemaClass ? SearchQuery.createFromSchema(schemaClass) : new SearchQuery(),
+            schemaClass ? SearchQuery.createFromSchema<TModel>(schemaClass) : new SearchQuery(),
         );
         if (schemaClass) {
             result.items = result.items.map((model: TModel) => this.modelToSchema<TSchema>(model, schemaClass));
@@ -90,30 +90,34 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         context: ContextDto = null,
         schemaClass: Type<TSchema> = null,
     ): Promise<TModel | Type<TSchema>> {
-        const searchQuery = schemaClass ? SearchQuery.createFromSchema(schemaClass) : new SearchQuery();
+        const searchQuery = schemaClass ? SearchQuery.createFromSchema<TModel>(schemaClass) : new SearchQuery<TModel>();
         searchQuery.andWhere({[this.primaryKey]: _toInteger(id)});
         const model = await this.findOne(searchQuery);
         return schemaClass ? this.modelToSchema<TSchema>(model, schemaClass) : model;
-    }
-
-    createQuery(): SearchQuery {
-        return this.repository.createQuery();
     }
 
     /**
      * Find one model by search query (selects and condition)
      * @param searchQuery
      */
-    async findOne(searchQuery: SearchQuery): Promise<TModel> {
-        return await this.repository.findOne(searchQuery);
+    async findOne(searchQuery: SearchQuery<TModel>): Promise<TModel> {
+        return this.repository.findOne(searchQuery);
     }
 
     /**
      * Find many models by search query (selects and condition)
      * @param searchQuery
      */
-    async findMany(searchQuery: SearchQuery): Promise<TModel[]> {
+    async findMany(searchQuery: SearchQuery<TModel>): Promise<TModel[]> {
         return await this.repository.findMany(searchQuery);
+    }
+
+    createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
+        return new SearchQuery<TModel>({
+            onGetMany: this.findMany.bind(this),
+            onGetOne: this.findOne.bind(this),
+            ...(config || {}),
+        });
     }
 
     /**

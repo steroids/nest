@@ -1,16 +1,17 @@
-import {Repository} from 'typeorm';
+import {DeepPartial, Repository} from '@steroidsjs/typeorm';
 import * as Promise from 'bluebird';
-import {SelectQueryBuilder} from 'typeorm/query-builder/SelectQueryBuilder';
-import {SearchInputDto} from '../dtos/SearchInputDto';
-import {SearchResultDto} from '../dtos/SearchResultDto';
-import SearchQuery from '../base/SearchQuery';
+import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {SearchInputDto} from '../../../usecases/dtos/SearchInputDto';
+import {SearchResultDto} from '../../../usecases/dtos/SearchResultDto';
+import SearchQuery from '../../../usecases/base/SearchQuery';
+import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 
-export class SearchHelper {
+export class SearchHelperTypeORM {
 
     static async search<TTable>(
-        repository: Repository<any>,
+        repository: Repository<DeepPartial<TTable>>,
         dto: SearchInputDto,
-        searchQuery: SearchQuery,
+        searchQuery: SearchQuery<TTable>,
         prepareHandler: (query: SelectQueryBuilder<TTable>) => void | null = null,
     ): Promise<SearchResultDto<TTable>> {
         const result = new SearchResultDto<TTable>();
@@ -26,7 +27,7 @@ export class SearchHelper {
         const dbQuery = repository.createQueryBuilder(searchQuery.getAlias());
         const modelAlias = dbQuery.alias;
 
-        const {hasManyRelations} = SearchQuery.prepare(repository, dbQuery, searchQuery);
+        QueryAdapterTypeORM.prepare(repository, dbQuery, searchQuery);
 
         // Sort
         const sort = typeof dto.sort === 'string' ? dto.sort.split(',') : (dto.sort || []);
@@ -45,15 +46,9 @@ export class SearchHelper {
 
         // Pagination
         if (dto.pageSize > 0) {
-            if (hasManyRelations) {
-                dbQuery
-                    .skip((dto.page - 1) * dto.pageSize)
-                    .take(dto.pageSize);
-            } else {
-                dbQuery
-                    .offset((dto.page - 1) * dto.pageSize)
-                    .limit(dto.pageSize);
-            }
+            dbQuery
+                .skip((dto.page - 1) * dto.pageSize)
+                .take(dto.pageSize);
         }
 
         // Execute query
