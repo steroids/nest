@@ -1,0 +1,6 @@
+import {PrimaryKeyField} from '@steroidsjs/nest/src/infrastructure/decorators/fields';
+
+export class %entityName%Model {
+    @PrimaryKeyField()
+    id: number;
+}

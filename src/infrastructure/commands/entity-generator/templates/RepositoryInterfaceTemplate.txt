@@ -1,0 +1,6 @@
+import {ICrudRepository} from '@steroidsjs/nest/src/usecases/interfaces/ICrudRepository';
+import {%entityName%Model} from '../models/%entityName%Model';
+
+export const I%entityName%Repository = 'I%entityName%Repository';
+
+export type I%entityName%Repository = ICrudRepository<%entityName%Model>

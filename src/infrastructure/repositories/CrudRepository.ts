@@ -73,9 +73,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * Find item by condition
      * @param conditionOrQuery
+     * @param eagerLoading
      */
-    async findOne(conditionOrQuery: ICondition | SearchQuery): Promise<TModel | null> {
-        const dbQuery = this.createQueryBuilder(conditionOrQuery);
+    async findOne(conditionOrQuery: ICondition | SearchQuery, eagerLoading = true): Promise<TModel | null> {
+        const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
 
         const row = await dbQuery.getOne();
         return row ? this.entityToModel(row) : null;
@@ -84,9 +85,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * Find item by condition
      * @param conditionOrQuery
+     * @param eagerLoading
      */
-    async findMany(conditionOrQuery: ICondition | SearchQuery): Promise<TModel[]> {
-        const dbQuery = this.createQueryBuilder(conditionOrQuery);
+    async findMany(conditionOrQuery: ICondition | SearchQuery, eagerLoading = true): Promise<TModel[]> {
+        const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
 
         const rows = await dbQuery.getMany();
         return rows.map(row => this.entityToModel(row));
@@ -95,9 +97,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * Create db query builder for findOne() and findMany() methods
      * @param conditionOrQuery
+     * @param eagerLoading
      * @protected
      */
-    protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery): SelectQueryBuilder<any> {
+    protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery, eagerLoading: boolean = true): SelectQueryBuilder<any> {
         let searchQuery = conditionOrQuery as SearchQuery;
         if (!(conditionOrQuery instanceof SearchQuery)) {
             searchQuery = new SearchQuery();
@@ -105,7 +108,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         }
 
         const dbQuery = this.dbRepository.createQueryBuilder(searchQuery.getAlias());
-        SearchQuery.prepare(this.dbRepository, dbQuery, searchQuery);
+        SearchQuery.prepare(this.dbRepository, dbQuery, searchQuery, eagerLoading);
 
         return dbQuery;
     }

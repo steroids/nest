@@ -28,6 +28,7 @@ export class MigrateCommand {
         await this.connection.runMigrations({
             transaction: 'each',
         });
+        process.exit();
     }
 
     @Command({

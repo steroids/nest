@@ -1,10 +1,11 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.4.43",
+  "version": "1.4.53",
   "scripts": {
-    "build": "tsc && copyfiles ./{package.json,LICENSE,README.md} dist/",
-    "watch": "tsc -p tsconfig-debug.json",
-    "test": "jest --config jest.e2e.config.ts"
+    "script": "nps",
+    "watch": "nps watch",
+    "build": "nps build",
+    "test": "nps test"
   },
   "description": "",
   "main": "index.js",
@@ -24,32 +25,34 @@
     "@nestjs/common": "^8.4.1",
     "@nestjs/config": "^1.2.0",
     "@nestjs/core": "^8.4.1",
+    "@nestjs/platform-express": "^8.4.1",
     "@nestjs/swagger": "^5.2.0",
     "@nestjs/typeorm": "^8.0.3",
-    "@nestjs/platform-express": "^8.4.1",
     "@sqltools/formatter": "^1.2.3",
+    "bluebird": "^3.7.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "date-fns": "^2.28.0",
     "express": "^4.17.3",
     "lodash": "^4.17.21",
     "nestjs-command": "^3.1.1",
     "pluralize": "^8.0.0",
+    "rxjs": "^7.2.0",
     "typedi": "^0.10.0",
     "typeorm": "^0.2.45",
-    "uuid": "^8.3.2",
-    "date-fns": "^2.28.0",
-    "rxjs": "^7.2.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@types/node": "^16.11.7",
+    "@jest/globals": "^27.4.6",
+    "@types/jest": "^27.4.0",
+    "@types/node": "^18.7.23",
     "copyfiles": "^2.4.1",
-    "tsconfig-paths": "^3.10.1",
-    "typescript": "^4.3.5",
+    "jest": "^27.4.7",
+    "nps": "^5.10.0",
+    "pg": "^8.7.1",
     "ts-jest": "^27.1.3",
     "ts-node": "^10.0.0",
-    "jest": "^27.4.7",
-    "@types/jest": "^27.4.0",
-    "@jest/globals": "^27.4.6",
-    "pg": "^8.7.1"
+    "tsconfig-paths": "^3.10.1",
+    "typescript": "^4.3.5"
   }
 }

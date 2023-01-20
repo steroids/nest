@@ -12,10 +12,12 @@ import {IPhoneFieldOptions} from './PhoneField';
 import {IStringFieldOptions} from './StringField';
 import {IIntegerFieldOptions} from './IntegerField';
 import {IDateFieldOptions} from './DateField';
+import {IComputableFieldOptions} from './ComputableField';
 
 export {BooleanField} from './BooleanField';
 export {CoordinateField} from './CoordinateField';
 export {CreateTimeField} from './CreateTimeField';
+export {ComputableField} from './ComputableField';
 export {DateField} from './DateField';
 export {DateTimeField} from './DateTimeField';
 export {DecimalField} from './DecimalField';
@@ -39,4 +41,4 @@ export {ImageField} from './ImageField';
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
     & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions
-    & IDateFieldOptions;
+    & IDateFieldOptions & IComputableFieldOptions;
