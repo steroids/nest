@@ -1,3 +1,6 @@
+import * as path from 'path';
+import * as fs from 'fs';
+
 export class PermissionsFactory {
     static _permissions = {};
 
@@ -19,9 +22,5 @@ export class PermissionsFactory {
             return keys;
         };
         return walk(this._permissions);
-    }
-
-    static getAllPermissionsTreeKeys() {
-        return this._permissions;
     }
 }
