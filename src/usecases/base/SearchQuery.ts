@@ -7,17 +7,24 @@ export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export const DEFAULT_ALIAS = 'model';
 
-export interface ISearchQueryConfig<TModel>{
+export interface ISearchQueryConfig<TModel> {
     useShortAliases?: boolean,
     onGetOne?: (searchQuery: SearchQuery<TModel>) => Promise<TModel>,
     onGetMany?: (searchQuery: SearchQuery<TModel>) => Promise<Array<TModel>>,
 }
 
-export default class SearchQuery<TModel>{
+export default class SearchQuery<TModel> {
     protected _select?: string[];
     protected _excludeSelect?: string[];
     protected _alias?: string;
-    protected _relations?: string[];
+    protected _relationsJoin?: Record<string, {
+        alias: string,
+        select: string | string[],
+    }>;
+    protected _relationsNoJoin?: Record<string, {
+        alias: string,
+        select: string | string[],
+    }>;
     protected _condition?: ICondition;
     protected _orders?: ISearchQueryOrder;
     protected _limit?: number;
@@ -39,7 +46,13 @@ export default class SearchQuery<TModel>{
         const options = getSchemaSelectOptions(SchemaClass);
         searchQuery._select = options?.search;
         searchQuery._excludeSelect = options?.excludeSelect;
-        searchQuery._relations = getMetaRelations(SchemaClass);
+        searchQuery._relationsJoin = getMetaRelations(SchemaClass).reduce((obj, value) => ({
+            ...obj,
+            [value]: {
+                alias: null,
+                select: '*',
+            }
+        }), {});
 
         return searchQuery;
     }
@@ -128,36 +141,87 @@ export default class SearchQuery<TModel>{
         return this._useShortAliases;
     }
 
-    with(relation: string | string[]) {
-        if (!this._relations) {
-            this._relations = [];
+    with(relation: Record<string, string | string[]> | string | string[], useJoin = true) {
+        if (useJoin) {
+            if (!this._relationsJoin) {
+                this._relationsJoin = {};
+            }
+        } else {
+            if (!this._relationsNoJoin) {
+                this._relationsNoJoin = {};
+            }
         }
-        [].concat(relation || []).forEach(name => {
-            const existingRelationIndex = this._relations.findIndex(_relation => (
-                _relation.split(' ')[0] === name.split(' ')[0]
-            ));
 
-            if (existingRelationIndex === -1) {
-                this._relations.push(name);
-                return;
-            }
-            const existingRelation = this._relations[existingRelationIndex];
+        const relations = useJoin ? this._relationsJoin : this._relationsNoJoin;
 
-            const existingRelationAlias = existingRelation.split(' ')[1];
-            const newRelationAlias = name.split(' ')[1];
-            if (newRelationAlias) {
-                this._relations[existingRelationIndex] = name;
+        // Normalize format (one relation, many relations, relations + select)
+        let relationObj = {};
+        if (typeof relation === 'string') {
+            relationObj = {[relation]: '*'};
+        } else if (Array.isArray(relation)) {
+            relationObj = relation.reduce((obj, value) => ({
+                ...obj,
+                [value.split(' ')[0]]: {
+                    alias: value.split(' ')[1] || null,
+                    select: '*',
+                },
+            }), {});
+        } else if (typeof relation === 'object') {
+            relationObj = Object.keys(relation).reduce((obj, key) => ({
+                ...obj,
+                [key.split(' ')[0]]: {
+                    alias: key.split(' ')[1] || null,
+                    select: relation[key] || '*',
+                },
+            }), {});
+        }
+
+        Object.keys(relationObj).forEach(path => {
+            // Store intermediate relations
+            // Normalize relations: a.b.c -> a, a.b, a.b.c
+            let currentPath;
+            path.split('.').forEach(name => {
+                currentPath = [currentPath, name].filter(Boolean).join('.');
+                if (!relations[currentPath]) {
+                    relations[currentPath] = {
+                        alias: null,
+                        select: '*',
+                    };
+                }
+            });
+
+            if (relationObj[path].alias && relations[path].alias && relationObj[path].alias !== relations[path].alias) {
+                console.warn(`[@steroidsjs/nest] There are multiple aliases (${relationObj[path].alias}, ${relations[path].alias}) in SearchQuery. The last one will be used.`);
             }
-            if (newRelationAlias && existingRelationAlias) {
-                console.warn(`[@steroidsjs/nest] There are multiple aliases (${name}, ${existingRelation}) in SearchQuery. The last one will be used.`);
-            }
+
+            relations[path] = {
+                ...relations[path],
+                ...relationObj[path],
+            };
         });
-        this._relations.sort();
+
         return this;
     }
 
+    withNoJoin(relation: Record<string, string | string[]> | string | string[]) {
+        return this.with(relation, false);
+    }
+
     getWith() {
-        return this._relations;
+        return Object.keys(this._relationsJoin || {})
+            .map(path => (
+                [
+                    path,
+                    this._relationsJoin[path].alias,
+                ]
+                    .filter(Boolean)
+                    .join(' ')
+            ))
+            .sort();
+    }
+
+    getWithNoJoin() {
+        return this._relationsNoJoin;
     }
 
     where(condition: ICondition) {

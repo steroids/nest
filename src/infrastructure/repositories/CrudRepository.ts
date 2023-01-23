@@ -73,9 +73,19 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param eagerLoading
      */
     async findOne(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel | null> {
-        const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
-        const row = await dbQuery.getOne();
-        return row ? this.entityToModel(row) : null;
+        const [dbQuery, searchQuery] = this.createQueryBuilder(conditionOrQuery, eagerLoading);
+        let row = await dbQuery.getOne();
+        if (!row) {
+            return null;
+        }
+
+        row = await QueryAdapterTypeORM.loadRelationsWithoutJoin(
+            this.modelClass,
+            this.dbRepository,
+            [row],
+            searchQuery.getWithNoJoin(),
+        )[0];
+        return this.entityToModel(row);
     }
 
     /**
@@ -84,9 +94,16 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param eagerLoading
      */
     async findMany(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel[]> {
-        const dbQuery = this.createQueryBuilder(conditionOrQuery, eagerLoading);
+        const [dbQuery, searchQuery] = this.createQueryBuilder(conditionOrQuery, eagerLoading);
 
-        const rows = await dbQuery.getMany();
+        let rows = await dbQuery.getMany();
+        rows = await QueryAdapterTypeORM.loadRelationsWithoutJoin(
+            this.modelClass,
+            this.dbRepository,
+            rows,
+            searchQuery.getWithNoJoin(),
+        );
+
         return rows.map(row => this.entityToModel(row));
     }
 
@@ -104,7 +121,10 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param eagerLoading
      * @protected
      */
-    protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading: boolean = true): SelectQueryBuilder<any> {
+    protected createQueryBuilder(
+        conditionOrQuery: ICondition | SearchQuery<TModel>,
+        eagerLoading: boolean = true,
+    ): [SelectQueryBuilder<any>, SearchQuery<TModel>] {
         let searchQuery = conditionOrQuery as SearchQuery<TModel>;
         if (!(conditionOrQuery instanceof SearchQuery)) {
             searchQuery = new SearchQuery<TModel>();
@@ -114,7 +134,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         const dbQuery = this.dbRepository.createQueryBuilder(searchQuery.getAlias());
         QueryAdapterTypeORM.prepare(this.dbRepository, dbQuery, searchQuery, eagerLoading);
 
-        return dbQuery;
+        return [dbQuery, searchQuery];
     }
 
     /**

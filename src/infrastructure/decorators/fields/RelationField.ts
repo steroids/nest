@@ -53,6 +53,13 @@ const getRelationDecorator = (relation): any => {
     }
 }
 
+export const getMetaRelationIdFieldKey = (relationClass, relationName): string => {
+    return getMetaFields(relationClass).find(idName => {
+        const idOptions = getFieldOptions(relationClass, idName);
+        return idOptions.appType === 'relationId' && idOptions.relationName === relationName;
+    });
+};
+
 const getOwningDecorator = (options: IRelationFieldOneToOneOptions | IRelationFieldManyToManyOptions) => {
     if (options.type === 'ManyToMany' && options.isOwningSide) {
         return JoinTable;

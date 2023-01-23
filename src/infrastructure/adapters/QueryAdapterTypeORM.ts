@@ -1,8 +1,16 @@
+import {keyBy as _keyBy} from 'lodash';
 import {Repository} from '@steroidsjs/typeorm';
 import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
 import {ConditionHelperTypeORM} from '../helpers/typeORM/ConditionHelperTypeORM';
-import {getFieldOptions} from '../decorators/fields/BaseField';
+import {
+    getFieldOptions,
+    getMetaFields,
+    getMetaPrimaryKey,
+} from '../decorators/fields/BaseField';
 import SearchQuery from '../../usecases/base/SearchQuery';
+import {DataMapper} from '../../usecases/helpers/DataMapper';
+import {getTableFromModel} from '../decorators/TableFromModel';
+import {getMetaRelationIdFieldKey} from '../decorators/fields/RelationField';
 
 export class QueryAdapterTypeORM {
     static prepare(
@@ -63,6 +71,129 @@ export class QueryAdapterTypeORM {
         if (searchQuery.getOffset()) {
             dbQuery.offset(searchQuery.getOffset());
         }
+    }
+
+    static async loadRelationsWithoutJoin(
+        MetaClass,
+        dbRepository: Repository<any>,
+        records,
+        relations: Record<string, {
+            alias: string,
+            select: string | string[],
+        }>
+    ) {
+        const rootPrimaryKey = getMetaPrimaryKey(MetaClass);
+
+        const relationPaths = Object.keys(relations || {}).sort();
+        for (let path of relationPaths) {
+            const pathItems = path.split('.');
+            if (pathItems.length === 1) {
+                const relationName = pathItems.shift();
+
+                // Create query
+                const searchQuery = new SearchQuery();
+
+                // Add select for query from relations config
+                if (Array.isArray(relations[path].select)) {
+                    searchQuery.select(relations[path].select);
+                }
+
+                // Sub relations
+                const subRelationNames = relationPaths
+                    .filter(value => value.startsWith(relationName + '.'))
+                    .reduce((obj, value) => {
+                        const subPath = value.substring(relationName.length + 1);
+                        const subAlias = relations[value].alias;
+                        const key = [subPath, subAlias].filter(Boolean).join(' ');
+                        obj[key] = relations[value].select;
+
+                        return obj;
+                    }, {});
+                if (Object.keys(subRelationNames).length > 0) {
+                    searchQuery.withNoJoin(subRelationNames);
+                }
+
+                const options = getFieldOptions(MetaClass, relationName);
+                const relationClass = options.relationClass();
+                const dbQuery = dbRepository.manager
+                    .getRepository(getTableFromModel(relationClass))
+                    .createQueryBuilder(searchQuery.getAlias());
+
+                // Execute
+                switch (options.type) {
+                    case 'OneToMany': // user.images
+                        const relationClassOptions = getMetaFields(relationClass);
+
+                        // Find inverse field name
+                        const inverseFieldNamesObject = relationClassOptions
+                            .reduce((obj, fieldName) => ({
+                                ...obj,
+                                [fieldName]: fieldName,
+                            }), {});
+                        const inverseFieldName = typeof options.inverseSide === 'string'
+                            ? inverseFieldNamesObject[options.inverseSide]
+                            : options.inverseSide(inverseFieldNamesObject);
+                        if (!inverseFieldName) {
+                            throw new Error('Not found inverse field name for relation: ' + relationName);
+                        }
+
+                        const inverseIdFieldName = getMetaRelationIdFieldKey(relationClass, inverseFieldName);
+                        if (!inverseIdFieldName) {
+                            throw new Error('Not found id field for relation: ' + relationName);
+                        }
+
+                        // Where
+                        const rootIds = records.map(record => record[rootPrimaryKey]).filter(Boolean);
+                        searchQuery.where(['in', inverseIdFieldName, rootIds]);
+
+                        // Execute
+                        QueryAdapterTypeORM.prepare(dbRepository, dbQuery, searchQuery, true);
+                        const rows = await dbQuery.getMany();
+                        const models = rows.map(row => DataMapper.create(relationClass, row));
+
+                        // Populate
+                        records = records.map(record => {
+                            record[relationName] = models.filter(model => model[inverseIdFieldName] === record[rootPrimaryKey]);
+                            return record;
+                        });
+                        break;
+
+                    case 'ManyToOne': // user.image
+                        // Find field with id
+                        const idField = getMetaRelationIdFieldKey(MetaClass, relationName);
+                        if (!idField) {
+                            throw new Error('Not found id field for relation: ' + relationName);
+                        }
+
+                        const relationIds = records.map(record => record[idField]).filter(Boolean);
+                        if (relationIds.length > 0) {
+                            // Where
+                            const subRelationPrimaryKey = getMetaPrimaryKey(relationClass);
+                            searchQuery.where(['in', subRelationPrimaryKey, relationIds]);
+
+                            // Execute
+                            QueryAdapterTypeORM.prepare(dbRepository, dbQuery, searchQuery, true);
+                            const rows = await dbQuery.getMany();
+                            const models = rows.map(row => DataMapper.create(relationClass, row));
+                            const indexedModels = _keyBy(models, subRelationPrimaryKey);
+
+                            // Populate
+                            records = records.map(record => {
+                                record[relationName] = indexedModels[record[idField]] || null;
+                                return record;
+                            });
+                        }
+                        break;
+
+                    default:
+                        // TODO Implement ManyMany relation type
+                        throw new Error('This relation type is not implement for load relations without join, relation: ' + relationName);
+
+                }
+            }
+        }
+
+        return records;
     }
 
     private static prepareRelations(
