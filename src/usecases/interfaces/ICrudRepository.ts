@@ -6,7 +6,7 @@ import SearchQuery, {ISearchQueryConfig} from '../base/SearchQuery';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
 
 export interface ICrudRepository<TModel> {
-    dbRepository: Repository<any>;
+    dbRepository: Repository<unknown>;
     search: <TItem>(dto: SearchInputDto, searchQuery: SearchQuery<TModel>) => Promise<SearchResultDto<TModel | Type<TItem>>>,
     findOne: (conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading?: boolean) => Promise<TModel | null>,
     findMany: (conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading?: boolean) => Promise<TModel[]>,
