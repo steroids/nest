@@ -79,12 +79,12 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
             return null;
         }
 
-        row = await QueryAdapterTypeORM.loadRelationsWithoutJoin(
+        row = (await QueryAdapterTypeORM.loadRelationsWithoutJoin(
             this.modelClass,
             this.dbRepository,
             [row],
             searchQuery.getWithNoJoin(),
-        )[0];
+        ))[0];
         return this.entityToModel(row);
     }
 
