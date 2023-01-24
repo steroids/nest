@@ -149,7 +149,13 @@ export class QueryAdapterTypeORM {
                         // Execute
                         QueryAdapterTypeORM.prepare(dbRepository, dbQuery, searchQuery, true);
                         const rows = await dbQuery.getMany();
-                        const models = rows.map(row => DataMapper.create(relationClass, row));
+                        let models = rows.map(row => DataMapper.create(relationClass, row));
+                        models = await QueryAdapterTypeORM.loadRelationsWithoutJoin(
+                            relationClass,
+                            dbRepository,
+                            models,
+                            searchQuery.getWithNoJoin(),
+                        );
 
                         // Populate
                         records = records.map(record => {
@@ -174,10 +180,16 @@ export class QueryAdapterTypeORM {
                             // Execute
                             QueryAdapterTypeORM.prepare(dbRepository, dbQuery, searchQuery, true);
                             const rows = await dbQuery.getMany();
-                            const models = rows.map(row => DataMapper.create(relationClass, row));
-                            const indexedModels = _keyBy(models, subRelationPrimaryKey);
+                            let models = rows.map(row => DataMapper.create(relationClass, row));
+                            models = await QueryAdapterTypeORM.loadRelationsWithoutJoin(
+                                relationClass,
+                                dbRepository,
+                                models,
+                                searchQuery.getWithNoJoin(),
+                            );
 
                             // Populate
+                            const indexedModels = _keyBy(models, subRelationPrimaryKey);
                             records = records.map(record => {
                                 record[relationName] = indexedModels[record[idField]] || null;
                                 return record;
