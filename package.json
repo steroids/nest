@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",
@@ -27,8 +27,8 @@
     "@nestjs/core": "^8.4.1",
     "@nestjs/platform-express": "^8.4.1",
     "@nestjs/swagger": "^5.2.0",
-    "@steroidsjs/nest-typeorm": "*",
-    "@steroidsjs/typeorm": "*",
+    "@steroidsjs/nest-typeorm": "^9.0.3",
+    "@steroidsjs/typeorm": "^0.3.11",
     "@sqltools/formatter": "^1.2.3",
     "bluebird": "^3.7.2",
     "class-transformer": "^0.5.1",
