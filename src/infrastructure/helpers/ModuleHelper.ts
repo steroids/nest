@@ -22,10 +22,12 @@ export class ModuleHelper {
             .filter(Boolean);
     }
 
-    static provide(Type, inject: any[]) {
+    static provide(Type, nameOrInject, inject: any[]) {
+        const provide = typeof nameOrInject === 'string' ? nameOrInject : Type;
+        inject = Array.isArray(nameOrInject) ? nameOrInject : inject;
         return {
             inject: inject.reduce((arr, item) => arr.concat(item), []),
-            provide: Type,
+            provide,
             useFactory: (...args) => {
                 const instances = [];
                 let injectIndex = 0;
