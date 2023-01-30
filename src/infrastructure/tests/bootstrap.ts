@@ -6,18 +6,12 @@ import {ValidationExceptionFilter} from '../filters/ValidationExceptionFilter';
 import {CreateDtoPipe} from '../pipes/CreateDtoPipe';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 import {join} from 'path';
-import {ConfigModule, ConfigService} from '@nestjs/config';
 import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
 import {UserExceptionFilter} from "../filters/UserExceptionFilter";
 
 @Module({
     imports: [
-        ConfigModule.forRoot({
-            envFilePath: '.env',
-        }),
         TypeOrmModule.forRootAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
             useFactory: () => ({
                 type: 'postgres',
                 host: process.env.TYPEORM_HOST,

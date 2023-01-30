@@ -61,7 +61,7 @@ export function DateField(options: IDateFieldOptions = {}) {
                 each: options.isArray,
                 message: (args) => `Выбрана дата позже максимально допустимой (${normalizeFunctionDate(options.maxDate, args)})`,
             }),
-            IsISO8601({
+            IsISO8601(null,{
                 message: 'Некорректный формат даты',
             }),
         ].filter(Boolean)

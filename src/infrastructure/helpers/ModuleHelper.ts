@@ -2,6 +2,40 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 export class ModuleHelper {
+
+    private static _allEntities = [];
+    private static _configs = {};
+    private static _initHandlers = [];
+
+    static addEntities(entities) {
+        this._allEntities = this._allEntities.concat(entities);
+    }
+
+    static addInitializer(handler) {
+        this._initHandlers.push(handler);
+    }
+
+    static runInitializers() {
+        for (const handler of this._initHandlers) {
+            handler();
+        }
+    }
+
+    static getEntities() {
+        return this._allEntities;
+    }
+
+    static setConfig(moduleClass: Function, config: any) {
+        this._configs[moduleClass.name] = config;
+    }
+
+    static getConfig<T>(moduleClass: Function): T {
+        if (typeof this._configs[moduleClass.name] === 'function') {
+            this._configs[moduleClass.name] = this._configs[moduleClass.name]();
+        }
+        return this._configs[moduleClass.name] || null;
+    }
+
     static importDir(dir, custom = {}) {
         dir = path.normalize(dir);
 
@@ -22,7 +56,7 @@ export class ModuleHelper {
             .filter(Boolean);
     }
 
-    static provide(Type, nameOrInject, inject: any[]) {
+    static provide(Type, nameOrInject, inject = null) {
         const provide = typeof nameOrInject === 'string' ? nameOrInject : Type;
         inject = Array.isArray(nameOrInject) ? nameOrInject : inject;
         return {

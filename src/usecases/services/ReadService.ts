@@ -1,4 +1,3 @@
-import {Type} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
 import {ICrudRepository} from '../interfaces/ICrudRepository';
 import {DataMapper} from '../helpers/DataMapper';
@@ -8,6 +7,7 @@ import {ValidationHelper} from '../helpers/ValidationHelper';
 import SearchQuery, {ISearchQueryConfig} from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
+import {IType} from '../interfaces/IType';
 
 /**
  * Generic Read service (search and find)
@@ -44,8 +44,8 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     async search<TSchema>(
         dto: TSearchDto,
         context?: ContextDto | null,
-        schemaClass?: Type<TSchema>
-    ): Promise<SearchResultDto<Type<TSchema>>>
+        schemaClass?: IType<TSchema>
+    ): Promise<SearchResultDto<IType<TSchema>>>
 
     /**
      * Search models with pagination, order and filters
@@ -56,8 +56,8 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     async search<TSchema>(
         dto: TSearchDto,
         context: ContextDto = null,
-        schemaClass: Type<TSchema> = null
-    ): Promise<SearchResultDto<TModel | Type<TSchema>>> {
+        schemaClass: IType<TSchema> = null
+    ): Promise<SearchResultDto<TModel | IType<TSchema>>> {
         await this.validate(dto, {
             context,
         });
@@ -76,8 +76,8 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     async findById<TSchema>(
         id: number | string,
         context?: ContextDto | null,
-        schemaClass?: Type<TSchema>,
-    ): Promise<Type<TSchema>>
+        schemaClass?: IType<TSchema>,
+    ): Promise<IType<TSchema>>
 
     /**
      * Find model by id
@@ -88,8 +88,8 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     async findById<TSchema>(
         id: number | string,
         context: ContextDto = null,
-        schemaClass: Type<TSchema> = null,
-    ): Promise<TModel | Type<TSchema>> {
+        schemaClass: IType<TSchema> = null,
+    ): Promise<TModel | IType<TSchema>> {
         const searchQuery = schemaClass ? SearchQuery.createFromSchema<TModel>(schemaClass) : new SearchQuery<TModel>();
         searchQuery.andWhere({[this.primaryKey]: _toInteger(id)});
         const model = await this.findOne(searchQuery);
@@ -126,7 +126,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      * @param schemaClass
      * @protected
      */
-    protected modelToSchema<TSchema>(model: TModel, schemaClass: Type<TSchema>): Type<TSchema> {
+    protected modelToSchema<TSchema>(model: TModel, schemaClass: IType<TSchema>): IType<TSchema> {
         return DataMapper.create(schemaClass, model);
     }
 

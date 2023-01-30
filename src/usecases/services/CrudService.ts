@@ -1,4 +1,3 @@
-import {Type} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
 import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
@@ -8,6 +7,7 @@ import {getMetaRelations, getRelationsByFilter} from '../../infrastructure/decor
 import {RelationTypeEnum} from '../../domain/enums/RelationTypeEnum';
 import {UserException} from "../exceptions";
 import {ReadService} from './ReadService';
+import {IType} from '../interfaces/IType';
 
 /**
  * Generic CRUD service
@@ -20,8 +20,8 @@ export class CrudService<TModel,
     async create<TSchema>(
         dto: TSaveDto,
         context?: ContextDto | null,
-        schemaClass?: Type<TSchema>,
-    ): Promise<Type<TSchema>>
+        schemaClass?: IType<TSchema>,
+    ): Promise<IType<TSchema>>
 
     /**
      * Create new model
@@ -32,8 +32,8 @@ export class CrudService<TModel,
     async create<TSchema>(
         dto: TSaveDto,
         context: ContextDto = null,
-        schemaClass: Type<TSchema> = null,
-    ): Promise<TModel | Type<TSchema>> {
+        schemaClass: IType<TSchema> = null,
+    ): Promise<TModel | IType<TSchema>> {
         return this.save(null, dto, context, schemaClass);
     }
 
@@ -42,8 +42,8 @@ export class CrudService<TModel,
         id: number | string,
         dto: TSaveDto,
         context?: ContextDto | null,
-        schemaClass?: Type<TSchema>,
-    ): Promise<Type<TSchema>>
+        schemaClass?: IType<TSchema>,
+    ): Promise<IType<TSchema>>
 
     /**
      * Update model
@@ -56,8 +56,8 @@ export class CrudService<TModel,
         rawId: number | string,
         dto: TSaveDto,
         context: ContextDto = null,
-        schemaClass: Type<TSchema> = null,
-    ): Promise<TModel | Type<TSchema>> {
+        schemaClass: IType<TSchema> = null,
+    ): Promise<TModel | IType<TSchema>> {
         return this.save(rawId, dto, context, schemaClass);
     }
 
@@ -66,8 +66,8 @@ export class CrudService<TModel,
         id: number | string,
         dto: TSaveDto,
         context?: ContextDto | null,
-        schemaClass?: Type<TSchema>,
-    ): Promise<Type<TSchema>>
+        schemaClass?: IType<TSchema>,
+    ): Promise<IType<TSchema>>
 
     /**
      * Update model
@@ -80,8 +80,8 @@ export class CrudService<TModel,
         rawId: number | string | null,
         dto: TSaveDto,
         context: ContextDto = null,
-        schemaClass: Type<TSchema> = null,
-    ): Promise<TModel | Type<TSchema>> {
+        schemaClass: IType<TSchema> = null,
+    ): Promise<TModel | IType<TSchema>> {
         const id: number = rawId ? _toInteger(rawId) : null;
 
         // Fetch previous model state
