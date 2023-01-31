@@ -119,7 +119,9 @@ export class RestApplication extends BaseApplication {
     public async init() {
         await super.init();
 
-        this._app = await NestFactory.create(this._moduleClass);
+        this._app = await NestFactory.create(this._moduleClass, {
+            logger: ['error', 'warn'],
+        });
 
         this.initSwagger();
         this.initCors();
