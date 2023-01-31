@@ -1,11 +1,11 @@
 export class PermissionsFactory {
-    static _permissions = {};
+    static _permissions = [];
 
     static add(permissions) {
-        this._permissions = {
+        this._permissions = [
             ...this._permissions,
             ...permissions,
-        };
+        ];
     }
 
     static getAllPermissionsKeys() {

@@ -1,44 +1,51 @@
 import {Global, Module as NestModule, ModuleMetadata} from '@nestjs/common';
 import {TypeOrmModule} from '@steroidsjs/nest-typeorm';
 import {ModuleHelper} from '../helpers/ModuleHelper';
+import {PermissionsFactory} from '../helpers/PermissionsFactory';
 
-export interface ModuleConfig extends ModuleMetadata {
+export interface IModule extends ModuleMetadata {
     rootTarget?: any;
     global?: boolean;
     config?: () => any,
     module?: (config: any) => ModuleMetadata,
-    entities?: Function[];
+    tables?: Function[];
+    permissions?: any,
 }
 
-export function Module(config: ModuleConfig) {
+export function Module(data: IModule) {
     return (target) => {
         // Custom module class
-        if (config.rootTarget) {
-            target = config.rootTarget;
+        if (data.rootTarget) {
+            target = data.rootTarget;
         }
 
         // Store entities for use it in TypeOrm root module
-        if (config.entities) {
-            ModuleHelper.addEntities(config.entities);
+        if (data.tables) {
+            ModuleHelper.addEntities(data.tables);
         }
 
         // Lazy call nest module decorator (wait config initialize)
-        if (config.module) {
+        if (data.module) {
             ModuleHelper.addInitializer(() => {
-                const nestConfig = config.module(ModuleHelper.getConfig(target));
-                nestConfig.imports = (nestConfig.imports || []).concat(TypeOrmModule.forFeature(config.entities));
+                const nestConfig = data.module(ModuleHelper.getConfig(target));
+                nestConfig.imports = (nestConfig.imports || []).concat(TypeOrmModule.forFeature(data.tables));
                 NestModule(nestConfig)(target);
             });
         }
 
         // Use global nest decorator
-        if (config.global) {
+        if (data.global) {
             Global()(target);
         }
 
+        // Add module permissions
+        if (data.permissions) {
+            PermissionsFactory.add(data.permissions);
+        }
+
         // Store module config for global use via ModuleHelper
-        if (config.config) {
-            ModuleHelper.setConfig(target, config.config);
+        if (data.config) {
+            ModuleHelper.setConfig(target, data.config);
         }
 
         return target;

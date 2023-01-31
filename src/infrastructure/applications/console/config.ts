@@ -7,7 +7,7 @@ import {EntityCodeGenerateCommand} from '../../commands/entity-generator/EntityC
 import {MigrateCommand} from '../../commands/MigrateCommand';
 import {CommandModule} from 'nestjs-command';
 
-const moduleNames = fs.readdirSync(process.cwd());
+const sourceRoot = join(process.cwd(), 'src'); // TODO Use from nest-cli.json configuration?
 const isMigrateCommand = !!(process.argv || []).find(arg => /^migrate/.exec(arg));
 
 export default {
@@ -19,7 +19,7 @@ export default {
             database: {
                 ...config.database,
                 migrations: isMigrateCommand
-                    ? moduleNames.map(name => join(__dirname, `../${name}/infrastructure/migrations/*{.ts,.js}`))
+                    ? fs.readdirSync(sourceRoot).map(name => join(sourceRoot, `${name}/infrastructure/migrations/*{.ts,.js}`))
                     : [], // Do not include migrations on web and other cli commands
                 migrationsTableName: 'migrations',
             } as PostgresConnectionOptions
