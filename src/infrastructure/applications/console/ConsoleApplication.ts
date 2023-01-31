@@ -1,24 +1,25 @@
 import {NestFactory} from '@nestjs/core';
 import {CommandModule, CommandService} from 'nestjs-command';
 import {BaseApplication} from '../BaseApplication';
+import {AppModule} from '../AppModule';
 
-export class ConsoleApplication extends BaseApplication{
+export class ConsoleApplication extends BaseApplication {
 
     protected _app: any;
     protected _moduleClass: any;
 
-    constructor(AppModule) {
+    constructor(moduleClass = AppModule) {
         super();
 
-        this._moduleClass = AppModule;
+        this._moduleClass = moduleClass;
     }
 
     public async start() {
+        await this.init();
+
         this._app = await NestFactory.createApplicationContext(this._moduleClass, {
             logger: ['warn', 'error'], // only errors
         });
-
-        await this.init();
 
         try {
             await this._app.select(CommandModule).get(CommandService).exec();

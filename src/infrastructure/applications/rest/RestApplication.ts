@@ -9,6 +9,7 @@ import {ValidationExceptionFilter} from '../../filters/ValidationExceptionFilter
 import {UserExceptionFilter} from '../../filters/UserExceptionFilter';
 import {BaseApplication} from '../BaseApplication';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
+import {AppModule} from '../AppModule';
 
 export class RestApplication extends BaseApplication {
 
@@ -16,10 +17,10 @@ export class RestApplication extends BaseApplication {
     protected _moduleClass: any;
     protected _config: IRestAppModuleConfig;
 
-    constructor(AppModule) {
+    constructor(moduleClass = AppModule) {
         super();
 
-        this._moduleClass = AppModule;
+        this._moduleClass = moduleClass;
     }
 
     protected initConfig() {
@@ -115,7 +116,7 @@ export class RestApplication extends BaseApplication {
         );
     }
 
-    protected async init() {
+    public async init() {
         await super.init();
 
         this._app = await NestFactory.create(this._moduleClass);
@@ -137,5 +138,9 @@ export class RestApplication extends BaseApplication {
             port,
             () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
         );
+    }
+
+    public getApp() {
+        return this._app;
     }
 }

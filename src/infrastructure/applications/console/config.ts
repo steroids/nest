@@ -5,6 +5,7 @@ import baseConfig from '../base/config';
 import {IConsoleAppModuleConfig} from './IConsoleAppModuleConfig';
 import {EntityCodeGenerateCommand} from '../../commands/entity-generator/EntityCodeGenerateCommand';
 import {MigrateCommand} from '../../commands/MigrateCommand';
+import {CommandModule} from 'nestjs-command';
 
 const moduleNames = fs.readdirSync(process.cwd());
 const isMigrateCommand = !!(process.argv || []).find(arg => /^migrate/.exec(arg));
@@ -21,19 +22,21 @@ export default {
                     ? moduleNames.map(name => join(__dirname, `../${name}/infrastructure/migrations/*{.ts,.js}`))
                     : [], // Do not include migrations on web and other cli commands
                 migrationsTableName: 'migrations',
-            } as PostgresConnectionOptions,
-            api: {
-                corsAllowDomains: [
-                    '127.0.0.1:9996',
-                ],
-            }
+            } as PostgresConnectionOptions
         } as IConsoleAppModuleConfig;
     },
-    module: (config: IConsoleAppModuleConfig) => ({
-        ...baseConfig.module(config),
-        providers: [
-            EntityCodeGenerateCommand,
-            MigrateCommand,
-        ],
-    }),
+    module: (config: IConsoleAppModuleConfig) => {
+        const module = baseConfig.module(config);
+        return {
+            ...module,
+            imports: [
+                ...module?.imports,
+                CommandModule,
+            ],
+            providers: [
+                EntityCodeGenerateCommand,
+                MigrateCommand,
+            ],
+        };
+    },
 };

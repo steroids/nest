@@ -10,7 +10,7 @@ export default {
     rootTarget: AppModule,
     config: () => ({
         name: 'app',
-        title: 'App',
+        title: 'Application',
         version: '1.0',
         database: {
             type: 'postgres',
