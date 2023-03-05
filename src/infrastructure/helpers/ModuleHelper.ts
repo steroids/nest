@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import {Provider} from '@nestjs/common';
 
 export class ModuleHelper {
 
@@ -56,7 +57,7 @@ export class ModuleHelper {
             .filter(Boolean);
     }
 
-    static provide(Type, nameOrInject, inject = null) {
+    static provide(Type, nameOrInject, inject = null): Provider {
         const provide = typeof nameOrInject === 'string' ? nameOrInject : Type;
         inject = Array.isArray(nameOrInject) ? nameOrInject : inject;
 
