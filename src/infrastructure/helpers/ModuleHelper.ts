@@ -59,6 +59,14 @@ export class ModuleHelper {
     static provide(Type, nameOrInject, inject = null) {
         const provide = typeof nameOrInject === 'string' ? nameOrInject : Type;
         inject = Array.isArray(nameOrInject) ? nameOrInject : inject;
+
+        if (!inject || inject.length === 0) {
+            return {
+                provide,
+                useClass: Type,
+            };
+        }
+
         return {
             inject: inject.reduce((arr, item) => arr.concat(item), []),
             provide,
