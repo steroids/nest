@@ -100,17 +100,19 @@ export class ValidationHelper {
                     }
                 } else {
                     // Get field validators
-                    const validatorsInstances = getFieldValidators(dto.constructor, key);
+                    const fieldValidators = getFieldValidators(dto.constructor, key);
 
-                    for (const validatorInctance of validatorsInstances) {
-                        if (typeof validatorInctance === 'function') {
-                            await validatorInctance(dto, {
+                    for (const fieldValidator of fieldValidators) {
+                        // Find validator instance
+                        const validator = (validatorsInstances || []).find(item => item instanceof fieldValidator);
+                        if (!validator && typeof fieldValidator === 'function') {
+                            await fieldValidator(dto, {
                                 ...params,
                                 name: key,
                             });
+                            continue;
                         }
-                        // Find validator instance
-                        const validator = (validatorsInstances || []).find(item => item instanceof validatorInctance);
+
                         if (!validator) {
                             throw new Error(
                                 `Not found validator instance for "${dto.constructor.name}.${key}."`
