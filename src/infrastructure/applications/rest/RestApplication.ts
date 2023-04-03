@@ -58,6 +58,12 @@ export class RestApplication extends BaseApplication {
     }
 
     protected initSwagger() {
+        // Versioning
+        this._app.setGlobalPrefix('/api/v1');
+        this._app.enableVersioning({
+            type: VersioningType.URI,
+        });
+
         // Swagger config
         const swaggerConfig = new DocumentBuilder()
             .setTitle(this._config.title || 'Application')
@@ -66,12 +72,6 @@ export class RestApplication extends BaseApplication {
             .build();
         const document = SwaggerModule.createDocument(this._app, swaggerConfig);
         SwaggerModule.setup('/api/docs', this._app, document);
-
-        // Versioning
-        this._app.setGlobalPrefix('/api/v1');
-        this._app.enableVersioning({
-            type: VersioningType.URI,
-        });
     }
 
     protected initCors() {
