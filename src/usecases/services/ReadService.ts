@@ -77,7 +77,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         id: number | string,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
-    ): Promise<IType<TSchema>>
+    ): Promise<TSchema>
 
     /**
      * Find model by id
