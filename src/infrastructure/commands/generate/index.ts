@@ -85,7 +85,7 @@ export const generate = async (connection: Connection) => {
                 const tableClassDirs = entitiesPaths.filter(entity => entity.startsWith(join(sourceRoot, moduleName)));
                 const tableFilesPaths = [];
                 for (const tableClassDir of tableClassDirs) {
-                    const filesPaths: string[] = await Promise.resolve(new Promise((resolve, reject) => {
+                    const filesPaths: string[] = await Promise.resolve(new Promise<string[]>((resolve, reject) => {
                         glob(tableClassDir, (err, matches) => {
                             if (err) {
                                 reject(err);
