@@ -1,11 +1,12 @@
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
-import {join} from 'path';
+import {join, resolve} from 'path';
 import * as lodash from 'lodash';
 import * as fs from 'fs';
 import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
 import {Connection} from '@steroidsjs/typeorm';
 import {format} from '@sqltools/formatter';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
+import * as glob from "glob";
 
 const queryParams = (parameters: any[] | undefined): string => {
     if (!parameters || !parameters.length) {
@@ -66,7 +67,7 @@ export const generate = async (connection: Connection) => {
     const sourceRoot = join(process.cwd(), cliConfiguration.sourceRoot);
 
     // Each all models, store models info by table names
-    const tablesInfo: Record<string, {tableClassName: string, moduleDir: string}> = {};
+    const tablesInfo: Record<string, {tableClassName: string, tablePath: string}> = {};
     const moduleDirs = fs.readdirSync(sourceRoot);
     for (const moduleName of moduleDirs) {
         if (fs.statSync(join(sourceRoot, moduleName)).isDirectory()) {
@@ -74,15 +75,34 @@ export const generate = async (connection: Connection) => {
             const moduleClassPath = join(moduleDir, '/infrastructure/' + lodash.upperFirst(moduleName) + 'Module.ts');
 
             if (fs.existsSync(moduleClassPath)) {
-                const tableClassDir = join(sourceRoot, moduleName, 'infrastructure/tables');
-                const tableFiles = fs.existsSync(tableClassDir) ? fs.readdirSync(tableClassDir) : [];
-                for (const tableFile of tableFiles) {
-                    const tableClassName = tableFile.replace(/\.ts$/, '');
+                // const tableClassDir = join(sourceRoot, moduleName, 'infrastructure/tables');
+                // const tableFiles = fs.existsSync(tableClassDir) ? fs.readdirSync(tableClassDir) : [];
+                //
+                // console.log(tableFiles);
+
+                const entitiesPaths: string[] = connection.options.entities as any;
+
+                const tableClassDirs = entitiesPaths.filter(entity => entity.startsWith(join(sourceRoot, moduleName)));
+                const tableFilesPaths = [];
+                for (const tableClassDir of tableClassDirs) {
+                    const filesPaths: string[] = await Promise.resolve(new Promise<string[]>((resolve, reject) => {
+                        glob(tableClassDir, (err, matches) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(matches);
+                            }
+                        });
+                    }));
+                    tableFilesPaths.push(...filesPaths);
+                }
+                for (const tableFilePath of tableFilesPaths) {
+                    const tableClassName = tableFilePath.split('/').at(-1).replace(/\.ts$/, '');
                     const tableName = classesToTablesMap[tableClassName];
 
                     tablesInfo[tableName] = {
                         tableClassName,
-                        moduleDir,
+                        tablePath: tableFilePath,
                     };
                 }
             }
@@ -92,7 +112,7 @@ export const generate = async (connection: Connection) => {
     // Generate migrations, separated by table names
     const migrationsByTables: Record<string, {upQueries: string[], downQueries: string[]}> = {};
     const sqlInMemory = await (new CustomRdbmsSchemaBuilder(connection)).log();
-    
+
     for (const item of sqlInMemory.upTableQueries) {
         const tableName = junctionTablesMap[item.tableName] || item.tableName;
 
@@ -127,7 +147,7 @@ export const generate = async (connection: Connection) => {
                 continue;
             }
             const tableClassName = tablesInfo[tableName].tableClassName;
-            const moduleDir = tablesInfo[tableName].moduleDir;
+            const tablePath = tablesInfo[tableName].tablePath;
 
             //Создание файла миграции с созданием таблиц, если такие запросы существуют
             const tableDeclarationUpQueries =
@@ -143,14 +163,14 @@ export const generate = async (connection: Connection) => {
                     tableDeclarationDownQueries,
                 );
                 const tableDeclarationFileName = timestamp + '-' + tableClassName + '.ts';
-                const tableDeclarationFilePath = join(moduleDir, '/infrastructure/migrations', tableDeclarationFileName);
+                const tableDeclarationFilePath = resolve(tablePath, '../../migrations', tableDeclarationFileName);
 
                 // eslint-disable-next-line no-console
                 console.log('info', '\t' + tableDeclarationFilePath);
                 await CommandUtils.createFile(tableDeclarationFilePath, tableDeclarationFileContent);
             }
 
-            //Создание файла миграции с добавллением в таблицу внешных ключей, если такие запросы существуют
+            //Создание файла миграции с добавлением в таблицу внешних ключей, если такие запросы существуют
             const nextTimestamp = timestamp + 1;
 
             const foreignKeysUpQueries =
@@ -166,7 +186,7 @@ export const generate = async (connection: Connection) => {
                     foreignKeysDownQueries,
                 );
                 const foreignKeysFileName = nextTimestamp + '-' + tableClassName + '.ts';
-                const foreignKeysFilePath = join(moduleDir, '/infrastructure/migrations', foreignKeysFileName);
+                const foreignKeysFilePath = resolve(tablePath, '../../migrations', foreignKeysFileName);
 
                 // eslint-disable-next-line no-console
                 console.log('info', '\t' + foreignKeysFilePath);
