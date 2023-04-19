@@ -75,31 +75,19 @@ export const generate = async (connection: Connection) => {
             const moduleClassPath = join(moduleDir, '/infrastructure/' + lodash.upperFirst(moduleName) + 'Module.ts');
 
             if (fs.existsSync(moduleClassPath)) {
-                // const tableClassDir = join(sourceRoot, moduleName, 'infrastructure/tables');
-                // const tableFiles = fs.existsSync(tableClassDir) ? fs.readdirSync(tableClassDir) : [];
-                //
-                // console.log(tableFiles);
-
-                const entitiesPaths: string[] = connection.options.entities as any;
-
-                const tableClassDirs = entitiesPaths.filter(entity => entity.startsWith(join(sourceRoot, moduleName)));
-                const tableFilesPaths = [];
-                for (const tableClassDir of tableClassDirs) {
-                    const filesPaths: string[] = await Promise.resolve(new Promise<string[]>((resolve, reject) => {
-                        glob(tableClassDir, (err, matches) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                resolve(matches);
-                            }
-                        });
-                    }));
-                    tableFilesPaths.push(...filesPaths);
-                }
-                for (const tableFilePath of tableFilesPaths) {
+                const tableFilesPaths = await Promise.resolve(new Promise((resolve, reject) => {
+                    glob(moduleDir + '/**/tables/*Table{.ts,.js}', (err, matches) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            resolve(matches);
+                        }
+                    });
+                }));
+                for (const tableFilePath of (tableFilesPaths as any)) {
                     const tableClassName = tableFilePath.split('/').at(-1).replace(/\.ts$/, '');
                     const tableName = classesToTablesMap[tableClassName];
-
                     tablesInfo[tableName] = {
                         tableClassName,
                         tablePath: tableFilePath,
