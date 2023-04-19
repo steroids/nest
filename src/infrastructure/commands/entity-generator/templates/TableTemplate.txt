@@ -1,5 +1,5 @@
-import {IDeepPartial} from '@steroidsjs/nest/src/usecases/interfaces/IDeepPartial';
-import {TableFromModel} from '@steroidsjs/nest/src/infrastructure/decorators/TableFromModel';
+import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
+import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TableFromModel';
 import {%entityName%Model} from '../../domain/models/%entityName%Model';
 
 @TableFromModel(%entityName%Model, '%tableName%')

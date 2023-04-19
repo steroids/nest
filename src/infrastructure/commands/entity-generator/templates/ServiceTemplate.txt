@@ -1,4 +1,4 @@
-import {CrudService} from '@steroidsjs/nest/src/usecases/services/CrudService';
+import {CrudService} from '@steroidsjs/nest/usecases/services/CrudService';
 import {%entityName%SearchDto} from '../dtos/%entityName%SearchDto';
 import {%entityName%SaveDto} from '../dtos/%entityName%SaveDto';
 import {%entityName%Model} from '../models/%entityName%Model';

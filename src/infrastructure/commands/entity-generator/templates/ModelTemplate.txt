@@ -1,4 +1,4 @@
-import {PrimaryKeyField} from '@steroidsjs/nest/src/infrastructure/decorators/fields';
+import {PrimaryKeyField} from '@steroidsjs/nest/infrastructure/decorators/fields';
 
 export class %entityName%Model {
     @PrimaryKeyField()

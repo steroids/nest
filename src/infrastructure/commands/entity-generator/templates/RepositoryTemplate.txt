@@ -1,7 +1,7 @@
 import {Repository} from '@steroidsjs/typeorm';
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@steroidsjs/nest-typeorm';
-import {CrudRepository} from '@steroidsjs/nest/src/infrastructure/repositories/CrudRepository';
+import {CrudRepository} from '@steroidsjs/nest/infrastructure/repositories/CrudRepository';
 import {%entityName%Model} from '../../domain/models/%entityName%Model';
 import {%entityName%Table} from '../tables/%entityName%Table';
 
