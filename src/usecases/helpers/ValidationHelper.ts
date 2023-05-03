@@ -104,7 +104,14 @@ export class ValidationHelper {
 
                     for (const fieldValidator of fieldValidators) {
                         // Find validator instance
-                        const validator = (validatorsInstances || []).find(item => item instanceof fieldValidator);
+                        const validator = (validatorsInstances || []).find(item => {
+                            try {
+                                return item instanceof fieldValidator;
+                            } catch (e) {
+                                return false;
+                            }
+                        });
+
                         if (!validator && typeof fieldValidator === 'function') {
                             await fieldValidator(dto, {
                                 ...params,
