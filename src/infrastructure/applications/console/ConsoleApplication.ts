@@ -14,6 +14,12 @@ export class ConsoleApplication extends BaseApplication {
         this._moduleClass = moduleClass;
     }
 
+    protected initEnv() {
+        process.env.APP_IS_CLI = '1';
+
+        super.initEnv();
+    }
+
     public async start() {
         await this.init();
 

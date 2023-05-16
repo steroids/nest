@@ -72,27 +72,23 @@ export const generate = async (connection: Connection) => {
     for (const moduleName of moduleDirs) {
         if (fs.statSync(join(sourceRoot, moduleName)).isDirectory()) {
             const moduleDir = join(sourceRoot, moduleName);
-            const moduleClassPath = join(moduleDir, '/infrastructure/' + lodash.upperFirst(moduleName) + 'Module.ts');
-
-            if (fs.existsSync(moduleClassPath)) {
-                const tableFilesPaths = await Promise.resolve(new Promise((resolve, reject) => {
-                    glob(moduleDir + '/**/tables/*Table{.ts,.js}', (err, matches) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(matches);
-                        }
-                    });
-                }));
-                for (const tableFilePath of (tableFilesPaths as any)) {
-                    const tableClassName = tableFilePath.split('/').at(-1).replace(/\.ts$/, '');
-                    const tableName = classesToTablesMap[tableClassName];
-                    tablesInfo[tableName] = {
-                        tableClassName,
-                        tablePath: tableFilePath,
-                    };
-                }
+            const tableFilesPaths = await Promise.resolve(new Promise((resolve, reject) => {
+                glob(moduleDir + '/**/tables/*Table{.ts,.js}', (err, matches) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(matches);
+                    }
+                });
+            }));
+            for (const tableFilePath of (tableFilesPaths as any)) {
+                const tableClassName = tableFilePath.split('/').at(-1).replace(/\.ts$/, '');
+                const tableName = classesToTablesMap[tableClassName];
+                tablesInfo[tableName] = {
+                    tableClassName,
+                    tablePath: tableFilePath,
+                };
             }
         }
     }

@@ -11,7 +11,6 @@ export abstract class BaseApplication {
     }
 
     protected initEnv() {
-        process.env.APP_IS_CLI = '1';
         process.env.APP_ENVIRONMENT = process.env.APP_ENVIRONMENT || 'dev';
 
         dotenv.config();
