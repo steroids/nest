@@ -27,7 +27,7 @@ export class RestApplication extends BaseApplication {
     protected initConfig() {
         const custom = ModuleHelper.getConfig<IRestAppModuleConfig>(this._moduleClass);
         this._config = {
-            requestSizeLimit: '32m',
+            requestSizeLimit: '32mb',
             ...custom,
             cors: {
                 allowHeaders: [
