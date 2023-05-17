@@ -119,8 +119,8 @@ export class RestApplication extends BaseApplication {
     }
 
     protected initSettings() {
-        this._app.use(json({ limit: this._app.requestSizeLimit }));
-        this._app.use(urlencoded({ extended: true, limit: this._app.requestSizeLimit }));
+        this._app.use(json({ limit: this._config.requestSizeLimit }));
+        this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
     }
 
     public async init() {
