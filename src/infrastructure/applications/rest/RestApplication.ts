@@ -1,4 +1,5 @@
 import {NestFactory, Reflector} from '@nestjs/core';
+import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {VersioningType} from '@nestjs/common';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
@@ -26,6 +27,7 @@ export class RestApplication extends BaseApplication {
     protected initConfig() {
         const custom = ModuleHelper.getConfig<IRestAppModuleConfig>(this._moduleClass);
         this._config = {
+            requestSizeLimit: '32m',
             ...custom,
             cors: {
                 allowHeaders: [
@@ -116,6 +118,11 @@ export class RestApplication extends BaseApplication {
         );
     }
 
+    protected initSettings() {
+        this._app.use(json({ limit: this._app.requestSizeLimit }));
+        this._app.use(urlencoded({ extended: true, limit: this._app.requestSizeLimit }));
+    }
+
     public async init() {
         await super.init();
 
@@ -129,6 +136,7 @@ export class RestApplication extends BaseApplication {
         this.initFilters();
         this.initSentry();
         this.initInterceptors();
+        this.initSettings();
     }
 
     public async start() {

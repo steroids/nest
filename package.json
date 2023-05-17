@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.7.14",
+  "version": "1.7.15",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",
@@ -41,7 +41,8 @@
     "uuid": "^9.0.0",
     "@ntegral/nestjs-sentry": "^4.0.0",
     "@sentry/node": "^7.34.0",
-    "@sentry/types": "^7.34.0"
+    "@sentry/types": "^7.34.0",
+    "body-parser": "^1.20.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.4.1",
