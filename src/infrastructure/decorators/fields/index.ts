@@ -21,6 +21,7 @@ export {ComputableField} from './ComputableField';
 export {DateField} from './DateField';
 export {DateTimeField} from './DateTimeField';
 export {DecimalField} from './DecimalField';
+export {DecimalNumberField} from './DecimalNumberField';
 export {EmailField} from './EmailField';
 export {EnumField} from './EnumField';
 export {FileField} from './FileField';
