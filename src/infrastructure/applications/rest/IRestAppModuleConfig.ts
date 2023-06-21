@@ -7,4 +7,5 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
         allowMethods?: string[],
         allowHeaders?: string[],
     },
+    gracefulEnabled?: boolean,
 }

@@ -123,6 +123,12 @@ export class RestApplication extends BaseApplication {
         this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
     }
 
+    protected initGraceful() {
+        if (this._config.gracefulEnabled) {
+            this._app.enableShutdownHooks();
+        }
+    }
+
     public async init() {
         await super.init();
 
@@ -137,6 +143,7 @@ export class RestApplication extends BaseApplication {
         this.initSentry();
         this.initInterceptors();
         this.initSettings();
+        this.initGraceful();
     }
 
     public async start() {
