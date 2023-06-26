@@ -136,15 +136,15 @@ export class CrudService<TModel,
      */
     async saveInternal(prevModel: TModel | null, nextModel: TModel, context?: ContextDto) {
         // you code outside transaction before save
-        await this.repository.save(nextModel, async (save) => {
+        // await this.repository.save(nextModel, async (save) => {
             // you code inside transaction before save
-            await save();
+            // await save();
             // you code inside transaction after save
-        });
+        // });
         // you code outside transaction after save
 
         // or save() call without transaction
-        // await this.repository.save(nextModel);
+        await this.repository.save(nextModel);
     }
 
     async checkHasRelatedModels(id: string | number, service: CrudService<any>) {
