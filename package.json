@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.6.3-beta.4",
+  "version": "1.6.3-beta.5",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",
@@ -22,10 +22,10 @@
   "dependencies": {
     "@dbml/core": "^2.3.1",
     "@nestjs/cli": "^8.2.2",
-    "@nestjs/common": "^8.4.1",
+    "@nestjs/common": "^8.4.7",
     "@nestjs/config": "^1.2.0",
-    "@nestjs/core": "^8.4.1",
-    "@nestjs/platform-express": "^8.4.1",
+    "@nestjs/core": "^8.4.7",
+    "@nestjs/platform-express": "^8.4.7",
     "@nestjs/swagger": "^5.2.0",
     "@steroidsjs/nest-typeorm": "^9.0.1",
     "@steroidsjs/typeorm": "^0.3.11",
