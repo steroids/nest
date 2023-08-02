@@ -28,7 +28,7 @@ export class ModuleHelper {
         }
     }
 
-    static getEntities(moduleName) {
+    static getEntities(moduleName = null) {
         return moduleName
             ? this._moduleEntities[moduleName] || []
             : this._allEntities;
