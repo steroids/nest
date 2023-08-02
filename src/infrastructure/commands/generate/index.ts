@@ -7,6 +7,7 @@ import {Connection} from '@steroidsjs/typeorm';
 import {format} from '@sqltools/formatter';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
 import * as glob from "glob";
+import {ModuleHelper} from '../../helpers/ModuleHelper';
 
 const queryParams = (parameters: any[] | undefined): string => {
     if (!parameters || !parameters.length) {
@@ -90,6 +91,15 @@ export const generate = async (connection: Connection) => {
                     tablePath: tableFilePath,
                 };
             }
+        }
+        const moduleTables = ModuleHelper.getEntities(moduleName);
+        for (const moduleTable of moduleTables) {
+            const tableClassName = moduleTable.name;
+            const tableName = classesToTablesMap[tableClassName];
+            tablesInfo[tableName] = {
+                tableClassName,
+                tablePath: join(sourceRoot, moduleName, 'infrastructure', 'tables', tableClassName + '.ts'),
+            };
         }
     }
 

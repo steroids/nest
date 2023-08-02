@@ -1,9 +1,11 @@
+import {camelCase as _camelCase} from 'lodash';
 import {Global, Module as NestModule, ModuleMetadata} from '@nestjs/common';
 import {TypeOrmModule} from '@steroidsjs/nest-typeorm';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 import {PermissionsFactory} from '../helpers/PermissionsFactory';
 
 export interface IModule extends ModuleMetadata {
+    name?: string;
     rootTarget?: any;
     global?: boolean;
     config?: () => any,
@@ -19,9 +21,13 @@ export function Module(data: IModule) {
             target = data.rootTarget;
         }
 
+        if (!data.name) {
+            data.name = _camelCase(target.name).replace(/Module$/, '');
+        }
+
         // Store entities for use it in TypeOrm root module
         if (data.tables) {
-            ModuleHelper.addEntities(data.tables);
+            ModuleHelper.addEntities(data.tables, data.name);
         }
 
         // Lazy call nest module decorator (wait config initialize)

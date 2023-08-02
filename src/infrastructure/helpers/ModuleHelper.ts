@@ -5,11 +5,17 @@ import {Provider} from '@nestjs/common';
 export class ModuleHelper {
 
     private static _allEntities = [];
+    private static _moduleEntities = {};
     private static _configs = {};
     private static _initHandlers = [];
 
-    static addEntities(entities) {
-        this._allEntities = this._allEntities.concat(entities);
+    static addEntities(entities, moduleName) {
+        this._allEntities.push(...entities);
+
+        if (moduleName) {
+            this._moduleEntities[moduleName] = this._moduleEntities[moduleName] || [];
+            this._moduleEntities[moduleName].push(...entities);
+        }
     }
 
     static addInitializer(handler) {
@@ -22,8 +28,10 @@ export class ModuleHelper {
         }
     }
 
-    static getEntities() {
-        return this._allEntities;
+    static getEntities(moduleName) {
+        return moduleName
+            ? this._moduleEntities[moduleName] || []
+            : this._allEntities;
     }
 
     static setConfig(moduleClass: Function, config: any) {
