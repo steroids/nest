@@ -116,9 +116,6 @@ const getFieldJsType = (fieldType) => {
     if (fieldType === 'boolean') {
         fieldJsType = 'boolean';
     }
-    if (['createTime', 'updateTime'].includes(fieldType)) {
-        fieldJsType = 'Date';
-    }
     return fieldJsType;
 }
 
@@ -188,6 +185,9 @@ export async function dbml2code(path) {
                 const fieldName = dbmlJson.fields[fieldId].name;
                 const fieldLabel = dbmlJson.fields[fieldId].note || '';
 
+                // Nullable
+                const isNullable = dbmlJson.fields[fieldId].not_null === false;
+
                 let isVirtualField = false;
                 //Check relations
                 if (dbmlJson.fields[fieldId].endpointIds.length > 0) {
@@ -204,12 +204,15 @@ export async function dbml2code(path) {
                         let fieldName = getRelationFieldName(
                             baseRightName, relationType, fieldLeft.name, rightTable.name
                         );
+                        const inverseSideFieldName = !['ManyToMany', 'ManyToOne'].includes(relationType)
+                            ? fieldRight.name.replace(/Id$/, '')
+                            : null;
 
                         if (relationType === 'ManyToOne') {
                             isVirtualField = true;
                         }
 
-                        let isOwningSide = false;
+                        let isOwningSide = ['OneToOne', 'ManyToMany'].includes(relationType) ? false : null;
                         if ((relationType === 'OneToOne' && fieldName !== 'id')
                             || (relationType === 'ManyToMany'
                                 && !relationsWithJoin.includes(`${fieldId} - ${fieldRight.id}`))
@@ -220,6 +223,10 @@ export async function dbml2code(path) {
                         }
 
                         importedFields.push('RelationField');
+                        if (relationType === 'ManyToOne') {
+                            importedFields.push('RelationIdField');
+                        }
+
                         if (rightTable.name !== table.name) {
                             const moduleToImport = _split(rightTable.name, '_')[0];
                             importedModels.push({model: modelRightName, module: moduleToImport});
@@ -231,6 +238,9 @@ export async function dbml2code(path) {
                             isOwningSide,
                             modelRightName,
                             fieldName,
+                            baseRightName,
+                            inverseSideFieldName,
+                            isNullable,
                         ));
                     });
                 }
@@ -256,6 +266,7 @@ export async function dbml2code(path) {
                     fieldLabel,
                     fieldName,
                     fieldJsType,
+                    isNullable,
                 ));
             });
 

@@ -27,11 +27,15 @@ export function templateModelField(
     fieldLabel,
     fieldName,
     fieldJsType,
+    isNullable,
 ) {
-    return `    @${decoratorName}({
-        label: '${fieldLabel}',
-    })
-    ${fieldName}: ${fieldJsType};`;
+    return [
+        `    @${decoratorName}({`,
+        `        label: '${fieldLabel}',`,
+        isNullable && `        nullable: true,`,
+        '    })',
+        `    ${fieldName}: ${fieldJsType};`,
+    ].filter(Boolean).join('\n');
 }
 
 export function templateModelRelation(
@@ -40,14 +44,33 @@ export function templateModelRelation(
     isOwningSide,
     modelRightName,
     fieldName,
+    baseRightName,
+    inverseSideFieldName,
+    isNullable
 ) {
-    return `    @RelationField({
-        label: '${fieldLabel}',
-        type: '${relationType}',
-        isOwningSide: ${isOwningSide},
-        relationClass: () => ${modelRightName},
-    })
-    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : ''};`;
+    const lines = [
+        '    @RelationField({',
+        `        label: '${fieldLabel}',`,
+        `        type: '${relationType}',`,
+        isOwningSide !== null && `        isOwningSide: ${isOwningSide},`,
+        `        relationClass: () => ${modelRightName},`,
+        inverseSideFieldName && `        inverseSide: (${baseRightName}: ${modelRightName}) => ${baseRightName}.${inverseSideFieldName},`,
+        '    })',
+        `    ${fieldName}: ${modelRightName}${relationType.endsWith('Many') ? '[]' : ''};`,
+    ].filter(Boolean);
+
+    if (relationType === 'ManyToOne') {
+        lines.push(...[
+            '\n    @RelationIdField({',
+            `        label: '${fieldLabel}',`,
+            isNullable && `        nullable: true,`,
+            `        relationName: '${fieldName}',`,
+            '    })',
+            `    ${fieldName}Id: number;`,
+        ].filter(Boolean));
+    }
+
+    return lines.join('\n')
 }
 
 export function templateTable(
@@ -56,10 +79,10 @@ export function templateTable(
     tableName,
 ) {
     return `import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TableFromModel';
-import {DeepPartial} from '@steroidsjs/typeorm';
+import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
 import {${modelName}} from '../../domain/models/${modelName}';
 
 @TableFromModel(${modelName}, '${entityName}')
-export class ${tableName} implements DeepPartial<${modelName}> {}
+export class ${tableName} implements IDeepPartial<${modelName}> {}
 `;
 }
