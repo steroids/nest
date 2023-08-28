@@ -11,9 +11,11 @@ export abstract class BaseApplication {
     }
 
     protected initEnv() {
-        process.env.APP_ENVIRONMENT = process.env.APP_ENVIRONMENT || 'dev';
-
         dotenv.config();
+
+        if (!process.env.APP_ENVIRONMENT) {
+            throw new Error('APP_ENVIRONMENT is not found in env file');
+        }
     }
 
     protected initConfig() {
