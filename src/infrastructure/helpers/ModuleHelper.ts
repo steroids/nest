@@ -1,3 +1,4 @@
+import {merge as _merge} from 'lodash';
 import * as path from 'path';
 import * as fs from 'fs';
 import {Provider} from '@nestjs/common';
@@ -6,6 +7,7 @@ export class ModuleHelper {
 
     private static _allEntities = [];
     private static _moduleEntities = {};
+    private static _globalConfigs = {};
     private static _configs = {};
     private static _initHandlers = [];
 
@@ -34,6 +36,12 @@ export class ModuleHelper {
             : this._allEntities;
     }
 
+    static setGlobalConfig(configs: any) {
+        for (let [moduleName, config] of Object.entries(configs)) {
+            this._globalConfigs[moduleName] = config;
+        }
+    }
+
     static setConfig(moduleClass: Function, config: any) {
         this._configs[moduleClass.name] = config;
     }
@@ -41,6 +49,10 @@ export class ModuleHelper {
     static getConfig<T>(moduleClass: Function): T {
         if (typeof this._configs[moduleClass.name] === 'function') {
             this._configs[moduleClass.name] = this._configs[moduleClass.name]();
+
+            if (this._globalConfigs[moduleClass.name]) {
+                this._configs[moduleClass.name] = _merge(this._configs[moduleClass.name], this._globalConfigs[moduleClass.name]);
+            }
         }
         return this._configs[moduleClass.name] || null;
     }
