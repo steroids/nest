@@ -48,6 +48,10 @@ export class ModuleHelper {
     static importDir(dir, custom = {}) {
         dir = path.normalize(dir);
 
+        if (!fs.existsSync(dir)) {
+            return [];
+        }
+
         return fs.readdirSync(dir)
             .map(fileName => {
                 if (!/\.(js|ts)$/.test(fileName) || /\.d\.ts$/.test(fileName)) {
