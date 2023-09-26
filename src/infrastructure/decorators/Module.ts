@@ -8,6 +8,7 @@ export interface IModule extends ModuleMetadata {
     name?: string;
     rootTarget?: any;
     global?: boolean;
+    globalConfig?: () => any,
     config?: () => any,
     module?: (config: any) => ModuleMetadata,
     tables?: Function[];
@@ -52,6 +53,11 @@ export function Module(data: IModule) {
         // Store module config for global use via ModuleHelper
         if (data.config) {
             ModuleHelper.setConfig(target, data.config);
+        }
+
+        // Store configs for other modules for use via ModuleHelper
+        if (data.globalConfig) {
+            ModuleHelper.setGlobalConfig(data.globalConfig());
         }
 
         return target;
