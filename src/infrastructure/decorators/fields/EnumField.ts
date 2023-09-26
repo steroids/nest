@@ -26,6 +26,8 @@ export function EnumField(options: IEnumFieldOptions = {}) {
         options.enum = options.enum.toEnum();
     }
 
+    const columnType = options.isArray ? 'simple-array' : 'varchar';
+
     return applyDecorators(...[
             BaseField(options,{
                 decoratorName: 'EnumField',
@@ -33,7 +35,7 @@ export function EnumField(options: IEnumFieldOptions = {}) {
                 jsType: 'string',
             }),
             Column({
-                type: 'varchar',
+                type: columnType,
                 default: options.defaultValue,
                 nullable: options.nullable,
             }),
