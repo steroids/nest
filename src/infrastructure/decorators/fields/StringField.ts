@@ -14,8 +14,6 @@ export interface IStringFieldOptions extends IBaseFieldOptions {
 const STRING_FIELD_DEFAULT_MAX_LENGTH = 250;
 
 export function StringField(options: IStringFieldOptions = {}) {
-    const columnType = options.isArray ? 'simple-array' : 'varchar';
-
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'StringField',
@@ -23,11 +21,12 @@ export function StringField(options: IStringFieldOptions = {}) {
             jsType: 'string',
         }),
         Column({
-            type: columnType,
+            type: 'varchar',
             length: options.max,
             default: options.defaultValue,
             unique: options.unique,
             nullable: options.nullable,
+            array: options.isArray,
         }),
         IsString({
             each: options.isArray,
