@@ -1,5 +1,7 @@
-import {set as _set, keys} from 'lodash';
+import {set as _set} from 'lodash';
 import {
+    ArrayContainedBy,
+    ArrayContains, ArrayOverlap,
     Between, Brackets, ILike, In,
     IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder
 } from '@steroidsjs/typeorm';
@@ -8,11 +10,11 @@ import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 import SearchQuery from '../../../usecases/base/SearchQuery';
 import {getMetaPrimaryKey} from '../../decorators/fields/BaseField';
 import {ObjectToArray} from '../../../usecases/helpers/ObjectToArray';
-import * as util from 'util';
 
 export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
     | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
-    | 'not like' | 'not ilike' | 'not between' | 'not in' | 'not and' | 'not &&' | 'not or' | 'not ||';
+    | 'not like' | 'not ilike' | 'not between' | 'not in' | 'not and' | 'not &&' | 'not or' | 'not ||' | '@>'
+    | 'not @>' | '<@' | 'not <@' | 'overlap' | 'not overlap';
 export type IConditionOperatorAndOr = 'and' | '&&' | 'or' | '||' | 'not and' | 'not &&' | 'not or' | 'not ||';
 export type IConditionOperatorSubquery = 'some' | 'every' | 'none';
 export type ICondition = Record<string, unknown>
@@ -140,6 +142,15 @@ export class ConditionHelperTypeORM {
                         throw Error('Wrong value for IN operator: ' + JSON.stringify(value));
                     }
                     return objectWhere(isNot, isEmpty(value) || value.length === 0, key, In(value));
+
+                case '@>': // ['contains', 'codes', ['someCode', 'someCode2']]
+                    return objectWhere(isNot, isEmpty(value), key, ArrayContains([].concat(value)));
+
+                case '<@': // ['containedBy', 'codes', ['someCode', 'someCode2']]
+                    return objectWhere(isNot, isEmpty(value), key, ArrayContainedBy([].concat(value)));
+
+                case 'overlap': // ['overlap', 'codes', ['someCode', 'someCode2']]
+                    return objectWhere(isNot, isEmpty(value), key, ArrayOverlap([].concat(value)));
 
                 case 'some':  // ['some', 'applications', ['=', 'applications.id', 2']]
                 case 'every': // ['every', 'applications', ['=', 'applications.id', 2']]
