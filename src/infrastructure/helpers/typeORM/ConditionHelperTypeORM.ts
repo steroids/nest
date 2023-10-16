@@ -143,10 +143,10 @@ export class ConditionHelperTypeORM {
                     }
                     return objectWhere(isNot, isEmpty(value) || value.length === 0, key, In(value));
 
-                case '@>': // ['contains', 'codes', ['someCode', 'someCode2']]
+                case '@>': // ['@>', 'codes', ['someCode', 'someCode2']]
                     return objectWhere(isNot, isEmpty(value), key, ArrayContains([].concat(value)));
 
-                case '<@': // ['containedBy', 'codes', ['someCode', 'someCode2']]
+                case '<@': // ['<@', 'codes', ['someCode', 'someCode2']]
                     return objectWhere(isNot, isEmpty(value), key, ArrayContainedBy([].concat(value)));
 
                 case 'overlap': // ['overlap', 'codes', ['someCode', 'someCode2']]
