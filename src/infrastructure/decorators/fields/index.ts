@@ -13,6 +13,7 @@ import {IStringFieldOptions} from './StringField';
 import {IIntegerFieldOptions} from './IntegerField';
 import {IDateFieldOptions} from './DateField';
 import {IComputableFieldOptions} from './ComputableField';
+import {IJSONBFieldOptions} from './JSONBField';
 
 export {BooleanField} from './BooleanField';
 export {CoordinateField} from './CoordinateField';
@@ -38,8 +39,9 @@ export {UpdateTimeField} from './UpdateTimeField';
 export {RelationField} from './RelationField';
 export {RelationIdField} from './RelationIdField';
 export {ImageField} from './ImageField';
+export {JSONBField} from './JSONBField';
 
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
     & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions
-    & IDateFieldOptions & IComputableFieldOptions;
+    & IDateFieldOptions & IComputableFieldOptions & IJSONBFieldOptions;
