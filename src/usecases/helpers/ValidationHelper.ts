@@ -98,41 +98,40 @@ export class ValidationHelper {
                     if (error) {
                         errors[key] = error;
                     }
-                } else {
-                    // Get field validators
-                    const fieldValidators = getFieldValidators(dto.constructor, key);
+                }
+                // Get field validators
+                const fieldValidators = getFieldValidators(dto.constructor, key);
 
-                    for (const fieldValidator of fieldValidators) {
-                        // Find validator instance
-                        const validator = (validatorsInstances || []).find(item => {
-                            try {
-                                return item instanceof fieldValidator;
-                            } catch (e) {
-                                return false;
-                            }
-                        });
-
-                        if (!validator && typeof fieldValidator === 'function') {
-                            await fieldValidator(dto, {
-                                ...params,
-                                name: key,
-                            });
-                            continue;
+                for (const fieldValidator of fieldValidators) {
+                    // Find validator instance
+                    const validator = (validatorsInstances || []).find(item => {
+                        try {
+                            return item instanceof fieldValidator;
+                        } catch (e) {
+                            return false;
                         }
+                    });
 
-                        if (!validator) {
-                            throw new Error(
-                                `Not found validator instance for "${dto.constructor.name}.${key}."`
-                                + ' Please add it to CrudService.validators array.'
-                            );
-                        }
-
-                        // Run validator
-                        await validator.validate(dto, {
+                    if (!validator && typeof fieldValidator === 'function') {
+                        await fieldValidator(dto, {
                             ...params,
                             name: key,
                         });
+                        continue;
                     }
+
+                    if (!validator) {
+                        throw new Error(
+                            `Not found validator instance for "${dto.constructor.name}.${key}."`
+                            + ' Please add it to CrudService.validators array.'
+                        );
+                    }
+
+                    // Run validator
+                    await validator.validate(dto, {
+                        ...params,
+                        name: key,
+                    });
                 }
             } catch (e) {
                 // Check validator is throw specific exception
