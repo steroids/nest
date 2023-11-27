@@ -8,4 +8,5 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
         allowHeaders?: string[],
     },
     gracefulEnabled?: boolean,
+    isEnableLogging?: boolean,
 }

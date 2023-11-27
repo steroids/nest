@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.7.31",
+  "version": "1.7.32",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",
@@ -33,6 +33,7 @@
     "@steroidsjs/nest-typeorm": "^9.0.3",
     "@steroidsjs/typeorm": "^0.3.11",
     "@supercharge/request-ip": "^1.2.0",
+    "@types/express": "^4.17.21",
     "bluebird": "^3.7.2",
     "body-parser": "^1.20.1",
     "class-transformer": "^0.5.1",

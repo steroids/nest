@@ -1,7 +1,7 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
-import {VersioningType} from '@nestjs/common';
+import {LogLevel, VersioningType} from '@nestjs/common';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -11,6 +11,16 @@ import {UserExceptionFilter} from '../../filters/UserExceptionFilter';
 import {BaseApplication} from '../BaseApplication';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
+
+function getLoggingLevels(isEnable: boolean): LogLevel[] {
+    const logLevels: LogLevel[] = ['error', 'warn'];
+
+    if (isEnable) {
+        logLevels.push('debug');
+    }
+
+    return logLevels;
+}
 
 export class RestApplication extends BaseApplication {
 
@@ -133,7 +143,7 @@ export class RestApplication extends BaseApplication {
         await super.init();
 
         this._app = await NestFactory.create(this._moduleClass, {
-            logger: ['error', 'warn'],
+            logger: getLoggingLevels(this._config.isEnableLogging),
         });
 
         this.initSwagger();
