@@ -7,7 +7,13 @@ import {EntityCodeGenerateCommand} from '../../commands/entity-generator/EntityC
 import {MigrateCommand} from '../../commands/MigrateCommand';
 import {CommandModule} from 'nestjs-command';
 
-const sourceRoot = join(process.cwd(), 'src'); // TODO Use from nest-cli.json configuration?
+/**
+ * process.env.CLI_PATH is set in .gitlab-ci.yml
+ */
+const sourceRoot = join(process.cwd(), process.env.CLI_PATH // TODO Use from nest-cli.json configuration?
+    ? 'dist'
+    : 'src',
+);
 const isMigrateCommand = !!(process.argv || []).find(arg => /^migrate/.exec(arg));
 
 export default {
