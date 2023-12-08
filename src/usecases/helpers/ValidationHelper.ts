@@ -8,6 +8,7 @@ import {getFieldValidators} from '../validators/Validator';
 
 const defaultValidatorOptions: ValidatorOptions = {
     whitelist: false,
+    forbidUnknownValues: false,
 };
 
 /**
