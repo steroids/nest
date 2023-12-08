@@ -9,20 +9,19 @@ import {CommandModule} from 'nestjs-command';
 
 const isMigrateCommand = !!(process.argv || []).find(arg => /^migrate/.exec(arg));
 
-// For deployment to use files in dist directory.
-const envRootDir = process.env.APP_ENVIRONMENT === 'dev' ? 'src' : 'dist';
-
-/**
- * If CLI_PATH is specified then use directory from it.
- */
-const migrationsRootDir = process.env.CLI_PATH && path.dirname(process.env.CLI_PATH)
-    ? path.dirname(process.env.CLI_PATH).split(path.sep).find(dir => !dir.includes('.'))
-    : envRootDir;
-
 export default {
     ...baseConfig,
     config: () => {
         const config = baseConfig.config();
+
+        // For deployment to use files in dist directory.
+        const envRootDir = process.env.APP_ENVIRONMENT === 'dev' ? 'src' : 'dist';        
+
+        // If CLI_PATH is specified then use directory from it.
+        const migrationsRootDir = process.env.CLI_PATH && path.dirname(process.env.CLI_PATH)
+            ? path.dirname(process.env.CLI_PATH).split(path.sep).find(dir => !dir.includes('.'))
+            : envRootDir;
+
         return {
             ...config,
             database: {
