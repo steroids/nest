@@ -42,6 +42,7 @@ export interface IRelationData {
 export interface IInternalFieldOptions {
     appType?: AppColumnType,
     jsType?: ColumnType,
+    swaggerType?: ColumnType,
     decoratorName?: string,
     isArray?: boolean,
 }
@@ -191,7 +192,7 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 appType: internalOptions.appType || null,
             }, internalOptions),
             ApiProperty({
-                type: options.jsType,
+                type: internalOptions.swaggerType || options.jsType,
                 description: options.label || undefined,
                 example: options.example || undefined,
                 required: options.nullable === false,

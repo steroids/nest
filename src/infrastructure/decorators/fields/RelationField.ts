@@ -149,6 +149,7 @@ export function RelationField(options: IRelationFieldOptions) {
                 decoratorName: 'RelationField',
                 appType: 'relation',
                 jsType: 'number',
+                swaggerType: options.relationClass(),
                 isArray: ['ManyToMany', 'OneToMany'].includes(options.type),
             }),
             getRelationDecorator(options.type)(
