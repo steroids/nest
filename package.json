@@ -1,6 +1,6 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "1.7.35",
+  "version": "1.7.36",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",

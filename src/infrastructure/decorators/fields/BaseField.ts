@@ -196,7 +196,7 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 description: options.label || undefined,
                 example: options.example || undefined,
                 required: options.nullable === false,
-                isArray: options.isArray,
+                isArray: options.isArray || internalOptions.isArray,
             }),
             options.transform && Transform(options.transform),
             options.required && IsNotEmpty({
