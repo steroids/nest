@@ -42,7 +42,7 @@ export interface IRelationData {
 export interface IInternalFieldOptions {
     appType?: AppColumnType,
     jsType?: ColumnType,
-    swaggerType?: ColumnType,
+    swaggerType?: ColumnType | (() => ColumnType),
     decoratorName?: string,
     isArray?: boolean,
 }
