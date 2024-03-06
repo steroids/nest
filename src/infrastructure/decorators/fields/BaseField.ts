@@ -192,7 +192,7 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 appType: internalOptions.appType || null,
             }, internalOptions),
             ApiProperty({
-                type: internalOptions.swaggerType || options.jsType,
+                type: options.jsType || internalOptions.swaggerType || internalOptions.jsType,
                 description: options.label || undefined,
                 example: options.example || undefined,
                 required: options.nullable === false,

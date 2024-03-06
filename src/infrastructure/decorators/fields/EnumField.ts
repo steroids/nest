@@ -3,6 +3,7 @@ import {Column} from '@steroidsjs/typeorm';
 import {IsEnum, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
+import {ApiProperty} from '@nestjs/swagger';
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum?: object | string[] | any,
@@ -37,6 +38,9 @@ export function EnumField(options: IEnumFieldOptions = {}) {
                 default: options.defaultValue,
                 nullable: options.nullable,
                 array: options.isArray,
+            }),
+            ApiProperty({
+                enum: options.enum,
             }),
             options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             IsEnum(options.enum, {
