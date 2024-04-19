@@ -25,21 +25,22 @@ export {DecimalField} from './DecimalField';
 export {DecimalNumberField} from './DecimalNumberField';
 export {EmailField} from './EmailField';
 export {EnumField} from './EnumField';
+export {ExtendField} from './ExtendField';
 export {FileField} from './FileField';
 export {HtmlField} from './HtmlField';
+export {ImageField} from './ImageField';
 export {IntegerField} from './IntegerField';
+export {JSONBField} from './JSONBField';
 export {PasswordField} from './PasswordField';
 export {PhoneField} from './PhoneField';
 export {PrimaryKeyField} from './PrimaryKeyField';
+export {RelationField} from './RelationField';
+export {RelationIdField} from './RelationIdField';
 export {StringField} from './StringField';
 export {TextField} from './TextField';
 export {TimeField} from './TimeField';
 export {UidField} from './UidField';
 export {UpdateTimeField} from './UpdateTimeField';
-export {RelationField} from './RelationField';
-export {RelationIdField} from './RelationIdField';
-export {ImageField} from './ImageField';
-export {JSONBField} from './JSONBField';
 
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
