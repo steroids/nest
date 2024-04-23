@@ -13,5 +13,7 @@ export class ContextDto implements IContextDto {
         permissions?: string[],
     };
     ipAddress: string;
+    userAgent?: string;
     language?: string;
+    loginUid?: string;
 }
