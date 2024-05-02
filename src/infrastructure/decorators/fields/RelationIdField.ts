@@ -4,7 +4,7 @@ import {getTableFromModel} from '../TableFromModel';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {Column} from '@steroidsjs/typeorm';
 import {ArrayNotEmpty, ValidateIf} from "class-validator";
-import {isEmpty as _isEmpty} from 'lodash';
+import {isEmpty as _isEmpty, isBoolean as _isBoolean} from 'lodash';
 
 export interface IRelationIdFieldOptions extends IBaseFieldOptions {
     relationName?: string,
@@ -54,6 +54,9 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
     if (!options.transform) {
         options.transform = relationTransform;
     }
+    if (!_isBoolean(options.nullable)) {
+        options.nullable = true;
+    }
 
     const arrayNotEmptyMessage = options.isFieldValidConstraintMessage || 'Не должно быть пустым';
 
@@ -64,7 +67,10 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
                 appType: 'relationId',
                 jsType: 'number',
             }),
-            !options.isArray && Column({type: 'int', nullable: true}),
+            !options.isArray && Column({
+                type: 'int',
+                nullable:  options.nullable,
+            }),
             options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
             options.isArray && !options.nullable && ArrayNotEmpty({message: arrayNotEmptyMessage}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
