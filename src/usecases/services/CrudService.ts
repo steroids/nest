@@ -196,6 +196,34 @@ export class CrudService<TModel,
     }
 
     /**
+     * Soft remove model
+     * @param rawId
+     * @param context
+     */
+    async softRemove(rawId: number | string, context: ContextDto = null): Promise<void> {
+        const id: number = _toInteger(rawId);
+        await this.softRemoveInternal(id, context);
+    }
+
+    /**
+     * Internal soft remove method for overwrite in project
+     * @param id
+     * @param context
+     */
+    async softRemoveInternal(id: number, context?: ContextDto) {
+        // you code outside transaction before soft remove
+        await this.repository.softRemove(id, async (softRemove: () => Promise<void>) => {
+            // you code inside transaction before soft remove
+            await softRemove();
+            // you code inside transaction after soft remove
+        });
+        // you code outside transaction after soft remove
+
+        // or softRemove() call without transaction
+        // await this.repository.softRemove(id);
+    }
+
+    /**
      * Mapping dto to model class
      * @param dto
      * @protected
