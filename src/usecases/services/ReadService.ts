@@ -45,7 +45,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         dto: TSearchDto,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>
-    ): Promise<SearchResultDto<IType<TSchema>>>
+    ): Promise<SearchResultDto<TSchema>>
 
     /**
      * Search models with pagination, order and filters
@@ -57,7 +57,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         dto: TSearchDto,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null
-    ): Promise<SearchResultDto<TModel | IType<TSchema>>> {
+    ): Promise<SearchResultDto<TModel | TSchema>> {
         await this.validate(dto, {
             context,
         });
@@ -89,7 +89,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         id: number | string,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
-    ): Promise<TModel | IType<TSchema>> {
+    ): Promise<TModel | TSchema> {
         const searchQuery = schemaClass ? SearchQuery.createFromSchema<TModel>(schemaClass) : new SearchQuery<TModel>();
         searchQuery.andWhere({[this.primaryKey]: _toInteger(id)});
         const model = await this.findOne(searchQuery);
@@ -126,8 +126,8 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      * @param schemaClass
      * @protected
      */
-    protected modelToSchema<TSchema>(model: TModel, schemaClass: IType<TSchema>): IType<TSchema> {
-        return DataMapper.create(schemaClass, model);
+    protected modelToSchema<TSchema>(model: TModel, schemaClass: IType<TSchema>): TSchema {
+        return DataMapper.create<any>(schemaClass, model);
     }
 
     protected async validate(dto: any, params?: IValidatorParams) {
