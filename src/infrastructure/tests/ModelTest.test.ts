@@ -55,11 +55,13 @@ describe('ModelTest', () => {
         expect(additionalPhoto?.id).toBeGreaterThan(0);
         expect(additionalPhoto?.imagesIds?.length).toEqual(1);
 
-        additionalPhoto = await app.get(FileService).findOne(
-            new SearchQuery()
-                .with(['imagesIds'])
-                .where({id: additionalPhoto.id})
-        );
+        additionalPhoto = await app
+            .get(FileService)
+            .findOne(
+                new SearchQuery()
+                    .with(['imagesIds'])
+                    .where({id: additionalPhoto.id})
+            );
 
         expect(additionalPhoto?.id).toBeGreaterThan(0);
         expect(additionalPhoto?.imagesIds?.length).toEqual(1);
@@ -139,11 +141,13 @@ describe('ModelTest', () => {
         expect(user?.galleryPhotosIds.length).toEqual(photos.length);
 
         // Get user from database with relations
-        user = await app.get(UserService).findOne(
-            new SearchQuery()
-                .with(['mainPhotoId', 'galleryPhotosIds', 'info'])
-                .where({id: user.id})
-        );
+        user = await app
+            .get(UserService)
+            .findOne(
+                new SearchQuery()
+                    .with(['mainPhotoId', 'galleryPhotosIds', 'info'])
+                    .where({id: user.id})
+            );
         expect(user?.id).toBeGreaterThan(0);
         expect(user?.mainPhotoId).toEqual(mainPhoto.id);
         expect(user?.info?.passport).toEqual('0409 123456');
