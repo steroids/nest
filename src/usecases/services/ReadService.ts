@@ -127,7 +127,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      * @protected
      */
     protected modelToSchema<TSchema>(model: TModel, schemaClass: IType<TSchema>): TSchema {
-        return DataMapper.create<any>(schemaClass, model);
+        return DataMapper.create(schemaClass, model as any);
     }
 
     protected async validate(dto: any, params?: IValidatorParams) {

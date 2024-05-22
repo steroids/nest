@@ -11,10 +11,11 @@ import {
 } from '../../infrastructure/decorators/Transform';
 import {getModelBuilder} from '../../infrastructure/decorators/TableFromModel';
 import {IType} from '../interfaces/IType';
+import {DeepPartial} from "@steroidsjs/typeorm";
 
 export class DataMapper {
 
-    static create<T>(MetaClass: IType<T>, values: Partial<T>, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT, skipBuilder = false): T {
+    static create<T>(MetaClass: IType<T>, values: DeepPartial<T>, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT, skipBuilder = false): T {
         // Check empty
         if (values === null) {
             return null;
