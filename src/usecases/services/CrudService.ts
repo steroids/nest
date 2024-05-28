@@ -12,13 +12,16 @@ import {IType} from '../interfaces/IType';
 /**
  * Generic CRUD service
  */
-export class CrudService<TModel,
+export class CrudService<
+    TModel,
     TSearchDto = ISearchInputDto,
-    TSaveDto = TModel> extends ReadService<TModel, TSearchDto>{
+    /** @deprecated */
+    TSaveDto = TModel
+> extends ReadService<TModel, TSearchDto> {
 
-    async create(dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
+    async create(dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
     async create<TSchema>(
-        dto: TSaveDto,
+        dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<IType<TSchema>>
@@ -30,20 +33,20 @@ export class CrudService<TModel,
      * @param schemaClass
      */
     async create<TSchema>(
-        dto: TSaveDto,
+        dto: Partial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
-    ): Promise<TModel | IType<TSchema>> {
+    ): Promise<TModel | TSchema> {
         return this.save(null, dto, context, schemaClass);
     }
 
-    async update<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
+    async update<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
     async update<TSchema>(
         id: number | string,
-        dto: TSaveDto,
+        dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
-    ): Promise<IType<TSchema>>
+    ): Promise<TSchema>
 
     /**
      * Update model
@@ -54,20 +57,20 @@ export class CrudService<TModel,
      */
     async update<TSchema>(
         rawId: number | string,
-        dto: TSaveDto,
+        dto: Partial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
-    ): Promise<TModel | IType<TSchema>> {
+    ): Promise<TModel | TSchema> {
         return this.save(rawId, dto, context, schemaClass);
     }
 
-    async save<TSchema>(id: number | string, dto: TSaveDto, context?: ContextDto | null): Promise<TModel>
+    async save<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
     async save<TSchema>(
         id: number | string,
-        dto: TSaveDto,
+        dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
-    ): Promise<IType<TSchema>>
+    ): Promise<TSchema>
 
     /**
      * Update model
@@ -78,10 +81,10 @@ export class CrudService<TModel,
      */
     async save<TSchema>(
         rawId: number | string | null,
-        dto: TSaveDto,
+        dto: Partial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
-    ): Promise<TModel | IType<TSchema>> {
+    ): Promise<TModel | TSchema> {
         const id: number = rawId ? _toInteger(rawId) : null;
 
         // Fetch previous model state
@@ -116,6 +119,13 @@ export class CrudService<TModel,
 
         // Validate dto
         await this.validate(dto, {
+            prevModel,
+            nextModel,
+            context,
+        });
+
+        // Validate by ModelClass
+        await this.validate(nextModel, {
             prevModel,
             nextModel,
             context,
@@ -200,10 +210,10 @@ export class CrudService<TModel,
      * @param dto
      * @protected
      */
-    protected dtoToModel(dto: TSaveDto): TModel {
+    protected dtoToModel(dto: Partial<TModel>): TModel {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
-        return DataMapper.create(this.modelClass, dto);
+        return DataMapper.create(this.modelClass, dto as any);
     }
 }
