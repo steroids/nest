@@ -30,6 +30,7 @@ export default class SearchQuery<TModel> {
     protected _limit?: number;
     protected _offset?: number;
     protected _useShortAliases: boolean;
+    protected _withDeleted: boolean;
     protected _onGetOne: ISearchQueryConfig<TModel>['onGetOne'];
     protected _onGetMany: ISearchQueryConfig<TModel>['onGetMany'];
 
@@ -304,6 +305,15 @@ export default class SearchQuery<TModel> {
 
     getOffset() {
         return this._offset;
+    }
+
+    withDeleted() {
+        this._withDeleted = true;
+        return this;
+    }
+
+    isWithDeleted() {
+        return this._withDeleted;
     }
 
     async one() {

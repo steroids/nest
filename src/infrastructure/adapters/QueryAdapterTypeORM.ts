@@ -21,6 +21,11 @@ export class QueryAdapterTypeORM {
     ) {
         const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
+        // Include soft deleted entities
+        if (searchQuery.isWithDeleted()) {
+            dbQuery.withDeleted();
+        }
+
         // Get select and relations from search schema
         let select = searchQuery.getSelect();
         if (searchQuery.getExcludeSelect()) {

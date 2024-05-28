@@ -8,8 +8,9 @@ export interface ICrudRepository<TModel> {
     findOne: (conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading?: boolean) => Promise<TModel | null>,
     findMany: (conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading?: boolean) => Promise<TModel[]>,
     create: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
-    update: (id: number, model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
-    save: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
-    remove: (id: number, transactionHandler?: (callback) => Promise<void>) => Promise<void>,
     createQuery: (config?: ISearchQueryConfig<TModel>) => SearchQuery<TModel>,
+    remove: (id: number, transactionHandler?: (callback) => Promise<void>) => Promise<void>,
+    save: (model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
+    softRemove: (id: number, transactionHandler?: (callback: () => Promise<void>) => Promise<void>) => Promise<void>,
+    update: (id: number, model: TModel, transactionHandler?: (callback) => Promise<void>) => Promise<TModel>,
 }

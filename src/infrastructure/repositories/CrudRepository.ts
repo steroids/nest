@@ -241,4 +241,30 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
 
         return DataMapper.create(this.modelClass, obj, TRANSFORM_TYPE_FROM_DB, true);
     }
+
+    /**
+     * Soft remove item
+     * @param id
+     * @param transactionHandler
+     */
+    async softRemove(id: number, transactionHandler?: (callback: () => Promise<void>) => Promise<void>): Promise<void> {
+        if (transactionHandler) {
+            await this.dbRepository.manager.transaction(async (manager) => {
+                await transactionHandler(async () => {
+                    await this.softRemoveInternal(manager, id);
+                });
+            });
+        } else {
+            await this.softRemoveInternal(this.dbRepository.manager, id);
+        }
+    }
+
+    /**
+     * Internal soft remove method for overwrite in project
+     * @param manager
+     * @param id
+     */
+    async softRemoveInternal(manager: EntityManager, id: number) {
+        await manager.softRemove(this.dbRepository.create({id}));
+    }
 }
