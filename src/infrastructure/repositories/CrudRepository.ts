@@ -25,7 +25,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * TypeORM repository instance
      */
-    public dbRepository: Repository<any>;
+    protected dbRepository: Repository<any>;
 
     protected modelClass;
 
