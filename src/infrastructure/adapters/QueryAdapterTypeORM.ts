@@ -22,7 +22,7 @@ export class QueryAdapterTypeORM {
         const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
         // Include soft deleted entities
-        if (searchQuery.getWithDeleted()) {
+        if (searchQuery.isWithDeleted()) {
             dbQuery.withDeleted();
         }
 
