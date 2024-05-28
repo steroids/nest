@@ -312,7 +312,7 @@ export default class SearchQuery<TModel> {
         return this;
     }
 
-    getWithDeleted() {
+    isWithDeleted() {
         return this._withDeleted;
     }
 
