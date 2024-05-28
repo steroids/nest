@@ -124,6 +124,13 @@ export class CrudService<
             context,
         });
 
+        // Validate by ModelClass
+        await this.validate(nextModel, {
+            prevModel,
+            nextModel,
+            context,
+        });
+
         // Save
         await this.saveInternal(prevModel, nextModel, context);
 
