@@ -9,6 +9,19 @@ import {CommandModule} from 'nestjs-command';
 
 const isMigrateCommand = !!(process.argv || []).find(arg => /^migrate/.exec(arg));
 
+// search migrations in modules and subModules
+const collectMigrations = (modulePath: string, migrations: string[] = []) => {
+    fs.readdirSync(modulePath).forEach(moduleName => {
+        migrations.push(path.join(modulePath, `${moduleName}/infrastructure/migrations/*{.ts,.js}`));
+
+        const childModulesPath = path.join(modulePath, `${moduleName}/modules`);
+        if (fs.existsSync(childModulesPath)) {
+            collectMigrations(childModulesPath, migrations);
+        }
+    })
+    return migrations;
+}
+
 export default {
     ...baseConfig,
     config: () => {
@@ -27,7 +40,7 @@ export default {
             database: {
                 ...config.database,
                 migrations: isMigrateCommand
-                    ? fs.readdirSync(migrationsRootDir).map(name => path.join(migrationsRootDir, `${name}/infrastructure/migrations/*{.ts,.js}`))
+                    ? collectMigrations(migrationsRootDir)
                     : [], // Do not include migrations on web and other cli commands
                 migrationsTableName: 'migrations',
             } as PostgresConnectionOptions
