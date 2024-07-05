@@ -5,9 +5,21 @@ import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
 import {getMetaRelations, getRelationsByFilter} from '../../infrastructure/decorators/fields/BaseField';
 import {RelationTypeEnum} from '../../domain/enums/RelationTypeEnum';
-import {UserException} from "../exceptions";
+import {UserException} from '../exceptions';
 import {ReadService} from './ReadService';
 import {IType} from '../interfaces/IType';
+
+type AtLeastOne<T> = {
+    [P in keyof T]: {
+    [K in Exclude<keyof T, P>]?: T[P]
+} & { [M in P]: T[M] }
+}[keyof T];
+
+type TDto<T> = {
+    [P in keyof T]: AtLeastOne<{
+    [K in Exclude<keyof T, P>]: T[P]
+}> & { [M in P]?: never }
+}[keyof T];
 
 /**
  * Generic CRUD service
@@ -19,9 +31,9 @@ export class CrudService<
     TSaveDto = TModel
 > extends ReadService<TModel, TSearchDto> {
 
-    async create(dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async create(dto: TDto<TModel>, context?: ContextDto | null): Promise<TModel>
     async create<TSchema>(
-        dto: Partial<TModel>,
+        dto: TDto<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<IType<TSchema>>
@@ -33,17 +45,17 @@ export class CrudService<
      * @param schemaClass
      */
     async create<TSchema>(
-        dto: Partial<TModel>,
+        dto: TDto<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
         return this.save(null, dto, context, schemaClass);
     }
 
-    async update<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async update<TSchema>(id: number | string, dto: TDto<TModel>, context?: ContextDto | null): Promise<TModel>
     async update<TSchema>(
         id: number | string,
-        dto: Partial<TModel>,
+        dto: TDto<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -57,17 +69,17 @@ export class CrudService<
      */
     async update<TSchema>(
         rawId: number | string,
-        dto: Partial<TModel>,
+        dto: TDto<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
         return this.save(rawId, dto, context, schemaClass);
     }
 
-    async save<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async save<TSchema>(id: number | string, dto: TDto<TModel>, context?: ContextDto | null): Promise<TModel>
     async save<TSchema>(
         id: number | string,
-        dto: Partial<TModel>,
+        dto: TDto<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -81,7 +93,7 @@ export class CrudService<
      */
     async save<TSchema>(
         rawId: number | string | null,
-        dto: Partial<TModel>,
+        dto: TDto<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
@@ -93,7 +105,7 @@ export class CrudService<
             prevModel = await this.findOne(
                 (new SearchQuery<TModel>())
                     .where({[this.primaryKey]: id})
-                    .with(getMetaRelations(dto.constructor))
+                    .with(getMetaRelations(dto.constructor)),
             );
             if (!prevModel) {
                 throw new Error('Not found model by id: ' + id);
@@ -238,7 +250,7 @@ export class CrudService<
      * @param dto
      * @protected
      */
-    protected dtoToModel(dto: Partial<TModel>): TModel {
+    protected dtoToModel(dto: TDto<TModel>): TModel {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
