@@ -9,6 +9,9 @@ import {UserException} from '../exceptions';
 import {ReadService} from './ReadService';
 import {IType} from '../interfaces/IType';
 
+/**
+ * Check that T type is not exactly U type by props equality.
+ */
 type NotExact<T, U> = T extends U ? never : T;
 
 /**
