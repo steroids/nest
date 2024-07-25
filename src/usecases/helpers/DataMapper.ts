@@ -39,7 +39,7 @@ export class DataMapper {
             return null;
         }
         if (Array.isArray(values)) {
-            return values.map((value: T) => (
+            return values.map((value) => (
                 this.create(MetaClass, value, transformType, skipBuilder)
             ));
         }
