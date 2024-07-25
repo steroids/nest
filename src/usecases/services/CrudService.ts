@@ -242,6 +242,6 @@ export class CrudService<
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
-        return DataMapper.create(this.modelClass, dto as any);
+        return DataMapper.create(this.modelClass, dto);
     }
 }
