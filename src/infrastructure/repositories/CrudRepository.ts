@@ -239,7 +239,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
             throw new Error('Property modelClass is not set in repository: ' + this.constructor.name);
         }
 
-        return DataMapper.create(this.modelClass, obj, TRANSFORM_TYPE_FROM_DB, true);
+        return DataMapper.create<TModel>(this.modelClass, obj as Partial<TModel>, TRANSFORM_TYPE_FROM_DB, true);
     }
 
     /**

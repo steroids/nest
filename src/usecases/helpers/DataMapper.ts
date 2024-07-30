@@ -3,6 +3,7 @@ import {isObject as _isObject} from 'lodash';
 import {getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
+import {DeepPartial} from '@steroidsjs/typeorm';
 import {
     getTransformCallbacks,
     ITransformType,
@@ -11,14 +12,36 @@ import {
 } from '../../infrastructure/decorators/Transform';
 import {getModelBuilder} from '../../infrastructure/decorators/TableFromModel';
 import {IType} from '../interfaces/IType';
-import {DeepPartial} from "@steroidsjs/typeorm";
 
 export class DataMapper {
+    static create<T>(
+        MetaClass: IType<T>,
+        values: Array<DeepPartial<T> | Partial<T>>,
+        transformType?: ITransformType,
+        skipBuilder?: boolean,
+    ): T[];
 
-    static create<T>(MetaClass: IType<T>, values: DeepPartial<T>, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT, skipBuilder = false): T {
+    static create<T>(
+        MetaClass: IType<T>,
+        values: DeepPartial<T> | Partial<T>,
+        transformType?: ITransformType,
+        skipBuilder?: boolean,
+    ): T;
+
+    static create<T>(
+        MetaClass: IType<T>,
+        values: DeepPartial<T> | DeepPartial<T>[],
+        transformType: ITransformType = TRANSFORM_TYPE_DEFAULT,
+        skipBuilder = false,
+    ): T | T[] {
         // Check empty
         if (values === null) {
             return null;
+        }
+        if (Array.isArray(values)) {
+            return values.map((value) => (
+                this.create(MetaClass, value, transformType, skipBuilder)
+            ));
         }
 
         const builder = !skipBuilder && getModelBuilder(MetaClass);
