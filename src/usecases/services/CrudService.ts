@@ -10,11 +10,6 @@ import {ReadService} from './ReadService';
 import {IType} from '../interfaces/IType';
 
 /**
- * Check that T type is not exactly U type by props equality.
- */
-type NotExact<T, U> = T extends U ? never : T;
-
-/**
  * Generic CRUD service
  */
 export class CrudService<
@@ -24,9 +19,9 @@ export class CrudService<
     TSaveDto = TModel
 > extends ReadService<TModel, TSearchDto> {
 
-    async create<TDto extends Partial<TModel>>(dto: NotExact<TDto, TModel>, context?: ContextDto | null): Promise<TModel>
-    async create<TDto extends Partial<TModel>, TSchema>(
-        dto: NotExact<TDto, TModel>,
+    async create(dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async create<TSchema>(
+        dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<IType<TSchema>>
@@ -37,18 +32,18 @@ export class CrudService<
      * @param context
      * @param schemaClass
      */
-    async create<TDto extends Partial<TModel>, TSchema>(
-        dto: NotExact<TDto, TModel>,
+    async create<TSchema>(
+        dto: Partial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
         return this.save(null, dto, context, schemaClass);
     }
 
-    async update<TDto extends Partial<TModel>, TSchema>(id: number | string, dto: NotExact<TDto, TModel>, context?: ContextDto | null): Promise<TModel>
-    async update<TDto extends Partial<TModel>, TSchema>(
+    async update<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async update<TSchema>(
         id: number | string,
-        dto: NotExact<TDto, TModel>,
+        dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -60,19 +55,19 @@ export class CrudService<
      * @param context
      * @param schemaClass
      */
-    async update<TDto extends Partial<TModel>, TSchema>(
+    async update<TSchema>(
         rawId: number | string,
-        dto: NotExact<TDto, TModel>,
+        dto: Partial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
         return this.save(rawId, dto, context, schemaClass);
     }
 
-    async save<TDto extends Partial<TModel>, TSchema>(id: number | string, dto: NotExact<TDto, TModel>, context?: ContextDto | null): Promise<TModel>
-    async save<TDto extends Partial<TModel>, TSchema>(
+    async save<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async save<TSchema>(
         id: number | string,
-        dto: NotExact<TDto, TModel>,
+        dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -83,13 +78,19 @@ export class CrudService<
      * @param dto
      * @param context
      * @param schemaClass
+     * @throws Error if dto is instance of model class
+     * @throws Error if rawId passed and prevModel not found
      */
-    async save<TDto extends Partial<TModel>, TSchema>(
+    async save<TSchema>(
         rawId: number | string | null,
-        dto: NotExact<TDto, TModel>,
+        dto: Partial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
+        if (this.isModel(dto)) {
+            throw new Error('The model itself shouldn\'t be used as a DTO');
+        }
+
         const id: number = rawId ? _toInteger(rawId) : null;
 
         // Fetch previous model state
@@ -152,9 +153,9 @@ export class CrudService<
     async saveInternal(prevModel: TModel | null, nextModel: TModel, context?: ContextDto) {
         // you code outside transaction before save
         // await this.repository.save(nextModel, async (save) => {
-            // you code inside transaction before save
-            // await save();
-            // you code inside transaction after save
+        // you code inside transaction before save
+        // await save();
+        // you code inside transaction after save
         // });
         // you code outside transaction after save
 
@@ -242,8 +243,9 @@ export class CrudService<
      * Mapping dto to model class
      * @param dto
      * @protected
+     * @throws Error if modelClass is not set
      */
-    protected dtoToModel<TDto extends Partial<TModel>>(dto: NotExact<TDto, TModel>): TModel {
+    protected dtoToModel(dto: Partial<TModel>): TModel {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
