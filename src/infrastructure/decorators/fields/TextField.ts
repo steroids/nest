@@ -29,11 +29,11 @@ export function TextField(options: ITextFieldOptions = {}) {
         }),
         !options.required && IsOptional(),
         typeof options.min === 'number' && MinLength(options.min, {
-            message: options.minConstraintMessage,
+            message: `Длина строка должна быть не менее ${options.min}` || options.minConstraintMessage,
             each: options.isArray,
         }),
         typeof options.max === 'number' && MaxLength(_toInteger(options.max), {
-            message: options.maxConstraintMessage,
+            message: `Длина строка должна быть не более ${options.max}` || options.maxConstraintMessage,
             each: options.isArray,
         }),
 
