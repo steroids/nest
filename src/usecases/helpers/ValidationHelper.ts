@@ -125,58 +125,9 @@ export class ValidationHelper {
                 continue;
             }
 
-            // Get field validators
-            const fieldValidators = getFieldValidators(dto.constructor, key);
-            for (const fieldValidator of fieldValidators) {
-                try {
-                    // Find validator instance
-                    const validator = (validatorsInstances || []).find(item => {
-                        try {
-                            return item instanceof fieldValidator;
-                        } catch (e) {
-                            return false;
-                        }
-                    });
-
-                    if (!validator && typeof fieldValidator === 'function') {
-                        await fieldValidator(dto, {
-                            ...params,
-                            name: key,
-                        });
-                        continue;
-                    }
-
-                    if (!validator) {
-                        throw new Error(
-                            `Not found validator instance for "${dto.constructor.name}.${key}."`
-                            + ' Please add it to CrudService.validators array.'
-                        );
-                    }
-
-                    // Run validator
-                    await validator.validate(dto, {
-                        ...params,
-                        name: key,
-                    });
-                } catch (e) {
-                    // Check validator is throw specific exception
-                    if (e instanceof FieldValidatorException) {
-                        if (keyErrors && Array.isArray(keyErrors)) {
-                            keyErrors.push(e.message);
-                        } else {
-                            keyErrors = []
-                                .concat(errors[e.params?.name || key])
-                                .concat(e.message)
-                                .filter(Boolean);
-                        }
-                    } else {
-                        throw e;
-                    }
-                }
-
-                if (keyErrors) {
-                    errors[key] = keyErrors;
-                }
+            const fieldValidatorsErrors = await this.getSteroidsFieldValidatorsErrors(dto, key, params, validatorsInstances);
+            if (fieldValidatorsErrors?.length > 0) {
+                errors[key] = fieldValidatorsErrors;
             }
         }
 
@@ -187,6 +138,59 @@ export class ValidationHelper {
         }
 
         return null;
+    }
+
+    protected static async getSteroidsFieldValidatorsErrors(
+            dto: any,
+            key: string,
+            params: IValidatorParams,
+            validatorsInstances: IValidator[],
+        ): Promise<string[]> {
+        let fieldValidatorErrors: string[] = [];
+        // Get field validators
+        const fieldValidators = getFieldValidators(dto.constructor, key);
+        for (const fieldValidator of fieldValidators) {
+            try {
+                // Find validator instance
+                const validator = (validatorsInstances || []).find(item => {
+                    try {
+                        return item instanceof fieldValidator;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+
+                if (!validator && typeof fieldValidator === 'function') {
+                    await fieldValidator(dto, {
+                        ...params,
+                        name: key,
+                    });
+                    continue;
+                }
+
+                if (!validator) {
+                    throw new Error(
+                        `Not found validator instance for "${dto.constructor.name}.${key}"`
+                        + ' Please add it to CrudService.validators array.'
+                    );
+                }
+
+                // Run validator
+                await validator.validate(dto, {
+                    ...params,
+                    name: key,
+                });
+            } catch (e) {
+                // Check validator is throw specific exception
+                if (e instanceof FieldValidatorException) {
+                    fieldValidatorErrors.push(e.message);
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        return fieldValidatorErrors;
     }
 
     public static parseClassValidatorErrors(errors: ValidationError[]): IErrorsCompositeObject {
