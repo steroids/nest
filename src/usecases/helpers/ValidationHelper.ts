@@ -22,7 +22,7 @@ export async function validateOrReject(dto: any, validatorOptions?: ValidatorOpt
         {...defaultValidatorOptions, ...validatorOptions},
     );
     if (classValidatorErrors.length) {
-        const errors = await ValidationHelper.parseClassValidatorErrors(classValidatorErrors);
+        const errors = ValidationHelper.parseClassValidatorErrors(classValidatorErrors);
         throw new ValidationException(errors);
     }
 }
@@ -67,7 +67,7 @@ export class ValidationHelper {
     public static async getClassValidatorErrors(dto: any): Promise<IErrorsCompositeObject | null> {
         const errors = await validate(dto, defaultValidatorOptions);
         if (errors.length) {
-            return await this.parseClassValidatorErrors(errors);
+            return this.parseClassValidatorErrors(errors);
         }
         return null;
     }
@@ -189,7 +189,7 @@ export class ValidationHelper {
         return null;
     }
 
-    public static async parseClassValidatorErrors(errors: ValidationError[]): Promise<IErrorsCompositeObject> {
+    public static parseClassValidatorErrors(errors: ValidationError[]): IErrorsCompositeObject {
         if (!Array.isArray(errors)) {
             return errors;
         }
@@ -200,7 +200,7 @@ export class ValidationHelper {
                 result[error.property] = [].concat(Object.values(error.constraints));
             }
             if (error.children?.length > 0) {
-                result[error.property] = await this.parseClassValidatorErrors(error.children);
+                result[error.property] = this.parseClassValidatorErrors(error.children);
             }
         }
 
