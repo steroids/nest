@@ -11,7 +11,7 @@ export interface ITextFieldOptions extends IBaseFieldOptions {
 }
 
 export function TextField(options: ITextFieldOptions = {}) {
-    return applyDecorators(
+    return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'TextField',
             appType: 'text',
@@ -36,6 +36,5 @@ export function TextField(options: ITextFieldOptions = {}) {
             message: `Длина строка должна быть не более ${options.max}` || options.maxConstraintMessage,
             each: options.isArray,
         }),
-
-    );
+    ].filter(Boolean));
 }
