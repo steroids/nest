@@ -1,10 +1,9 @@
-import {ValidationError} from 'class-validator';
-import {IFormError} from '../interfaces/IFormError';
+import {IErrorsCompositeObject} from '../interfaces/IErrorsCompositeObject';
 
 export class ValidationException {
-    public errors;
+    public errors: IErrorsCompositeObject;
 
-    constructor(errors: ValidationError[] | IFormError) {
+    constructor(errors: IErrorsCompositeObject) {
         this.errors = errors;
     }
 }

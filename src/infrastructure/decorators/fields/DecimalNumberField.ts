@@ -12,7 +12,7 @@ export function isDecimalNumber(value: unknown, options?: IDecimalFieldOptions):
     if (typeof value !== 'number') { return false; }
 
     return isDecimal(value.toString(), {
-        decimal_digits: '0,' + options.scale ?? '',
+        decimal_digits: '0,' + (options.scale ?? ''),
     });
 }
 
