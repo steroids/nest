@@ -28,14 +28,14 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      * Model class
      * @protected
      */
-    protected modelClass: any;
+    protected modelClass: IType<TModel>;
 
     /**
      * Injected validator instances
      */
     public validators: IValidator[];
 
-    init(repository: ICrudRepository<TModel>, ModelClass: TModel) {
+    init(repository: ICrudRepository<TModel>, ModelClass: IType<TModel>) {
         this.repository = repository;
         this.modelClass = ModelClass;
     }
