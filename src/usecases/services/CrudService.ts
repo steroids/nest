@@ -5,7 +5,7 @@ import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
 import {getMetaRelations, getRelationsByFilter} from '../../infrastructure/decorators/fields/BaseField';
 import {RelationTypeEnum} from '../../domain/enums/RelationTypeEnum';
-import {UserException} from "../exceptions";
+import {UserException} from '../exceptions';
 import {ReadService} from './ReadService';
 import {IType} from '../interfaces/IType';
 
@@ -78,6 +78,8 @@ export class CrudService<
      * @param dto
      * @param context
      * @param schemaClass
+     * @throws Error if dto is instance of model class
+     * @throws Error if rawId passed and prevModel not found
      */
     async save<TSchema>(
         rawId: number | string | null,
@@ -85,6 +87,10 @@ export class CrudService<
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
+        if (this.isModel(dto)) {
+            throw new Error('The model itself shouldn\'t be used as a DTO');
+        }
+
         const id: number = rawId ? _toInteger(rawId) : null;
 
         // Fetch previous model state
@@ -93,7 +99,7 @@ export class CrudService<
             prevModel = await this.findOne(
                 (new SearchQuery<TModel>())
                     .where({[this.primaryKey]: id})
-                    .with(getMetaRelations(dto.constructor))
+                    .with(getMetaRelations(dto.constructor)),
             );
             if (!prevModel) {
                 throw new Error('Not found model by id: ' + id);
@@ -147,9 +153,9 @@ export class CrudService<
     async saveInternal(prevModel: TModel | null, nextModel: TModel, context?: ContextDto) {
         // you code outside transaction before save
         // await this.repository.save(nextModel, async (save) => {
-            // you code inside transaction before save
-            // await save();
-            // you code inside transaction after save
+        // you code inside transaction before save
+        // await save();
+        // you code inside transaction after save
         // });
         // you code outside transaction after save
 
@@ -237,6 +243,7 @@ export class CrudService<
      * Mapping dto to model class
      * @param dto
      * @protected
+     * @throws Error if modelClass is not set
      */
     protected dtoToModel(dto: Partial<TModel>): TModel {
         if (!this.modelClass) {
