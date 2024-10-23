@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from '@steroidsjs/typeorm';
-import {buildMessage, IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-validator';
+import {IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
@@ -15,25 +15,29 @@ export const MIN_STRING_AS_NUMBER = 'minStringAsNumber';
 
 export const MAX_STRING_AS_NUMBER = 'maxStringAsNumber';
 
+function buildValidate(
+    constraint: number, 
+    validateFunction: (value: any, constraint: number) => boolean,
+    validationOptions?: ValidationOptions
+) {
+    return ValidateBy(
+        {
+            name: MIN_STRING_AS_NUMBER,
+            constraints: [constraint],
+            validator: {
+                validate: (value, args): boolean => validateFunction(value, args?.constraints[0]),
+            },
+        },
+        validationOptions
+    );
+}
+
 function stringMin(num: unknown, min: number): boolean {
     return typeof num === 'string' && typeof min === 'number' && Number(num) >= min;
 }
 
 function StringMin(minValue: number, validationOptions?: ValidationOptions): PropertyDecorator {
-    return ValidateBy(
-        {
-            name: MIN_STRING_AS_NUMBER,
-            constraints: [minValue],
-            validator: {
-                  validate: (value, args): boolean => stringMin(value, args?.constraints[0]),
-                  defaultMessage: buildMessage(
-                      eachPrefix => eachPrefix + '$property must not be less than $constraint1',
-                        validationOptions
-                  ),
-            },
-        },
-        validationOptions
-    );
+    return buildValidate(minValue, stringMin, validationOptions);
 }
 
 function stringMax(num: unknown, max: number): boolean {
@@ -41,20 +45,7 @@ function stringMax(num: unknown, max: number): boolean {
 }
 
 function StringMax(maxValue: number, validationOptions?: ValidationOptions): PropertyDecorator {
-    return ValidateBy(
-        {
-            name: MAX_STRING_AS_NUMBER,
-            constraints: [maxValue],
-            validator: {
-                validate: (value, args): boolean => stringMax(value, args?.constraints[0]),
-                defaultMessage: buildMessage(
-                    eachPrefix => eachPrefix + '$property must not be greater than $constraint1',
-                    validationOptions
-                ),
-            },
-        },
-        validationOptions
-    );
+    return buildValidate(maxValue, stringMax, validationOptions);
 }
 
 export function DecimalField(options: IDecimalFieldOptions = {}) {
@@ -79,11 +70,11 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
             }),
             typeof options.min === 'number' && StringMin(options.min, {
                 each: options.isArray,
-                message: `Должно быть не меньше ${options.min}` || options.minDecimalConstraintMessage,
+                message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
             }),
             typeof options.max === 'number' && StringMax(options.max, {
                 each: options.isArray,
-                message: `Должно быть не больше ${options.max}` || options.maxDecimalConstraintMessage,
+                message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
             }),
         ].filter(Boolean)
     );

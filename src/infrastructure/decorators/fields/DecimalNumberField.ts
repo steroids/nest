@@ -57,11 +57,11 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
         }),
         typeof options.min === 'number' && Min(options.min, {
             each: options.isArray,
-            message: `Должно быть не меньше ${options.min}` || options.minDecimalConstraintMessage,
+            message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
         }),
         typeof options.max === 'number' && Max(options.max, {
             each: options.isArray,
-            message: `Должно быть не больше ${options.max}` || options.maxDecimalConstraintMessage,
+            message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
         }),
     ].filter(Boolean));
 }
