@@ -11,12 +11,14 @@ import {UserExceptionFilter} from '../../filters/UserExceptionFilter';
 import {BaseApplication} from '../BaseApplication';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
+import {Logger} from 'nestjs-pino';
 
 export class RestApplication extends BaseApplication {
 
     protected _app: any;
     protected _moduleClass: any;
     protected _config: IRestAppModuleConfig;
+    protected _logger: Logger;
 
     constructor(moduleClass = AppModule) {
         super();
@@ -57,6 +59,12 @@ export class RestApplication extends BaseApplication {
                 ...custom?.cors,
             },
         };
+    }
+
+    protected initLogger() {
+        const logger = this._app.get(Logger);
+        this._app.useLogger(logger);
+        this._logger = logger;
     }
 
     protected initSwagger() {
@@ -136,6 +144,7 @@ export class RestApplication extends BaseApplication {
             logger: ['error', 'warn'],
         });
 
+        this.initLogger();
         this.initSwagger();
         this.initCors();
         this.initPipes();
@@ -153,7 +162,7 @@ export class RestApplication extends BaseApplication {
         const port = parseInt(process.env.PORT, 10);
         await this._app.listen(
             port,
-            () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
+            () => this._logger.log(`Server started http://localhost:${port}`),
         );
     }
 

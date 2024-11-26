@@ -1,3 +1,5 @@
+import {Params as LoggerParams} from 'nestjs-pino/params';
+
 export interface IAppModuleConfig {
     name: string,
     title: string,
@@ -14,4 +16,5 @@ export interface IAppModuleConfig {
         dsn: string,
         environment: string,
     },
+    logger?: LoggerParams,
 }
