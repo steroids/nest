@@ -28,14 +28,14 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      * Model class
      * @protected
      */
-    protected modelClass;
+    protected modelClass: IType<TModel>;
 
     /**
      * Injected validator instances
      */
     public validators: IValidator[];
 
-    init(repository: ICrudRepository<TModel>, ModelClass) {
+    init(repository: ICrudRepository<TModel>, ModelClass: IType<TModel>) {
         this.repository = repository;
         this.modelClass = ModelClass;
     }
@@ -44,7 +44,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     async search<TSchema>(
         dto: TSearchDto,
         context?: ContextDto | null,
-        schemaClass?: IType<TSchema>
+        schemaClass?: IType<TSchema>,
     ): Promise<SearchResultDto<TSchema>>
 
     /**
@@ -56,7 +56,7 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     async search<TSchema>(
         dto: TSearchDto,
         context: ContextDto = null,
-        schemaClass: IType<TSchema> = null
+        schemaClass: IType<TSchema> = null,
     ): Promise<SearchResultDto<TModel | TSchema>> {
         await this.validate(dto, {
             context,
@@ -132,5 +132,9 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
 
     protected async validate(dto: any, params?: IValidatorParams) {
         await ValidationHelper.validate(dto, params, this.validators);
+    }
+
+    protected isModel(obj: unknown): obj is TModel {
+        return obj instanceof this.modelClass;
     }
 }
