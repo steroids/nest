@@ -96,11 +96,10 @@ export class CrudService<
         // Fetch previous model state
         let prevModel = null;
         if (id) {
-            prevModel = await this.findOne(
-                (new SearchQuery<TModel>())
-                    .where({[this.primaryKey]: id})
-                    .with(getMetaRelations(dto.constructor)),
-            );
+            prevModel = await this.createQuery()
+                .with(getMetaRelations(dto.constructor))
+                .where({[this.primaryKey]: id})
+                .one();
             if (!prevModel) {
                 throw new Error('Not found model by id: ' + id);
             }
@@ -115,13 +114,16 @@ export class CrudService<
             DataMapper.applyValues(nextModel, prevModel);
         }
 
-        // Затем накатываем изменения
-        DataMapper.applyValues(nextModel, this.dtoToModel(dto));
+        // Модель с измененными полями
+        const diffModel = this.dtoToModel(dto);
 
         // Принудительно добавляем primary key, т.к. его зачастую нет в dto
         if (id) {
-            nextModel[this.primaryKey] = id;
+            diffModel[this.primaryKey] = id;
         }
+
+        // Затем накатываем изменения
+        DataMapper.applyValues(nextModel, diffModel);
 
         // Validate dto
         await this.validate(dto, {
@@ -138,29 +140,32 @@ export class CrudService<
         });
 
         // Save
-        await this.saveInternal(prevModel, nextModel, context);
+        await this.saveInternal(prevModel, nextModel, diffModel, context);
 
         // Convert to schema, if need
-        return schemaClass ? this.findById(nextModel[this.primaryKey], context, schemaClass) : nextModel;
+        return schemaClass
+            ? this.findById(nextModel[this.primaryKey], context, schemaClass)
+            : nextModel;
     }
 
     /**
      * Internal save method for overwrite in project
      * @param prevModel
      * @param nextModel
+     * @param diffModel
      * @param context
      */
-    async saveInternal(prevModel: TModel | null, nextModel: TModel, context?: ContextDto) {
+    async saveInternal(prevModel: TModel | null, nextModel: TModel, diffModel: TModel, context?: ContextDto) {
         // you code outside transaction before save
-        // await this.repository.save(nextModel, async (save) => {
-        // you code inside transaction before save
-        // await save();
-        // you code inside transaction after save
+        // await this.repository.save(diffModel, async (save) => {
+            // you code inside transaction before save
+            // await save();
+            // you code inside transaction after save
         // });
         // you code outside transaction after save
 
         // or save() call without transaction
-        await this.repository.save(nextModel);
+        await this.repository.save(diffModel);
     }
 
     async checkHasRelatedModels(id: string | number, service: CrudService<any>) {
