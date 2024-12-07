@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {Column} from '@steroidsjs/typeorm';
-import {ValidateIf} from 'class-validator';
+import {Max, Min, ValidateIf} from 'class-validator';
 import {ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
 import { IDecimalFieldOptions } from './DecimalField';
 import { BaseField } from './BaseField';
@@ -54,6 +54,14 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsDecimalNumber(options, {
             message: options.isDecimalConstraintMessage || 'Должно быть числом',
+        }),
+        typeof options.min === 'number' && Min(options.min, {
+            each: options.isArray,
+            message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
+        }),
+        typeof options.max === 'number' && Max(options.max, {
+            each: options.isArray,
+            message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
         }),
     ].filter(Boolean));
 }
