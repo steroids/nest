@@ -69,6 +69,7 @@ export class ModuleHelper {
             .filter(Boolean);
     }
 
+    /** @deprecated */
     static provide(Type, nameOrInject, inject = null): Provider {
         const provide = typeof nameOrInject === 'string' ? nameOrInject : Type;
         inject = Array.isArray(nameOrInject) ? nameOrInject : inject;
