@@ -174,8 +174,7 @@ const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInter
     Reflect.defineMetadata(STEROIDS_META_FIELD_DECORATOR, internalOptions.decoratorName, object, propertyName);
 
     // Add field to list
-    const fieldNames = Reflect.getMetadata(STEROIDS_META_KEYS, object) || [];
-    fieldNames.push(propertyName);
+    const fieldNames = (Reflect.getMetadata(STEROIDS_META_KEYS, object) || []).concat(propertyName);
     Reflect.defineMetadata(STEROIDS_META_KEYS, fieldNames, object);
 };
 
