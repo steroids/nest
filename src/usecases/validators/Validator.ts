@@ -1,8 +1,6 @@
-import {IValidatorParams} from '../interfaces/IValidator';
+import {IValidateFunction} from './IValidateFunction';
 
 export const STEROIDS_META_VALIDATORS = 'steroids_meta_validators';
-
-type IValidateFunction = (dto: any, params?: IValidatorParams) => Promise<void> | void;
 
 export const getFieldValidators = (MetaClass, fieldName) => {
     return Reflect.getMetadata(STEROIDS_META_VALIDATORS, MetaClass.prototype, fieldName) || [];

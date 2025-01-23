@@ -6,6 +6,7 @@ import {FieldValidatorException} from '../exceptions/FieldValidatorException';
 import {getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {getFieldValidators} from '../validators/Validator';
 import {IErrorsCompositeObject} from '../interfaces/IErrorsCompositeObject';
+import {getClassValidators} from '../validators/ClassValidator';
 
 const defaultValidatorOptions: ValidatorOptions = {
     whitelist: false,
@@ -131,6 +132,10 @@ export class ValidationHelper {
             }
         }
 
+        const classValidatorsErrors = await this.getSteroidsClassValidatorsErrors(dto, params, validatorsInstances);
+        if (classValidatorsErrors?.length > 0) {
+            errors.classValidatorsErrors = classValidatorsErrors;
+        }
 
         // Has errors?
         if (Object.keys(errors).length > 0) {
@@ -191,6 +196,56 @@ export class ValidationHelper {
         }
 
         return fieldValidatorErrors;
+    }
+
+    protected static async getSteroidsClassValidatorsErrors(
+        dto: any,
+        params: IValidatorParams,
+        validatorsInstances: IValidator[],
+    ): Promise<string[]> {
+        let classValidatorErrors: string[] = [];
+        // Get class validators
+        const classValidators = getClassValidators(dto.constructor);
+        for (const classValidator of classValidators) {
+            try {
+                // Find validator instance
+                const validator = (validatorsInstances || []).find(item => {
+                    try {
+                        return item instanceof classValidator;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+
+                if (!validator && typeof classValidator === 'function') {
+                    await classValidator(dto, {
+                        ...params,
+                    });
+                    continue;
+                }
+
+                if (!validator) {
+                    throw new Error(
+                        `Not found validator instance for "${dto.constructor.name}"`
+                        + ' Please add it to CrudService.validators array.'
+                    );
+                }
+
+                // Run validator
+                await validator.validate(dto, {
+                    ...params,
+                });
+            } catch (e) {
+                // Check validator is throw specific exception
+                if (e instanceof FieldValidatorException) {
+                    classValidatorErrors.push(e.message);
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        return classValidatorErrors;
     }
 
     public static parseClassValidatorErrors(errors: ValidationError[]): IErrorsCompositeObject {
