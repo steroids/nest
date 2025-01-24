@@ -4,9 +4,9 @@ import {ValidationException} from '../exceptions';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
 import {FieldValidatorException} from '../exceptions/FieldValidatorException';
 import {getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
-import {getFieldValidators} from '../validators/Validator';
+import {getValidators} from '../validators/Validator';
 import {IErrorsCompositeObject} from '../interfaces/IErrorsCompositeObject';
-import {getClassValidators} from '../validators/ClassValidator';
+import {ClassValidatorException} from '../exceptions/ClassValidatorException';
 
 const defaultValidatorOptions: ValidatorOptions = {
     whitelist: false,
@@ -133,8 +133,16 @@ export class ValidationHelper {
         }
 
         const classValidatorsErrors = await this.getSteroidsClassValidatorsErrors(dto, params, validatorsInstances);
-        if (classValidatorsErrors?.length > 0) {
-            errors.classValidatorsErrors = classValidatorsErrors;
+        if (Object.keys(classValidatorsErrors).length > 0) {
+            return _mergeWith(
+                errors,
+                classValidatorsErrors,
+                (objValue: IErrorsCompositeObject, srcValue: IErrorsCompositeObject) => {
+                    if (Array.isArray(objValue)) {
+                        return objValue.concat(srcValue);
+                    }
+                },
+            );
         }
 
         // Has errors?
@@ -153,7 +161,7 @@ export class ValidationHelper {
         ): Promise<string[]> {
         let fieldValidatorErrors: string[] = [];
         // Get field validators
-        const fieldValidators = getFieldValidators(dto.constructor, key);
+        const fieldValidators = getValidators(dto.constructor, key);
         for (const fieldValidator of fieldValidators) {
             try {
                 // Find validator instance
@@ -202,10 +210,10 @@ export class ValidationHelper {
         dto: any,
         params: IValidatorParams,
         validatorsInstances: IValidator[],
-    ): Promise<string[]> {
-        let classValidatorErrors: string[] = [];
+    ): Promise<IErrorsCompositeObject> {
+        let classValidatorErrors: IErrorsCompositeObject = {};
         // Get class validators
-        const classValidators = getClassValidators(dto.constructor);
+        const classValidators = getValidators(dto.constructor);
         for (const classValidator of classValidators) {
             try {
                 // Find validator instance
@@ -235,12 +243,12 @@ export class ValidationHelper {
                 await validator.validate(dto, {
                     ...params,
                 });
-            } catch (e) {
+            } catch (error) {
                 // Check validator is throw specific exception
-                if (e instanceof FieldValidatorException) {
-                    classValidatorErrors.push(e.message);
+                if (error instanceof ClassValidatorException) {
+                    classValidatorErrors = error.params;
                 } else {
-                    throw e;
+                    throw error;
                 }
             }
         }

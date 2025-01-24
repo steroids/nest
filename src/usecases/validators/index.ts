@@ -14,4 +14,3 @@ export {
     ArrayNotEmpty, ArrayMinSize, ArrayMaxSize, ArrayUnique, IsNotEmptyObject, IsInstance,
 } from 'class-validator';
 export {Validator} from './Validator';
-export {ClassValidator} from './ClassValidator';
