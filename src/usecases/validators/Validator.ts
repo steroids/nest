@@ -8,23 +8,26 @@ export const getValidators = (MetaClass: any, fieldName?: string) => {
     const metadataParams: [string, any, string?] = fieldName
         ? [STEROIDS_META_VALIDATORS, MetaClass.prototype, fieldName]
         : [STEROIDS_META_VALIDATORS, MetaClass];
+
     return Reflect.getMetadata(...metadataParams) || [];
 }
 
 export function Validator(validatorInstance: IValidateFunction | any) {
     return (object: any, fieldName?: string) => {
-        const metadataParams: [string, any, string?] = fieldName
+        const getMetadataParams: [string, any, string?] = fieldName
             ? [STEROIDS_META_VALIDATORS, object, fieldName]
             : [STEROIDS_META_VALIDATORS, object];
 
-        const validators = Reflect.getMetadata(...metadataParams) || [];
+        const validators = Reflect.getMetadata(...getMetadataParams) || [];
 
         if (!validators.includes(validatorInstance)) {
             validators.push(validatorInstance);
         }
 
-        metadataParams.splice(1, 0, validators)
+        const defineMetadataParams: [string, any, any, string?] = fieldName
+            ? [STEROIDS_META_VALIDATORS, validators, object, fieldName]
+            : [STEROIDS_META_VALIDATORS, validators, object];
 
-        Reflect.defineMetadata(...metadataParams);
+        Reflect.defineMetadata(...defineMetadataParams);
     };
 }
