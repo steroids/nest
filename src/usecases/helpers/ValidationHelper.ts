@@ -13,6 +13,18 @@ const defaultValidatorOptions: ValidatorOptions = {
     forbidUnknownValues: false,
 };
 
+function mergeErrorsCompositeObjects(object: IErrorsCompositeObject, source: IErrorsCompositeObject): IErrorsCompositeObject {
+    return _mergeWith(
+        object,
+        source,
+        (objValue: IErrorsCompositeObject, srcValue: IErrorsCompositeObject) => {
+            if (Array.isArray(objValue)) {
+                return objValue.concat(srcValue);
+            }
+        },
+    );
+}
+
 /**
  * @deprecated Use ValidationHelper.validate()
  * @throws {ValidationException}
@@ -46,15 +58,7 @@ export class ValidationHelper {
         const classValidatorErrors =  await this.getClassValidatorErrors(dto);
         const steroidsValidatorsErrors = await this.getSteroidsErrors(dto, params, allValidators);
 
-        const errors = _mergeWith(
-            classValidatorErrors,
-            steroidsValidatorsErrors,
-            (objValue: IErrorsCompositeObject, srcValue: IErrorsCompositeObject) => {
-                if (Array.isArray(objValue)) {
-                    return objValue.concat(srcValue);
-                }
-            },
-        );
+        const errors = mergeErrorsCompositeObjects(classValidatorErrors, steroidsValidatorsErrors);
 
         if (errors && Object.keys(errors)?.length > 0) {
             throw new ValidationException(errors);
@@ -134,15 +138,7 @@ export class ValidationHelper {
 
         const classValidatorsErrors = await this.getSteroidsClassValidatorsErrors(dto, params, validatorsInstances);
         if (Object.keys(classValidatorsErrors).length > 0) {
-            return _mergeWith(
-                errors,
-                classValidatorsErrors,
-                (objValue: IErrorsCompositeObject, srcValue: IErrorsCompositeObject) => {
-                    if (Array.isArray(objValue)) {
-                        return objValue.concat(srcValue);
-                    }
-                },
-            );
+            return mergeErrorsCompositeObjects(errors, classValidatorsErrors);
         }
 
         // Has errors?
@@ -246,7 +242,7 @@ export class ValidationHelper {
             } catch (error) {
                 // Check validator is throw specific exception
                 if (error instanceof ClassValidatorException) {
-                    classValidatorErrors = error.params;
+                    classValidatorErrors = mergeErrorsCompositeObjects(classValidatorErrors, error.params);
                 } else {
                     throw error;
                 }
