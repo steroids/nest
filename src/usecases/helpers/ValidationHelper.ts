@@ -13,6 +13,11 @@ const defaultValidatorOptions: ValidatorOptions = {
     forbidUnknownValues: false,
 };
 
+/**
+ * Merge two objects of IErrorsCompositeObject into one, the fields with arrays are merged, not rewritten
+ * @param object
+ * @param source
+ */
 function mergeErrorsCompositeObjects(object: IErrorsCompositeObject, source: IErrorsCompositeObject): IErrorsCompositeObject {
     return _mergeWith(
         object,
