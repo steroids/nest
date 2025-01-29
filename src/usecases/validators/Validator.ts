@@ -2,7 +2,7 @@ import {IValidatorParams} from '../interfaces/IValidator';
 
 export const STEROIDS_META_VALIDATORS = 'steroids_meta_validators';
 
-export type IValidateFunction = (dto: any, params?: IValidatorParams) => Promise<void> | void;
+export type ValidateFunctionType = (dto: any, params?: IValidatorParams) => Promise<void> | void;
 
 export const getValidators = (MetaClass: any, fieldName?: string) => {
     const metadataParams: [string, any, string?] = fieldName
@@ -12,11 +12,11 @@ export const getValidators = (MetaClass: any, fieldName?: string) => {
     return Reflect.getMetadata(...metadataParams) || [];
 }
 
-export function Validator(validatorInstance: IValidateFunction | any) {
-    return (object: any, fieldName?: string) => {
+export function Validator(validatorInstance: ValidateFunctionType | any) {
+    return (target: any, fieldName?: string) => {
         const getMetadataParams: [string, any, string?] = fieldName
-            ? [STEROIDS_META_VALIDATORS, object, fieldName]
-            : [STEROIDS_META_VALIDATORS, object];
+            ? [STEROIDS_META_VALIDATORS, target, fieldName]
+            : [STEROIDS_META_VALIDATORS, target];
 
         const validators = Reflect.getMetadata(...getMetadataParams) || [];
 
@@ -25,8 +25,8 @@ export function Validator(validatorInstance: IValidateFunction | any) {
         }
 
         const defineMetadataParams: [string, any, any, string?] = fieldName
-            ? [STEROIDS_META_VALIDATORS, validators, object, fieldName]
-            : [STEROIDS_META_VALIDATORS, validators, object];
+            ? [STEROIDS_META_VALIDATORS, validators, target, fieldName]
+            : [STEROIDS_META_VALIDATORS, validators, target];
 
         Reflect.defineMetadata(...defineMetadataParams);
     };

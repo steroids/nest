@@ -227,9 +227,7 @@ export class ValidationHelper {
                 });
 
                 if (!validator && typeof classValidator === 'function') {
-                    await classValidator(dto, {
-                        ...params,
-                    });
+                    await classValidator(dto, params);
                     continue;
                 }
 
@@ -241,9 +239,7 @@ export class ValidationHelper {
                 }
 
                 // Run validator
-                await validator.validate(dto, {
-                    ...params,
-                });
+                await validator.validate(dto, params);
             } catch (error) {
                 // Check validator is throw specific exception
                 if (error instanceof ClassValidatorException) {
