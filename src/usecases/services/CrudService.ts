@@ -24,7 +24,7 @@ export class CrudService<
         dto: Partial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
-    ): Promise<IType<TSchema>>
+    ): Promise<TSchema>
 
     /**
      * Create new model
