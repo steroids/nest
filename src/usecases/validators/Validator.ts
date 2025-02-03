@@ -1,5 +1,5 @@
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
-import {Type} from '@nestjs/common';
+import {IType} from '../interfaces/IType';
 
 export const STEROIDS_META_VALIDATORS = 'steroids_meta_validators';
 
@@ -13,7 +13,7 @@ export const getValidators = (MetaClass: any, fieldName?: string) => {
     return Reflect.getMetadata(...metadataParams) || [];
 }
 
-export function Validator(validatorInstance: ValidateFunctionType | Type<IValidator>) {
+export function Validator(validatorInstance: ValidateFunctionType | IType<IValidator>) {
     return (target: any, fieldName?: string) => {
         const getMetadataParams: [string, any, string?] = fieldName
             ? [STEROIDS_META_VALIDATORS, target, fieldName]
