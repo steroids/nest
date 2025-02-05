@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {PrimaryGeneratedColumn} from '@steroidsjs/typeorm';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function PrimaryKeyField(options: IBaseFieldOptions = {}) {
@@ -13,6 +12,5 @@ export function PrimaryKeyField(options: IBaseFieldOptions = {}) {
             appType: 'primaryKey',
             jsType: 'number',
         }),
-        PrimaryGeneratedColumn({type: 'integer'}),
     );
 }

@@ -1,5 +1,5 @@
-import {TableFromModel} from '../../../decorators/TableFromModel';
+import {TypeOrmTableFromModel} from '../../../decorators/typeorm/TypeOrmTableFromModel';
 import {ArticleModel} from '../models/ArticleModel';
 
-@TableFromModel(ArticleModel, 'test_article')
+@TypeOrmTableFromModel(ArticleModel, 'test_article')
 export class ArticleTable extends ArticleModel {}
