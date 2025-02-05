@@ -1,5 +1,5 @@
-import {TableFromModel} from '../../../decorators/TableFromModel';
+import {TypeOrmTableFromModel} from '../../../decorators/typeorm/TypeOrmTableFromModel';
 import {FileModel} from '../models/FileModel';
 
-@TableFromModel(FileModel, 'test_file')
+@TypeOrmTableFromModel(FileModel, 'test_file')
 export class FileTable extends FileModel {}

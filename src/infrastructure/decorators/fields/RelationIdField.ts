@@ -1,10 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
-import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
-import {getTableFromModel} from '../TableFromModel';
-import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
-import {Column} from '@steroidsjs/typeorm';
-import {ArrayNotEmpty, ValidateIf} from "class-validator";
+import {ArrayNotEmpty, ValidateIf} from 'class-validator';
 import {isEmpty as _isEmpty, isBoolean as _isBoolean} from 'lodash';
+import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
+import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
+import {getTableFromModel} from '../../base/ModelTableStorage';
 
 export interface IRelationIdFieldOptions extends IBaseFieldOptions {
     relationName?: string,
@@ -21,7 +20,7 @@ const relationTransformFromDbInternal = (TableClass, value, isArray, transformTy
         return value[primaryKey];
     }
     return value;
-}
+};
 export const relationTransformFromDb = ({value, item, options, transformType}) => {
     if (value) {
         return value;
@@ -39,16 +38,13 @@ export const relationTransformFromDb = ({value, item, options, transformType}) =
 
     const relationValue = item[options.relationName];
     return relationTransformFromDbInternal(TableClass, relationValue, relationOptions.isArray, transformType);
-}
+};
 
-export const relationTransformToDb = ({value}) => {
+export const relationTransformToDb = ({value}) =>
     // Nothing do, see RelationField relationTransformToDb method for found *Ids logic
-    return value;
-}
+    value;
 
-export const relationTransform = ({value}) => {
-    return value;
-}
+export const relationTransform = ({value}) => value;
 
 export function RelationIdField(options: IRelationIdFieldOptions = {}) {
     if (!options.transform) {
@@ -67,14 +63,10 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
                 appType: 'relationId',
                 jsType: 'number',
             }),
-            !options.isArray && Column({
-                type: 'int',
-                nullable:  options.nullable,
-            }),
             options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
             options.isArray && !options.nullable && ArrayNotEmpty({message: arrayNotEmptyMessage}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
-        ].filter(Boolean)
+        ].filter(Boolean),
     );
 }

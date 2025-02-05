@@ -8,10 +8,10 @@ import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
-import {getTableFromModel, setModelBuilder} from '../decorators/TableFromModel';
 import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
 import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {QueryAdapterTypeORM} from '../adapters/QueryAdapterTypeORM';
+import {getTableFromModel, setModelBuilder} from '../base/ModelTableStorage';
 
 /**
  * Generic CRUD repository

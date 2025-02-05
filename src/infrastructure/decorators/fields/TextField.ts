@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {toInteger as _toInteger} from 'lodash';
 import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
@@ -16,12 +15,6 @@ export function TextField(options: ITextFieldOptions = {}) {
             decoratorName: 'TextField',
             appType: 'text',
             jsType: 'string',
-        }),
-        Column({
-            type: 'text',
-            length: options.max,
-            default: options.defaultValue,
-            nullable: options.nullable,
         }),
         IsString({
             each: options.isArray,

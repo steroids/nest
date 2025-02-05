@@ -1,13 +1,12 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {IsEnum, ValidateIf} from 'class-validator';
+import {ApiProperty} from '@nestjs/swagger';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
-import {ApiProperty} from '@nestjs/swagger';
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum?: object | string[] | any,
-    isEnumConstraintMessage?: string;
+    isEnumConstraintMessage?: string,
 }
 
 export function EnumField(options: IEnumFieldOptions = {}) {
@@ -28,25 +27,18 @@ export function EnumField(options: IEnumFieldOptions = {}) {
     }
 
     return applyDecorators(...[
-            BaseField(options,{
-                decoratorName: 'EnumField',
-                appType: 'enum',
-                jsType: 'string',
-            }),
-            Column({
-                type: 'varchar',
-                default: options.defaultValue,
-                nullable: options.nullable,
-                array: options.isArray,
-            }),
-            ApiProperty({
-                enum: options.enum,
-            }),
-            options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-            IsEnum(options.enum, {
-                each: options.isArray,
-                message: options.isEnumConstraintMessage || 'Выберите одно из значений'
-            }),
-        ].filter(Boolean)
-    );
+        BaseField(options, {
+            decoratorName: 'EnumField',
+            appType: 'enum',
+            jsType: 'string',
+        }),
+        ApiProperty({
+            enum: options.enum,
+        }),
+        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+        IsEnum(options.enum, {
+            each: options.isArray,
+            message: options.isEnumConstraintMessage || 'Выберите одно из значений',
+        }),
+    ].filter(Boolean));
 }

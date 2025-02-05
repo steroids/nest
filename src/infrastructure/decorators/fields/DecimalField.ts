@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
@@ -16,9 +15,9 @@ export const MIN_STRING_AS_NUMBER = 'minStringAsNumber';
 export const MAX_STRING_AS_NUMBER = 'maxStringAsNumber';
 
 function buildValidate(
-    constraint: number, 
+    constraint: number,
     validateFunction: (value: any, constraint: number) => boolean,
-    validationOptions?: ValidationOptions
+    validationOptions?: ValidationOptions,
 ) {
     return ValidateBy(
         {
@@ -28,7 +27,7 @@ function buildValidate(
                 validate: (value, args): boolean => validateFunction(value, args?.constraints[0]),
             },
         },
-        validationOptions
+        validationOptions,
     );
 }
 
@@ -50,32 +49,24 @@ function StringMax(maxValue: number, validationOptions?: ValidationOptions): Pro
 
 export function DecimalField(options: IDecimalFieldOptions = {}) {
     return applyDecorators(...[
-            BaseField(options, {
-                decoratorName: 'DecimalField',
-                appType: 'decimal',
-                jsType: 'number',
-            }),
-            Column({
-                type: 'decimal',
-                default: options.defaultValue,
-                nullable: options.nullable,
-                precision: options.precision || 10,
-                scale: options.scale || 2,
-            }),
-            options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-            IsDecimal({
-                decimal_digits: String(options.scale || 2),
-            },{
-                message: options.isDecimalConstraintMessage || 'Должно быть числом',
-            }),
-            typeof options.min === 'number' && StringMin(options.min, {
-                each: options.isArray,
-                message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
-            }),
-            typeof options.max === 'number' && StringMax(options.max, {
-                each: options.isArray,
-                message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
-            }),
-        ].filter(Boolean)
-    );
+        BaseField(options, {
+            decoratorName: 'DecimalField',
+            appType: 'decimal',
+            jsType: 'number',
+        }),
+        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+        IsDecimal({
+            decimal_digits: String(options.scale || 2),
+        }, {
+            message: options.isDecimalConstraintMessage || 'Должно быть числом',
+        }),
+        typeof options.min === 'number' && StringMin(options.min, {
+            each: options.isArray,
+            message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
+        }),
+        typeof options.max === 'number' && StringMax(options.max, {
+            each: options.isArray,
+            message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
+        }),
+    ].filter(Boolean));
 }

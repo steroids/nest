@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function PasswordField(options: IBaseFieldOptions = {}) {
@@ -12,12 +11,6 @@ export function PasswordField(options: IBaseFieldOptions = {}) {
             decoratorName: 'PasswordField',
             appType: 'password',
             jsType: 'string',
-        }),
-        Column({
-            type: 'text',
-            length: options.max,
-            default: options.defaultValue,
-            nullable: options.nullable,
         }),
     );
 }

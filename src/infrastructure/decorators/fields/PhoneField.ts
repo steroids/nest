@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {IsPhoneNumber, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
@@ -29,18 +28,11 @@ export function PhoneField(options: IPhoneFieldOptions = {}) {
                 appType: 'phone',
                 jsType: 'string',
             }),
-            Column({
-                type: 'varchar',
-                length: options.max || 16,
-                default: options.defaultValue,
-                unique: options.unique,
-                nullable: options.nullable,
-            }),
             options.nullable && ValidateIf((object, value) => value),
             Transform(({value}) => normalizePhone(value)),
             IsPhoneNumber(null, {
                 message: options.constraintMessage || 'Некорректный номер телефона',
             }),
-        ].filter(Boolean)
+        ].filter(Boolean),
     );
 }

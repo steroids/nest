@@ -1,5 +1,5 @@
 import {getFieldDecorator, getFieldOptions} from './BaseField';
-import {IAllFieldOptions} from "./index";
+import {IAllFieldOptions} from './index';
 import {getValidators, Validator} from '../../../usecases/validators/Validator';
 
 export interface IExtendFieldOptions {
@@ -11,7 +11,7 @@ export function ExtendField(
     ModelClass,
     options: (string | Partial<IAllFieldOptions>) = {
         extendValidators: true,
-    }
+    },
 ) {
     return (object, propertyName) => {
         if (typeof options === 'string') {
@@ -26,7 +26,8 @@ export function ExtendField(
         // Execute decorator
         const extendOptions = getFieldOptions(ModelClass, modelFieldName);
         const decorator = getFieldDecorator(ModelClass, modelFieldName);
-        decorator({...extendOptions, ...options})(object, propertyName);
+        decorator({...extendOptions,
+            ...options})(object, propertyName);
 
         if (options.extendValidators) {
             // Extend validators

@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {toInteger as _toInteger} from 'lodash';
 import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
@@ -19,14 +18,6 @@ export function StringField(options: IStringFieldOptions = {}) {
             decoratorName: 'StringField',
             appType: 'string',
             jsType: 'string',
-        }),
-        Column({
-            type: 'varchar',
-            length: options.max,
-            default: options.defaultValue,
-            unique: options.unique,
-            nullable: options.nullable,
-            array: options.isArray,
         }),
         IsString({
             each: options.isArray,

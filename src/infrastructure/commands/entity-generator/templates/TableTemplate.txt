@@ -1,6 +1,6 @@
 import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
-import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TableFromModel';
+import {TypeOrmTableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TypeOrmTableFromModel';
 import {%entityName%Model} from '../../domain/models/%entityName%Model';
 
-@TableFromModel(%entityName%Model, '%tableName%')
+@TypeOrmTableFromModel(%entityName%Model, '%tableName%')
 export class %entityName%Table implements IDeepPartial<%entityName%Model> {}
