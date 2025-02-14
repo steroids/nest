@@ -1,8 +1,8 @@
 import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
 import {getMetadataArgsStorage} from '@steroidsjs/typeorm';
-import {normalizeDateTime} from '../../fields/DateTimeField';
+import {normalizeDateTime} from '../../../fields/DateTimeField';
 
-export const UpdateTimeBehaviour = (object, propertyName) => {
+export const TypeOrmUpdateTimeBehaviour = (object, propertyName) => {
     const methodName = propertyName + '__updateTimeBehaviour';
     if (!object[methodName]) {
         // eslint-disable-next-line func-names

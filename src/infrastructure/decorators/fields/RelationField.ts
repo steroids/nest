@@ -37,10 +37,13 @@ export type IRelationFieldOptions = IRelationFieldOneToOneOptions | IRelationFie
 
 const PROPERTY_TMP_ID_ENTITY = '__tmpIdEntity';
 
-export const getMetaRelationIdFieldKey = (relationClass, relationName): string => getMetaFields(relationClass).find(idName => {
-    const idOptions = getFieldOptions(relationClass, idName);
-    return idOptions.appType === 'relationId' && idOptions.relationName === relationName;
-});
+export const getMetaRelationIdFieldKey = (relationClass, relationName): string => {
+    return getMetaFields(relationClass)
+        .find(idName => {
+            const idOptions = getFieldOptions(relationClass, idName);
+            return idOptions.appType === 'relationId' && idOptions.relationName === relationName;
+        });
+}
 
 const transformInstances = (TargetClass, value, isArray, transformType) => {
     if (isArray && Array.isArray(value)) {
