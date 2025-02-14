@@ -1,13 +1,17 @@
 import {getMetadataArgsStorage} from '@steroidsjs/typeorm';
 import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
-import {normalizeDateTime} from '../../fields/DateTimeField';
+import {v4 as uuidv4} from 'uuid';
 
-export const CreateTimeBehaviour = (object, propertyName) => {
-    const methodName = propertyName + '__createTimeBehaviour';
+export const generateUid = (): string => uuidv4();
+
+export const TypeOrmUidBehaviour = (object, propertyName) => {
+    const methodName = propertyName + '__uidBehaviour';
     if (!object[methodName]) {
         // eslint-disable-next-line func-names
         object[methodName] = function () {
-            this[propertyName] = normalizeDateTime(new Date(), false);
+            if (!this[propertyName]) {
+                this[propertyName] = generateUid();
+            }
         };
     }
 

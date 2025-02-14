@@ -8,13 +8,15 @@ export interface ICoordinateFieldOptions extends IBaseFieldOptions {
 }
 
 export function CoordinateField(options: ICoordinateFieldOptions = {}) {
-    return applyDecorators(...[
-        BaseField(options, {
-            decoratorName: 'CoordinateField',
-            appType: 'decimal',
-            jsType: 'number',
-        }),
-        options.nullable && ValidateIf((object, value) => value !== null),
-        IsString(),
-    ].filter(Boolean));
+    return applyDecorators(
+        ...[
+            BaseField(options, {
+                decoratorName: 'CoordinateField',
+                appType: 'decimal',
+                jsType: 'number',
+            }),
+            options.nullable && ValidateIf((object, value) => value !== null),
+            IsString(),
+        ].filter(Boolean)
+    );
 }

@@ -26,8 +26,12 @@ export function ExtendField(
         // Execute decorator
         const extendOptions = getFieldOptions(ModelClass, modelFieldName);
         const decorator = getFieldDecorator(ModelClass, modelFieldName);
-        decorator({...extendOptions,
-            ...options})(object, propertyName);
+        const decoratorOptions = {
+            ...extendOptions,
+            ...options,
+        };
+
+        decorator(decoratorOptions)(object, propertyName);
 
         if (options.extendValidators) {
             // Extend validators
