@@ -1,4 +1,5 @@
 import {toInteger as _toInteger} from 'lodash';
+import {DeepPartial} from '@steroidsjs/typeorm';
 import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import SearchQuery from '../base/SearchQuery';
@@ -19,9 +20,9 @@ export class CrudService<
     TSaveDto = TModel
 > extends ReadService<TModel, TSearchDto> {
 
-    async create(dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async create(dto: DeepPartial<TModel>, context?: ContextDto | null): Promise<TModel>
     async create<TSchema>(
-        dto: Partial<TModel>,
+        dto: DeepPartial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -33,17 +34,17 @@ export class CrudService<
      * @param schemaClass
      */
     async create<TSchema>(
-        dto: Partial<TModel>,
+        dto: DeepPartial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
         return this.save(null, dto, context, schemaClass);
     }
 
-    async update<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async update<TSchema>(id: number | string, dto: DeepPartial<TModel>, context?: ContextDto | null): Promise<TModel>
     async update<TSchema>(
         id: number | string,
-        dto: Partial<TModel>,
+        dto: DeepPartial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -57,17 +58,17 @@ export class CrudService<
      */
     async update<TSchema>(
         rawId: number | string,
-        dto: Partial<TModel>,
+        dto: DeepPartial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
         return this.save(rawId, dto, context, schemaClass);
     }
 
-    async save<TSchema>(id: number | string, dto: Partial<TModel>, context?: ContextDto | null): Promise<TModel>
+    async save<TSchema>(id: number | string, dto: DeepPartial<TModel>, context?: ContextDto | null): Promise<TModel>
     async save<TSchema>(
         id: number | string,
-        dto: Partial<TModel>,
+        dto: DeepPartial<TModel>,
         context?: ContextDto | null,
         schemaClass?: IType<TSchema>,
     ): Promise<TSchema>
@@ -83,7 +84,7 @@ export class CrudService<
      */
     async save<TSchema>(
         rawId: number | string | null,
-        dto: Partial<TModel>,
+        dto: DeepPartial<TModel>,
         context: ContextDto = null,
         schemaClass: IType<TSchema> = null,
     ): Promise<TModel | TSchema> {
@@ -250,7 +251,7 @@ export class CrudService<
      * @protected
      * @throws Error if modelClass is not set
      */
-    protected dtoToModel(dto: Partial<TModel>): TModel {
+    protected dtoToModel(dto: DeepPartial<TModel>): TModel {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in service: ' + this.constructor.name);
         }
