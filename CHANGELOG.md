@@ -4,10 +4,12 @@
 
 ### Bugfixes
 
--   Исправлен тип saveDto, передаваемой в методы create, update и save сервиса CrudService ([#46](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/46)
+-   Исправлен тип saveDto, передаваемой в методы create, update и save сервиса CrudService ([#46](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/46))
 -   Исправлен тип, возвращаемый методом CrudService.create в случае, когда в него передан класс схемы ([#80](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/80))
 
 ## [3.0.0](https://github.com/steroids/nest/compare/2.2.1...3.0.0) (2024-02-18)
+
+[Migration guide](docs/MigrationGuide.md#300-2024-02-18)
 
 ### Features
 
