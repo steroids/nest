@@ -1,4 +1,5 @@
 import {toInteger as _toInteger} from 'lodash';
+import {DeepPartial} from '@steroidsjs/typeorm';
 import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import SearchQuery from '../base/SearchQuery';
@@ -8,7 +9,6 @@ import {RelationTypeEnum} from '../../domain/enums/RelationTypeEnum';
 import {UserException} from '../exceptions';
 import {ReadService} from './ReadService';
 import {IType} from '../interfaces/IType';
-import {DeepPartial} from '@steroidsjs/typeorm';
 
 /**
  * Generic CRUD service
