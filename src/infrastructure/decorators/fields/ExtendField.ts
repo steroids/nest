@@ -1,6 +1,6 @@
 import {getFieldDecorator, getFieldOptions} from './BaseField';
 import {IAllFieldOptions} from "./index";
-import {getFieldValidators, Validator} from '../../../usecases/validators/Validator';
+import {getValidators, Validator} from '../../../usecases/validators/Validator';
 
 export interface IExtendFieldOptions {
     sourceFieldName?: string,
@@ -30,7 +30,7 @@ export function ExtendField(
 
         if (options.extendValidators) {
             // Extend validators
-            getFieldValidators(ModelClass, modelFieldName).forEach(ValidatorClass => {
+            getValidators(ModelClass, modelFieldName).forEach(ValidatorClass => {
                 Validator(ValidatorClass)(object, propertyName);
             });
         }
