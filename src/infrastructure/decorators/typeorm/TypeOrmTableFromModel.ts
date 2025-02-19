@@ -1,7 +1,7 @@
 import {Entity} from '@steroidsjs/typeorm';
 import {applyDecorators} from '@nestjs/common';
 import {getFieldDecoratorName, getFieldOptions, getMetaFields} from '../fields/BaseField';
-import {DecoratorFieldName, IAllFieldOptions} from '../fields';
+import {DecoratorFieldName, ExtendField, IAllFieldOptions} from '../fields';
 import {typeOrmDecoratorFactory} from './TypeOrmDecoratorFactory';
 import {setTableFromModel} from '../../base/ModelTableStorage';
 
@@ -25,6 +25,7 @@ function TypeOrmTableFromModelInternal(ModelClass: any) {
 
             if (isTableColumn && options && !options.noColumn) {
                 typeOrmDecoratorFactory(decoratorName, options)?.forEach(decorator => decorator(target.prototype, field));
+                ExtendField(ModelClass)(target.prototype, field);
             }
         });
     };
