@@ -71,6 +71,7 @@ export class RestApplication extends BaseApplication {
             .setTitle(this._config.title || 'Application')
             .setDescription('Документация REST API')
             .setVersion(this._config.version || '1.0')
+            .addBearerAuth()
             .build();
         const document = SwaggerModule.createDocument(this._app, swaggerConfig);
         SwaggerModule.setup('/api/docs', this._app, document);
