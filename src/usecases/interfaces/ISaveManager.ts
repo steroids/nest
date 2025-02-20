@@ -1,3 +1,3 @@
-export interface ISaveManager {
-    save: (model) => Promise<any>,
+export interface ISaveManager<TModel>{
+    save: (model) => Promise<TModel>,
 }
