@@ -178,13 +178,17 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         if (transactionHandler) {
             return this.dbRepository.manager.transaction<TModel>(async (manager) => {
                 return transactionHandler(async () => {
-                    return this.saveInternal({
-                        save: (nextModel) => saver(manager, nextModel),
-                    }, model);
+                    return this.saveInternal(
+                        {save: (nextModel) => saver(manager, nextModel),},
+                        model,
+                    );
                 });
             });
         } else {
-            return this.saveInternal({save: (nextModel) => saver(this.dbRepository.manager, nextModel)}, model);
+            return this.saveInternal(
+                {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
+                model,
+            );
         }
     }
 
