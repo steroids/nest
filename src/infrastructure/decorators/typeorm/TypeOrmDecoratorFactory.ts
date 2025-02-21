@@ -53,7 +53,7 @@ import typeOrmTimeField from './fields/TypeOrmTimeField';
 import typeOrmUidField from './fields/TypeOrmUidField';
 import typeOrmUpdateTimeField from './fields/TypeOrmUpdateTimeField';
 
-const decoratorFactoryMap: {[key in DecoratorFieldName]?: (options: IAllFieldOptions) => Array<(target: any, fieldName: string) => void>} = {
+const fieldTypeOrmMap: {[key in DecoratorFieldName]?: (options: IAllFieldOptions) => Array<(target: any, fieldName: string) => void>} = {
     [BooleanField.name]: typeOrmBooleanField,
     [CoordinateField.name]: typeOrmCoordinateField,
     [CreateTimeField.name]: typeOrmCreateTimeField,
@@ -81,10 +81,11 @@ const decoratorFactoryMap: {[key in DecoratorFieldName]?: (options: IAllFieldOpt
     [UpdateTimeField.name]: typeOrmUpdateTimeField,
 };
 
-export function typeOrmDecoratorFactory(decoratorName: DecoratorFieldName, options: IAllFieldOptions): Array<(target: any, fieldName: string) => void> {
-     const factory = decoratorFactoryMap[decoratorName];
-     if (!factory) {
-         throw new Error(`Unsupported decorator name: ${decoratorName}`);
-     }
-     return factory(options);
+export function typeOrmDecoratorFactory(decoratorName: DecoratorFieldName, options: IAllFieldOptions):
+    Array<(target: any, fieldName: string) => void> {
+    const fieldDecorator = fieldTypeOrmMap[decoratorName];
+    if (!fieldDecorator) {
+        throw new Error(`Unsupported decorator name: ${decoratorName}`);
+    }
+    return fieldDecorator(options);
 }
