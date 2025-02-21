@@ -1,6 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {Column} from '@steroidsjs/typeorm';
 import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
@@ -21,12 +20,6 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             decoratorName: 'IntegerField',
             appType: 'integer',
             jsType: 'number',
-        }),
-        Column({
-            type: 'integer',
-            default: options.defaultValue,
-            unique: options.unique,
-            nullable: options.nullable,
         }),
         options.nullable && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
         Transform(({value}) => {

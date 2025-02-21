@@ -10,8 +10,8 @@ import {
     TRANSFORM_TYPE_COMPUTABLE,
     TRANSFORM_TYPE_DEFAULT
 } from '../../infrastructure/decorators/Transform';
-import {getModelBuilder} from '../../infrastructure/decorators/TableFromModel';
 import {IType} from '../interfaces/IType';
+import {getModelBuilder} from '../../infrastructure/base/ModelTableStorage';
 
 export class DataMapper {
     static create<T>(

@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {IsArray, IsInt, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
@@ -15,11 +14,6 @@ export function getFileFieldDecorators(options: IFileField) {
             appType: 'file',
             jsType: 'number',
         }),
-        Column({
-            type: options.multiple ? 'simple-array' : 'integer',
-            default: options.defaultValue,
-            nullable: options.nullable,
-        }),
         options.nullable && ValidateIf((object, value) => value),
         options.multiple
             ? IsArray({
@@ -33,6 +27,6 @@ export function getFileFieldDecorators(options: IFileField) {
 
 export function FileField(options: IFileField = {}) {
     return applyDecorators(
-        ...getFileFieldDecorators(options)
+        ...getFileFieldDecorators(options),
     );
 }

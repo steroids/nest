@@ -9,15 +9,14 @@ export interface IComputableFieldOptions extends IBaseFieldOptions {
 }
 
 export function ComputableField(options: IComputableFieldOptions) {
-
     return applyDecorators(
         ...[
-            BaseField(options,{
+            BaseField(options, {
                 decoratorName: 'ComputableField',
                 appType: 'computable',
                 jsType: options.jsType,
             }),
-            Computable(options.callback)
+            Computable(options.callback),
         ].filter(Boolean),
     );
 }
