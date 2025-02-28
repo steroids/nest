@@ -2,6 +2,8 @@
 
 ## [3.0.3](https://github.com/steroids/nest/compare/3.0.2...3.0.3) (2024-02-28)
 
+[Migration guide](docs/MigrationGuide.md#303-2024-02-28)
+
 ### Bugfixes
 
 -   Рефакторинг процесса сохранения модели ([#99](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/99))
