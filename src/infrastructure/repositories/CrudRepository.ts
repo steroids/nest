@@ -1,6 +1,6 @@
 import {EntityManager, Repository} from '@steroidsjs/typeorm';
 import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
-import {ICrudRepository} from '../../usecases/interfaces/ICrudRepository';
+import {ICrudRepository, TransactionHandler} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 import SearchQuery, {ISearchQueryConfig} from '../../usecases/base/SearchQuery';
@@ -143,7 +143,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param transactionHandler
      * @deprecated Use save() method
      */
-    async create(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
+    async create(model: TModel, transactionHandler?: TransactionHandler<TModel>): Promise<TModel> {
         model[this.primaryKey] = undefined;
         return this.save(model, transactionHandler);
     }
@@ -155,7 +155,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param transactionHandler
      * @deprecated Use save() method
      */
-    async update(id: number, model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
+    async update(id: number, model: TModel, transactionHandler?: TransactionHandler<TModel>): Promise<TModel> {
         model[this.primaryKey] = id;
         return this.save(model, transactionHandler);
     }
@@ -165,24 +165,31 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param model
      * @param transactionHandler
      */
-    async save(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel> {
-        const saver = async (manager: EntityManager, nextModel: TModel) => {
+    async save(
+        model: TModel,
+        transactionHandler?: TransactionHandler<TModel>,
+    ): Promise<TModel> {
+        const saver = async (manager: EntityManager, nextModel: TModel): Promise<TModel> => {
             const entity = this.modelToEntity(nextModel);
             const newEntity = await manager.save(entity);
-            DataMapper.applyValues(nextModel, newEntity, TRANSFORM_TYPE_FROM_DB);
+            return this.entityToModel(newEntity);
         };
 
         if (transactionHandler) {
-            await this.dbRepository.manager.transaction(async (manager) => {
-                await transactionHandler(async () => {
-                    await this.saveInternal({save: (nextModel) => saver(manager, nextModel)}, model);
+            return this.dbRepository.manager.transaction<TModel>(async (manager) => {
+                return transactionHandler(async () => {
+                    return this.saveInternal(
+                        {save: (nextModel) => saver(manager, nextModel),},
+                        model,
+                    );
                 });
             });
         } else {
-            await this.saveInternal({save: (nextModel) => saver(this.dbRepository.manager, nextModel)}, model);
+            return this.saveInternal(
+                {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
+                model,
+            );
         }
-
-        return model;
     }
 
     /**
@@ -190,8 +197,8 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param manager
      * @param nextModel
      */
-    async saveInternal(manager: ISaveManager, nextModel: TModel) {
-        await manager.save(nextModel);
+    async saveInternal(manager: ISaveManager<TModel>, nextModel: TModel): Promise<TModel> {
+        return manager.save(nextModel);
     }
 
     /**

@@ -141,12 +141,12 @@ export class CrudService<
         });
 
         // Save
-        await this.saveInternal(prevModel, nextModel, diffModel, context);
+        const savedModel = await this.saveInternal(prevModel, nextModel, diffModel, context);
 
         // Convert to schema, if need
         return schemaClass
-            ? this.findById(nextModel[this.primaryKey], context, schemaClass)
-            : nextModel;
+            ? this.findById(savedModel[this.primaryKey], context, schemaClass)
+            : savedModel;
     }
 
     /**
@@ -156,17 +156,18 @@ export class CrudService<
      * @param diffModel
      * @param context
      */
-    async saveInternal(prevModel: TModel | null, nextModel: TModel, diffModel: TModel, context?: ContextDto) {
+    async saveInternal(prevModel: TModel | null, nextModel: TModel, diffModel: TModel, context?: ContextDto): Promise<TModel> {
         // you code outside transaction before save
-        // await this.repository.save(diffModel, async (save) => {
+        // return this.repository.save(diffModel, async (save) => {
             // you code inside transaction before save
-            // await save();
+            // const savedModel = save();
             // you code inside transaction after save
+            // return savedModel;
         // });
         // you code outside transaction after save
 
         // or save() call without transaction
-        await this.repository.save(diffModel);
+        return this.repository.save(diffModel);
     }
 
     async checkHasRelatedModels(id: string | number, service: CrudService<any>) {
