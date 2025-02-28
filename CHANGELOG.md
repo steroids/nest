@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [3.0.3](https://github.com/steroids/nest/compare/3.0.2...3.0.3) (2024-02-28)
+
+### Bugfixes
+
+-   Рефакторинг процесса сохранения модели ([#99](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/99))
+
 ## [3.0.2](https://github.com/steroids/nest/compare/3.0.1...3.0.2) (2024-02-19)
 
 ### Bugfixes

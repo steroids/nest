@@ -1,5 +1,42 @@
 # Steroids Nest Migration Guide
 
+## [3.0.3](../CHANGELOG.md#303-2024-02-28) (2024-02-28)
+
+### Рефакторинг процесса сохранения модели
+
+Методы сохранения модели в CrudService и метод saveInternal в CrudRepository теперь явно возвращают сохраненную модель, а не мутируют передаваемую в них nextModel
+Если в проекте используется переопределение метода saveInternal в CrudService, необходимо обновить их следующим образом:
+
+До
+```ts
+async saveInternal(prevModel: StoreModel | null, nextModel: StoreModel, context?: ContextDto) {
+    await this.repository.save(nextModel);
+}
+```
+
+После
+```ts
+async saveInternal(prevModel: StoreModel | null, nextModel: StoreModel, diffModel: StoreModel, context?: ContextDto) {
+    return this.repository.save(diffModel);
+}
+```
+
+Также, если в проекте используется переопределение метода saveInternal в CrudRepository, необходимо обновить их следующим образом:
+
+До
+```ts
+async saveInternal(manager: ISaveManager, nextModel: TModel) {
+    await manager.save(nextModel);
+}
+```
+
+После
+```ts
+async saveInternal(manager: ISaveManager, nextModel: TModel) {
+    return manager.save(nextModel);
+}
+```
+
 ## [3.0.0](../CHANGELOG.md#300-2024-02-18) (2024-02-18)
 
 ### diffModel в CrudService
