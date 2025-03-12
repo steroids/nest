@@ -1,10 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
-import {Max, Min, ValidateIf} from 'class-validator';
-import {ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
-import { IDecimalFieldOptions } from './DecimalField';
-import { BaseField } from './BaseField';
-import { TRANSFORM_TYPE_FROM_DB, Transform } from '../Transform';
+import {Max, Min, ValidateIf, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
+
+import {IDecimalFieldOptions} from './DecimalField';
+import {BaseField} from './BaseField';
+import {TRANSFORM_TYPE_FROM_DB, Transform} from '../Transform';
 
 export const IS_DECIMAL_NUMBER = 'isDecimalNumber';
 
@@ -42,13 +41,6 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
             decoratorName: 'DecimalNumberField',
             appType: 'decimal',
             jsType: 'number',
-        }),
-        Column({
-            type: 'decimal',
-            default: options.defaultValue,
-            nullable: options.nullable,
-            precision: options.precision || 10,
-            scale: options.scale || 2,
         }),
         Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),

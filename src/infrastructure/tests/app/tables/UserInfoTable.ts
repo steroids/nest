@@ -1,5 +1,5 @@
-import {TableFromModel} from '../../../decorators/TableFromModel';
+import {TypeOrmTableFromModel} from '../../../decorators/typeorm/TypeOrmTableFromModel';
 import {UserInfoModel} from '../models/UserInfoModel';
 
-@TableFromModel(UserInfoModel, 'test_user_info')
+@TypeOrmTableFromModel(UserInfoModel, 'test_user_info')
 export class UserInfoTable extends UserInfoModel {}

@@ -1,19 +1,30 @@
-import {IComputableFieldOptions} from './ComputableField';
-import {ICreateTimeFieldOptions} from './CreateTimeField';
-import {IDateFieldOptions} from './DateField';
-import {IDateTimeFieldColumnOptions} from './DateTimeField';
-import {IDecimalFieldOptions} from './DecimalField';
-import {IEmailFieldOptions} from './EmailField';
-import {IEnumFieldOptions} from './EnumField';
-import {IExtendFieldOptions} from './ExtendField';
-import {IFileField} from './FileField';
-import {IIntegerFieldOptions} from './IntegerField';
-import {IJSONBFieldOptions} from './JSONBField';
-import {IPhoneFieldOptions} from './PhoneField';
-import {IRelationFieldOptions} from './RelationField';
-import {IRelationIdFieldOptions} from './RelationIdField';
-import {IStringFieldOptions} from './StringField';
-import {IUpdateTimeFieldOptions} from './UpdateTimeField';
+import {IComputableFieldOptions, ComputableField} from './ComputableField';
+import {ICreateTimeFieldOptions, CreateTimeField} from './CreateTimeField';
+import {IDateFieldOptions, DateField} from './DateField';
+import {IDateTimeFieldColumnOptions, DateTimeField} from './DateTimeField';
+import {IDecimalFieldOptions, DecimalField} from './DecimalField';
+import {IEmailFieldOptions, EmailField} from './EmailField';
+import {IEnumFieldOptions, EnumField} from './EnumField';
+import {IExtendFieldOptions, ExtendField} from './ExtendField';
+import {IFileField, FileField} from './FileField';
+import {IIntegerFieldOptions, IntegerField} from './IntegerField';
+import {IJSONBFieldOptions, JSONBField} from './JSONBField';
+import {IPhoneFieldOptions, PhoneField} from './PhoneField';
+import {IRelationFieldOptions, RelationField} from './RelationField';
+import {IRelationIdFieldOptions, RelationIdField} from './RelationIdField';
+import {IStringFieldOptions, StringField} from './StringField';
+import {IUpdateTimeFieldOptions, UpdateTimeField} from './UpdateTimeField';
+import {BooleanField} from './BooleanField';
+import {CoordinateField} from './CoordinateField';
+import {DecimalNumberField} from './DecimalNumberField';
+import {DeleteDateField} from './DeleteDateField';
+import {HtmlField} from './HtmlField';
+import {ImageField} from './ImageField';
+import {PasswordField} from './PasswordField';
+import {PrimaryKeyField} from './PrimaryKeyField';
+import {TextField} from './TextField';
+import {TimeField} from './TimeField';
+import {UidField} from './UidField';
 
 export {BooleanField} from './BooleanField';
 export {ComputableField} from './ComputableField';
@@ -47,3 +58,35 @@ export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOpt
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
     & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions
     & IDateFieldOptions & IComputableFieldOptions & IJSONBFieldOptions;
+
+const DecoratorField = {
+    BooleanField,
+    ComputableField,
+    CoordinateField,
+    CreateTimeField,
+    DateField,
+    DateTimeField,
+    DecimalField,
+    DecimalNumberField,
+    DeleteDateField,
+    EmailField,
+    EnumField,
+    ExtendField,
+    FileField,
+    HtmlField,
+    ImageField,
+    IntegerField,
+    JSONBField,
+    PasswordField,
+    PhoneField,
+    PrimaryKeyField,
+    RelationField,
+    RelationIdField,
+    StringField,
+    TextField,
+    TimeField,
+    UidField,
+    UpdateTimeField,
+} as const;
+
+export type DecoratorFieldName = keyof typeof DecoratorField;

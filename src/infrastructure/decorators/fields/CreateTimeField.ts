@@ -1,7 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {has as _has} from 'lodash';
-import {Column, getMetadataArgsStorage} from '@steroidsjs/typeorm';
-import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
@@ -9,22 +6,6 @@ import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transf
 export interface ICreateTimeFieldOptions extends IBaseFieldOptions {
     precision?: number,
 }
-
-const CreateTimeBehaviour = (object, propertyName) => {
-    const methodName = propertyName + '__createTimeBehaviour';
-    if (!object[methodName]) {
-        // eslint-disable-next-line func-names
-        object[methodName] = function () {
-            this[propertyName] = normalizeDateTime(new Date(), false);
-        };
-    }
-
-    getMetadataArgsStorage().entityListeners.push({
-        target: object.constructor,
-        propertyName: methodName,
-        type: EventListenerTypes.BEFORE_INSERT,
-    });
-};
 
 export function CreateTimeField(options: ICreateTimeFieldOptions = {}) {
     if (!options.label) {
@@ -37,14 +18,7 @@ export function CreateTimeField(options: ICreateTimeFieldOptions = {}) {
             appType: 'createTime',
             jsType: 'string',
         }),
-        Column({
-            type: 'timestamp',
-            precision: _has(options, 'precision') ? options.precision : 0,
-            default: _has(options, 'defaultValue') ? options.defaultValue : undefined,
-            nullable: _has(options, 'nullable') ? options.nullable : false,
-        }),
         Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_FROM_DB),
         Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_TO_DB),
-        CreateTimeBehaviour,
     );
 }

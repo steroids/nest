@@ -1,5 +1,5 @@
-import {TableFromModel} from '../../../decorators/TableFromModel';
+import {TypeOrmTableFromModel} from '../../../decorators/typeorm/TypeOrmTableFromModel';
 import {ImageModel} from '../models/ImageModel';
 
-@TableFromModel(ImageModel, 'test_image')
+@TypeOrmTableFromModel(ImageModel, 'test_image')
 export class ImageTable extends ImageModel {}
