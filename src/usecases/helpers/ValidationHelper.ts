@@ -4,13 +4,31 @@ import {ValidationException} from '../exceptions';
 import {IValidator, IValidatorParams} from '../interfaces/IValidator';
 import {FieldValidatorException} from '../exceptions/FieldValidatorException';
 import {getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
-import {getFieldValidators} from '../validators/Validator';
+import {getValidators} from '../validators/Validator';
 import {IErrorsCompositeObject} from '../interfaces/IErrorsCompositeObject';
+import {ClassValidatorException} from '../exceptions/ClassValidatorException';
 
 const defaultValidatorOptions: ValidatorOptions = {
     whitelist: false,
     forbidUnknownValues: false,
 };
+
+/**
+ * Merge two objects of IErrorsCompositeObject into one, the fields with arrays are merged, not rewritten
+ * @param object
+ * @param source
+ */
+function mergeErrorsCompositeObjects(object: IErrorsCompositeObject, source: IErrorsCompositeObject): IErrorsCompositeObject {
+    return _mergeWith(
+        object,
+        source,
+        (objValue: IErrorsCompositeObject, srcValue: IErrorsCompositeObject) => {
+            if (Array.isArray(objValue)) {
+                return objValue.concat(srcValue);
+            }
+        },
+    );
+}
 
 /**
  * @deprecated Use ValidationHelper.validate()
@@ -45,15 +63,7 @@ export class ValidationHelper {
         const classValidatorErrors =  await this.getClassValidatorErrors(dto);
         const steroidsValidatorsErrors = await this.getSteroidsErrors(dto, params, allValidators);
 
-        const errors = _mergeWith(
-            classValidatorErrors,
-            steroidsValidatorsErrors,
-            (objValue: IErrorsCompositeObject, srcValue: IErrorsCompositeObject) => {
-                if (Array.isArray(objValue)) {
-                    return objValue.concat(srcValue);
-                }
-            },
-        );
+        const errors = mergeErrorsCompositeObjects(classValidatorErrors, steroidsValidatorsErrors);
 
         if (errors && Object.keys(errors)?.length > 0) {
             throw new ValidationException(errors);
@@ -131,6 +141,10 @@ export class ValidationHelper {
             }
         }
 
+        const classValidatorsErrors = await this.getSteroidsClassValidatorsErrors(dto, params, validatorsInstances);
+        if (Object.keys(classValidatorsErrors).length > 0) {
+            return mergeErrorsCompositeObjects(errors, classValidatorsErrors);
+        }
 
         // Has errors?
         if (Object.keys(errors).length > 0) {
@@ -148,7 +162,7 @@ export class ValidationHelper {
         ): Promise<string[]> {
         let fieldValidatorErrors: string[] = [];
         // Get field validators
-        const fieldValidators = getFieldValidators(dto.constructor, key);
+        const fieldValidators = getValidators(dto.constructor, key);
         for (const fieldValidator of fieldValidators) {
             try {
                 // Find validator instance
@@ -191,6 +205,52 @@ export class ValidationHelper {
         }
 
         return fieldValidatorErrors;
+    }
+
+    protected static async getSteroidsClassValidatorsErrors(
+        dto: any,
+        params: IValidatorParams,
+        validatorsInstances: IValidator[],
+    ): Promise<IErrorsCompositeObject> {
+        let classValidatorErrors: IErrorsCompositeObject = {};
+        // Get class validators
+        const classValidators = getValidators(dto.constructor);
+        for (const classValidator of classValidators) {
+            try {
+                // Find validator instance
+                const validator = (validatorsInstances || []).find(item => {
+                    try {
+                        return item instanceof classValidator;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+
+                if (!validator && typeof classValidator === 'function') {
+                    await classValidator(dto, params);
+                    continue;
+                }
+
+                if (!validator) {
+                    throw new Error(
+                        `Not found validator instance for "${dto.constructor.name}"`
+                        + ' Please add it to CrudService.validators array.'
+                    );
+                }
+
+                // Run validator
+                await validator.validate(dto, params);
+            } catch (error) {
+                // Check validator is throw specific exception
+                if (error instanceof ClassValidatorException) {
+                    classValidatorErrors = mergeErrorsCompositeObjects(classValidatorErrors, error.params);
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        return classValidatorErrors;
     }
 
     public static parseClassValidatorErrors(errors: ValidationError[]): IErrorsCompositeObject {

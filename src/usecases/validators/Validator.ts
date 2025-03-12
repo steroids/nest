@@ -1,21 +1,34 @@
-import {IValidatorParams} from '../interfaces/IValidator';
+import {IValidator, IValidatorParams} from '../interfaces/IValidator';
+import {IType} from '../interfaces/IType';
 
 export const STEROIDS_META_VALIDATORS = 'steroids_meta_validators';
 
-type IValidateFunction = (dto: any, params?: IValidatorParams) => Promise<void> | void;
+export type ValidateFunctionType = (dto: any, params?: IValidatorParams) => Promise<void> | void;
 
-export const getFieldValidators = (MetaClass, fieldName) => {
-    return Reflect.getMetadata(STEROIDS_META_VALIDATORS, MetaClass.prototype, fieldName) || [];
+export const getValidators = (MetaClass: any, fieldName?: string) => {
+    const metadataParams: [string, any, string?] = fieldName
+        ? [STEROIDS_META_VALIDATORS, MetaClass.prototype, fieldName]
+        : [STEROIDS_META_VALIDATORS, MetaClass];
+
+    return Reflect.getMetadata(...metadataParams) || [];
 }
 
-export function Validator(validatorInstance: IValidateFunction | any) {
-    return (object, fieldName) => {
+export function Validator(validatorInstance: ValidateFunctionType | IType<IValidator>) {
+    return (target: any, fieldName?: string) => {
+        const getMetadataParams: [string, any, string?] = fieldName
+            ? [STEROIDS_META_VALIDATORS, target, fieldName]
+            : [STEROIDS_META_VALIDATORS, target];
 
-        // Add field to list
-        const validators = Reflect.getMetadata(STEROIDS_META_VALIDATORS, object, fieldName) || [];
+        const validators = Reflect.getMetadata(...getMetadataParams) || [];
+
         if (!validators.includes(validatorInstance)) {
             validators.push(validatorInstance);
         }
-        Reflect.defineMetadata(STEROIDS_META_VALIDATORS, validators, object, fieldName);
+
+        const defineMetadataParams: [string, any, any, string?] = fieldName
+            ? [STEROIDS_META_VALIDATORS, validators, target, fieldName]
+            : [STEROIDS_META_VALIDATORS, validators, target];
+
+        Reflect.defineMetadata(...defineMetadataParams);
     };
 }
