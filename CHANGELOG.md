@@ -1,5 +1,12 @@
 # Steroids Nest Changelog
 
+## [3.1.0](https://github.com/steroids/nest/compare/3.0.3...3.1.0) (2024-03-13)
+
+### Features
+
+-   Добавлена поддержка кастомных валидаторов для класса ([#65](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/65))
+-   В Swagger добавлена возможность аутентификации по JWT ([#96](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/96))
+
 ## [3.0.3](https://github.com/steroids/nest/compare/3.0.2...3.0.3) (2024-02-28)
 
 [Migration guide](docs/MigrationGuide.md#303-2024-02-28)
