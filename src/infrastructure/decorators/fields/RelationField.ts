@@ -36,8 +36,6 @@ export interface IRelationFieldOneToManyOptions extends IBaseFieldOptions {
 export type IRelationFieldOptions = IRelationFieldOneToOneOptions | IRelationFieldManyToManyOptions
     | IRelationFieldManyToOneOptions | IRelationFieldOneToManyOptions;
 
-const PROPERTY_TMP_ID_ENTITY = '__tmpIdEntity';
-
 const getRelationDecorator = (relation): any => {
     switch (relation) {
         case 'OneToOne':
@@ -95,31 +93,11 @@ const transformIds = (TableClass, value, isArray, transformType) => {
 export const relationTransformFromDb = ({value, object, key, options, transformType}) => {
     const ModelClass = options.relationClass();
 
-    // Удаляем объекты, необходимые только для сохранения id связей
-    if (value?.[PROPERTY_TMP_ID_ENTITY]) {
-        delete object[key];
-        return undefined;
-    }
-
     return transformInstances(ModelClass, value, options.isArray, transformType);
 }
 
 export const relationTransformToDb = ({value, item, key, options, transformType}) => {
     const TableClass = getTableFromModel(options.relationClass());
-
-    const relationIdName = getMetaFields(item.constructor).find(name => {
-        const relationOptions = getFieldOptions(item.constructor, name);
-        return relationOptions.appType === 'relationId' && relationOptions.relationName === key;
-    });
-
-    if (relationIdName && item[relationIdName]) {
-        const result = transformIds(TableClass, item[relationIdName], options.isArray, transformType);
-
-        // Добавляем флаг к массиву или объекту, чтобы потом почистить такие временные объекты
-        result[PROPERTY_TMP_ID_ENTITY] = true;
-
-        return result;
-    }
 
     return transformInstances(TableClass, value, options.isArray, transformType);
 }
