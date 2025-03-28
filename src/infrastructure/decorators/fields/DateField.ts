@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-import {Column} from '@steroidsjs/typeorm';
 import {IsISO8601, ValidateIf, ValidationArguments} from 'class-validator';
 import {formatISO9075, parseISO} from 'date-fns';
 import {BaseField, IBaseFieldOptions} from './BaseField';
@@ -18,7 +17,7 @@ export const normalizeDate = (rawValue) => {
     }
 
     try {
-        return formatISO9075(value, { representation: 'date' });
+        return formatISO9075(value, {representation: 'date'});
     } catch (e) {
         return null;
     }
@@ -45,11 +44,6 @@ export function DateField(options: IDateFieldOptions = {}) {
                 appType: 'date',
                 jsType: 'string',
             }),
-            Column({
-                type: 'date',
-                default: options.defaultValue,
-                nullable: options.nullable,
-            }),
             Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_FROM_DB),
             Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_TO_DB),
             options.nullable && ValidateIf((object, value) => value),
@@ -61,9 +55,9 @@ export function DateField(options: IDateFieldOptions = {}) {
                 each: options.isArray,
                 message: (args) => `Выбрана дата позже максимально допустимой (${normalizeFunctionDate(options.maxDate, args)})`,
             }),
-            IsISO8601({},{
+            IsISO8601({}, {
                 message: 'Некорректный формат даты',
             }),
-        ].filter(Boolean)
+        ].filter(Boolean),
     );
 }

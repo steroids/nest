@@ -1,5 +1,5 @@
-import {TableFromModel} from '../../../decorators/TableFromModel';
+import {TypeOrmTableFromModel} from '../../../decorators/typeorm/TypeOrmTableFromModel';
 import {TagModel} from '../models/TagModel';
 
-@TableFromModel(TagModel, 'test_tag')
+@TypeOrmTableFromModel(TagModel, 'test_tag')
 export class TagTable extends TagModel {}

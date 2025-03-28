@@ -9,8 +9,8 @@ import {
 } from '../decorators/fields/BaseField';
 import SearchQuery from '../../usecases/base/SearchQuery';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
-import {getTableFromModel} from '../decorators/TableFromModel';
 import {getMetaRelationIdFieldKey} from '../decorators/fields/RelationField';
+import {getTableFromModel} from '../base/ModelTableStorage';
 
 export class QueryAdapterTypeORM {
     static prepare(
