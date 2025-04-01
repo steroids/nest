@@ -12,10 +12,27 @@ import {BaseApplication} from '../BaseApplication';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
 
+/**
+ * REST API application configuration class.
+ */
 export class RestApplication extends BaseApplication {
-
+    /**
+     * An instance of an application built with NestJS.
+     * @protected
+     */
     protected _app: any;
+
+    /**
+     * The class of the application module (default is `AppModule`).
+     * @protected
+     */
     protected _moduleClass: any;
+
+    /**
+     * Application configuration (inherits from `BaseApplication`),
+     * which is defined by the `IRestAppModuleConfig` interface.
+     * @protected
+     */
     protected _config: IRestAppModuleConfig;
 
     constructor(moduleClass = AppModule) {
@@ -24,6 +41,11 @@ export class RestApplication extends BaseApplication {
         this._moduleClass = moduleClass;
     }
 
+    /**
+     * Override `initConfig` method from base class to initialize application configuration.
+     * Uses `ModuleHelper.getConfig` to get user configuration and merges it with default values.
+     * @protected
+     */
     protected initConfig() {
         const custom = ModuleHelper.getConfig<IRestAppModuleConfig>(this._moduleClass);
         this._config = {
@@ -59,6 +81,11 @@ export class RestApplication extends BaseApplication {
         };
     }
 
+    /**
+     * Initialize Swagger to generate API documentation.
+     * Documentation will be available at the `/api/docs` endpoint.
+     * @protected
+     */
     protected initSwagger() {
         // Versioning
         this._app.setGlobalPrefix('/api/v1');
@@ -77,6 +104,11 @@ export class RestApplication extends BaseApplication {
         SwaggerModule.setup('/api/docs', this._app, document);
     }
 
+    /**
+     * CORS (Cross-Origin Resource Sharing) setup. Based on the configuration,
+     * adds allowed domains and request methods.
+     * @protected
+     */
     protected initCors() {
         // Cors
         const origin = [];
@@ -96,40 +128,70 @@ export class RestApplication extends BaseApplication {
         });
     }
 
+    /**
+     * Initialize global pipes used to validate request data (default is `CreateDtoPipe`).
+     * @protected
+     */
     protected initPipes() {
         // Validation
         this._app.useGlobalPipes(new CreateDtoPipe());
     }
 
+    /**
+     * Initialize global exception filters
+     * (by default, `ValidationExceptionFilter` and `UserExceptionFilter` are used).
+     * @protected
+     */
     protected initFilters() {
         // Validation
         this._app.useGlobalFilters(new ValidationExceptionFilter());
         this._app.useGlobalFilters(new UserExceptionFilter());
     }
 
+    /**
+     * Initializes Sentry for error tracking and logging.
+     * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added.
+     * @protected
+     */
     protected initSentry() {
         if (process.env.APP_SENTRY_DSN) {
             this._app.useGlobalFilters(new SentryExceptionFilter());
         }
     }
 
+    /**
+     * Initialization of global interceptors (default is `SchemaSerializer`).
+     * @protected
+     */
     protected initInterceptors() {
         this._app.useGlobalInterceptors(
             new SchemaSerializer(this._app.get(Reflector)),
         );
     }
 
+    /**
+     * Configuring request body parsers with request size limitation.
+     * @protected
+     */
     protected initSettings() {
         this._app.use(json({ limit: this._config.requestSizeLimit }));
         this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
     }
 
+    /**
+     * Enable graceful application shutdown if the `gracefulEnabled` property is enabled in the configuration.
+     * @protected
+     */
     protected initGraceful() {
         if (this._config.gracefulEnabled) {
             this._app.enableShutdownHooks();
         }
     }
 
+    /**
+     * Initializes the project.
+     * Applies all `init*` methods, and also creates an application instance using `NestFactory.create`.
+     */
     public async init() {
         await super.init();
 
@@ -147,6 +209,9 @@ export class RestApplication extends BaseApplication {
         this.initGraceful();
     }
 
+    /**
+     * Starts the application. Calls the `init` method and then starts the server on the specified port.
+     */
     public async start() {
         await this.init();
 
@@ -158,6 +223,9 @@ export class RestApplication extends BaseApplication {
         );
     }
 
+    /**
+     * Getter for `_app`
+     */
     public getApp() {
         return this._app;
     }

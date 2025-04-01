@@ -35,6 +35,11 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      */
     public validators: IValidator[];
 
+    /**
+     * Setter for `repository` and `modelClass`.
+     * @param repository
+     * @param ModelClass
+     */
     init(repository: ICrudRepository<TModel>, ModelClass: IType<TModel>) {
         this.repository = repository;
         this.modelClass = ModelClass;
@@ -112,6 +117,12 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         return await this.repository.findMany(searchQuery);
     }
 
+    /**
+     * Create a SearchQuery object in the service context,
+     * which allows calling the `one`, `many` methods of SearchQuery
+     * (binding to the `findOne` and `findMany` methods).
+     * @param config
+     */
     createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
         return new SearchQuery<TModel>({
             onGetMany: this.findMany.bind(this),
@@ -130,10 +141,21 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         return DataMapper.create(schemaClass, model as any);
     }
 
+    /**
+     * Validate dto using registered validators.
+     * @param dto
+     * @param params
+     * @protected
+     */
     protected async validate(dto: any, params?: IValidatorParams) {
         await ValidationHelper.validate(dto, params, this.validators);
     }
 
+    /**
+     * Check if an object is a model
+     * @param obj
+     * @protected
+     */
     protected isModel(obj: unknown): obj is TModel {
         return obj instanceof this.modelClass;
     }
