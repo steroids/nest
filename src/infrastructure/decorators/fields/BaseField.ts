@@ -15,22 +15,70 @@ export type AppColumnType = 'boolean' | 'createTime' | 'date' | 'dateTime' | 'de
 export type JsType = 'boolean' | 'string' | 'number' | string;
 
 export interface IBaseFieldOptions {
+    /**
+     * App type
+     */
     appType?: AppColumnType,
+    /**
+     * JavaScript type
+     */
     jsType?: ColumnType,
+    /**
+     * Database type
+     */
     dbType?: ColumnType,
+    /**
+     * Field name, displayed in swagger documentation
+     */
     label?: string,
+    /**
+     * Hint
+     */
     hint?: string,
+    /**
+     * Example of a field value, displayed in the swagger documentation.
+     */
     example?: string,
+    /**
+     * Default value of the field.
+     * Passes to TypeORM to set the default value in the database.
+     */
     defaultValue?: any,
+    /**
+     * Flag indicating whether the field is required.
+     */
     required?: boolean,
+    /**
+     * Flag indicating whether the field value can be null.
+     */
     nullable?: boolean,
+    /**
+     * Flag indicating whether the field is an array
+     */
     isArray?: boolean,
+    /**
+     * Minimum value
+     */
     min?: number,
+    /**
+     * Maximum value
+     */
     max?: number,
-    // Enum title to upload data on frontend
+    /**
+     * Enum titles to upload data on frontend
+     */
     items?: string,
+    /**
+     * Plain name
+     */
     plainName?: string,
+    /**
+     * Callback that transforms the field value when an object is created using DataMapper
+     */
     transform?: ITransformCallback,
+    /**
+     * Field will not be present in the database
+     */
     noColumn?: boolean,
 }
 

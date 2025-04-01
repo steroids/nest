@@ -170,6 +170,12 @@ export class CrudService<
         return this.repository.save(diffModel);
     }
 
+    /**
+     * Checks if a model has related elements, used inside the `remove` method.
+     * Throws an exception if deletion is not possible due to relationships.
+     * @param id
+     * @param service
+     */
     async checkHasRelatedModels(id: string | number, service: CrudService<any>) {
         const relations = getRelationsByFilter(this.modelClass,
             (relation) => {

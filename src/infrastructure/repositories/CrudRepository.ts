@@ -24,9 +24,14 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
 
     /**
      * TypeORM repository instance
+     * @protected
      */
     protected dbRepository: Repository<any>;
 
+    /**
+     * Model class for CRUD operations (same as `TModel`).
+     * @protected
+     */
     protected modelClass;
 
     onModuleInit() {
@@ -107,6 +112,12 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         return rows.map(row => this.entityToModel(row));
     }
 
+    /**
+     * Create a SearchQuery object in the repository context,
+     * which allows calling the `one`, `many` methods of SearchQuery
+     * (binding to the `findOne` and `findMany` methods).
+     * @param config
+     */
     createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
         return new SearchQuery<TModel>({
             onGetMany: this.findMany.bind(this),
