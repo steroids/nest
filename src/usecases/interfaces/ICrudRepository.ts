@@ -15,4 +15,5 @@ export interface ICrudRepository<TModel> {
     save: (model: TModel, transactionHandler?: TransactionHandler<TModel>) => Promise<TModel>,
     softRemove: (id: number, transactionHandler?: (callback: () => Promise<void>) => Promise<void>) => Promise<void>,
     update: (id: number, model: TModel, transactionHandler?: TransactionHandler<TModel>) => Promise<TModel>
+    isExistsById: (id: number) => Promise<boolean>,
 }

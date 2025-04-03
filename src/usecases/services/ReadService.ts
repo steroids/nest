@@ -112,6 +112,14 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
         return await this.repository.findMany(searchQuery);
     }
 
+    /**
+     * Check existence by id
+     * @param id
+     */
+    isExistsById(id: number | string): Promise<boolean> {
+        return this.repository.isExistsById(_toInteger(id));
+    }
+
     createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel> {
         return new SearchQuery<TModel>({
             onGetMany: this.findMany.bind(this),
