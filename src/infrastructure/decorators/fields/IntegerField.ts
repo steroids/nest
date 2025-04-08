@@ -21,7 +21,7 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             appType: 'integer',
             jsType: 'number',
         }),
-        options.nullable && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
+        !options.required && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
         Transform(({value}) => {
             if (Array.isArray(value)) {
                 return value.map(valueItem => !isEmpty(valueItem) ? _toInteger(valueItem) : null);
