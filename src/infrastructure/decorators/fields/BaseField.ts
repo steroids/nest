@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
-import {IsNotEmpty, isString} from 'class-validator';
+import {IsArray, IsDefined, IsOptional, isString, NotEquals, ValidateIf} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
 
@@ -214,6 +214,9 @@ const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInter
 };
 
 export function BaseField(options: IBaseFieldOptions = null, internalOptions: IInternalFieldOptions = {}) {
+    const isArray = typeof options.isArray === 'boolean'
+        ? options.isArray
+        : (internalOptions.isArray || null);
     return applyDecorators(
         ...[
             ColumnMetaDecorator({
@@ -229,13 +232,21 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 type: options.jsType || internalOptions.swaggerType || internalOptions.jsType,
                 description: options.label || undefined,
                 example: options.example || undefined,
-                required: options.nullable === false,
+                required: options.required,
+                nullable: options.nullable,
                 isArray: options.isArray || internalOptions.isArray,
             }),
             options.transform && Transform(options.transform),
-            options.required && IsNotEmpty({
-                message: 'Обязательно для заполнения',
-            }),
+            options.required && options.nullable && NotEquals(undefined),
+            options.required && !options.nullable && IsDefined(),
+            !options.required && options.nullable && IsOptional(),
+            !options.required && !options.nullable && NotEquals(null),
+            ...((isArray && [
+                options.required && options.nullable && ValidateIf((object, value) => value !== null),
+                !options.required && options.nullable && ValidateIf((object, value) => value !== null && value !== undefined),
+                !options.required && !options.nullable && ValidateIf((object, value) => value !== undefined),
+                IsArray(),
+            ]) || []),
         ].filter(Boolean),
     );
 }

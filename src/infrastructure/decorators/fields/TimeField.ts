@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsMilitaryTime, ValidateIf} from 'class-validator';
+import {IsMilitaryTime} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export function TimeField(options: IBaseFieldOptions = {}) {
@@ -10,7 +10,6 @@ export function TimeField(options: IBaseFieldOptions = {}) {
                 appType: 'time',
                 jsType: 'string',
             }),
-            options?.nullable && ValidateIf((object, value) => value !== null),
             IsMilitaryTime({
                 message: 'Время необходимо ввести в формате часы:минуты, например 07:32',
             }),

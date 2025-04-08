@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsPhoneNumber, ValidateIf} from 'class-validator';
+import {IsPhoneNumber} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
@@ -28,7 +28,6 @@ export function PhoneField(options: IPhoneFieldOptions = {}) {
                 appType: 'phone',
                 jsType: 'string',
             }),
-            options.nullable && ValidateIf((object, value) => value),
             Transform(({value}) => normalizePhone(value)),
             IsPhoneNumber(null, {
                 message: options.constraintMessage || 'Некорректный номер телефона',

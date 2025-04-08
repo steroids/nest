@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsArray, IsInt, ValidateIf} from 'class-validator';
+import {IsArray, IsInt} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IFileField extends IBaseFieldOptions {
@@ -14,7 +14,6 @@ export function getFileFieldDecorators(options: IFileField) {
             appType: 'file',
             jsType: 'number',
         }),
-        options.nullable && ValidateIf((object, value) => value),
         options.multiple
             ? IsArray({
                 message: options.isImage ? 'Необходимо загрузить изображения' : 'Необходимо загрузить файлы',
