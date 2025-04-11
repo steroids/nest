@@ -203,6 +203,19 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
     return decorator;
 };
 
+const getRequiredNullableValidators = (options: IBaseFieldOptions, isArray: boolean) => [
+    options.required && options.nullable && NotEquals(undefined),
+    options.required && !options.nullable && IsDefined(),
+    !options.required && options.nullable && IsOptional(),
+    !options.required && !options.nullable && NotEquals(null),
+    ...((isArray && [
+        options.required && options.nullable && ValidateIf((object, value) => value !== null),
+        !options.required && options.nullable && ValidateIf((object, value) => value !== null && value !== undefined),
+        !options.required && !options.nullable && ValidateIf((object, value) => value !== undefined),
+        IsArray(),
+    ]) || []),
+].filter(Boolean);
+
 const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
     //проверить getOwnMetadata
     Reflect.defineMetadata(STEROIDS_META_FIELD, options, object, propertyName);
@@ -217,15 +230,14 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
     const isArray = typeof options.isArray === 'boolean'
         ? options.isArray
         : (internalOptions.isArray || null);
+
     return applyDecorators(
         ...[
             ColumnMetaDecorator({
                 label: null,
                 hint: null,
                 ...options,
-                isArray: typeof options.isArray === 'boolean'
-                    ? options.isArray
-                    : (internalOptions.isArray || null),
+                isArray,
                 appType: internalOptions.appType || null,
             }, internalOptions),
             ApiProperty({
@@ -237,16 +249,7 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 isArray: options.isArray || internalOptions.isArray,
             }),
             options.transform && Transform(options.transform),
-            options.required && options.nullable && NotEquals(undefined),
-            options.required && !options.nullable && IsDefined(),
-            !options.required && options.nullable && IsOptional(),
-            !options.required && !options.nullable && NotEquals(null),
-            ...((isArray && [
-                options.required && options.nullable && ValidateIf((object, value) => value !== null),
-                !options.required && options.nullable && ValidateIf((object, value) => value !== null && value !== undefined),
-                !options.required && !options.nullable && ValidateIf((object, value) => value !== undefined),
-                IsArray(),
-            ]) || []),
+            ...getRequiredNullableValidators(options, isArray),
         ].filter(Boolean),
     );
 }
