@@ -203,15 +203,15 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
     return decorator;
 };
 
-const getRequiredNullableValidators = (options: IBaseFieldOptions, isArray: boolean) => [
-    options.required && options.nullable && NotEquals(undefined),
-    options.required && !options.nullable && IsDefined(),
-    !options.required && options.nullable && IsOptional(),
-    !options.required && !options.nullable && NotEquals(null),
+const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions, isArray: boolean) => [
+    required && nullable && NotEquals(undefined),
+    required && !nullable && IsDefined(),
+    !required && nullable && IsOptional(),
+    !required && !nullable && NotEquals(null),
     ...((isArray && [
-        options.required && options.nullable && ValidateIf((object, value) => value !== null),
-        !options.required && options.nullable && ValidateIf((object, value) => value !== null && value !== undefined),
-        !options.required && !options.nullable && ValidateIf((object, value) => value !== undefined),
+        required && nullable && ValidateIf((object, value) => value !== null),
+        !required && nullable && ValidateIf((object, value) => value !== null && value !== undefined),
+        !required && !nullable && ValidateIf((object, value) => value !== undefined),
         IsArray(),
     ]) || []),
 ].filter(Boolean);
