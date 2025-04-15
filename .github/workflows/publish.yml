@@ -13,6 +13,22 @@ jobs:
           node-version: 18
       - run: yarn
       - run: yarn build
+      - id: previous-version
+        run: |
+          PACKAGE_NAME=$(node -p "require('./dist/package.json').name")
+          PREVIOUS_VERSION=$(npm view $PACKAGE_NAME version || echo "0.0.0")
+          echo "previousVersion=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+      - id: current-version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./dist/package.json').version")
+          echo "currentVersion=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+      - id: is-publish
+        run: |
+          if [ "${{ steps.previous-version.outputs.previousVersion }}" != "${{ steps.current-version.outputs.currentVersion }}" ]; then
+            echo "isPublish=true" >> $GITHUB_OUTPUT
+          else
+            echo "isPublish=false" >> $GITHUB_OUTPUT
+          fi
       - uses: JS-DevTools/npm-publish@v1
         with:
           package: ./dist/package.json
@@ -24,6 +40,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: publish
+    if: needs.publish.outputs.isPublish == 'true'
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
