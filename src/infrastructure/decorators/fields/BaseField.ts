@@ -77,7 +77,7 @@ export interface IBaseFieldOptions {
      */
     transform?: ITransformCallback,
     /**
-     * Field will not be present in the database
+     * If this flag is set, the field will not be present in the database
      */
     noColumn?: boolean,
 }

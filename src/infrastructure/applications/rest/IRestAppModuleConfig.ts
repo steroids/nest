@@ -21,6 +21,7 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
     },
     /**
      * Flag indicating whether safe application termination is enabled
+     * Enables .enableShutdownHooks() for NestJS app
      */
     gracefulEnabled?: boolean,
 }
