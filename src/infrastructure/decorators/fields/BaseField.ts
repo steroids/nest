@@ -203,18 +203,16 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
     return decorator;
 };
 
-const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions, isArray: boolean) => [
-    required && nullable && NotEquals(undefined),
+const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions) => [
+    // Отключаем валидацию для null, не пропускаем undefined
+    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined)],
+    // Не пропускаем null и undefined
     required && !nullable && IsDefined(),
+    // Отключаем валидацию для null и undefined
     !required && nullable && IsOptional(),
-    !required && !nullable && NotEquals(null),
-    ...((isArray && [
-        required && nullable && ValidateIf((object, value) => value !== null),
-        !required && nullable && ValidateIf((object, value) => value !== null && value !== undefined),
-        !required && !nullable && ValidateIf((object, value) => value !== undefined),
-        IsArray(),
-    ]) || []),
-].filter(Boolean);
+    // Отключаем валидацию для undefined, не пропускаем null
+    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null)],
+].flat().filter(Boolean);
 
 const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
     //проверить getOwnMetadata
@@ -249,7 +247,8 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 isArray: options.isArray || internalOptions.isArray,
             }),
             options.transform && Transform(options.transform),
-            ...getRequiredNullableValidators(options, isArray),
+            ...getRequiredNullableValidators(options),
+            isArray && IsArray(),
         ].filter(Boolean),
     );
 }
