@@ -274,4 +274,14 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     async softRemoveInternal(manager: EntityManager, id: number) {
         await manager.softRemove(this.dbRepository.create({id}));
     }
+
+    /**
+     * Check existence by id
+     * @param id
+     */
+    isExistsById(id: number) {
+        return this.dbRepository.createQueryBuilder()
+            .where({[this.primaryKey]: id})
+            .getExists();
+    }
 }
