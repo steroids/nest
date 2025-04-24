@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {IsInt, Max, Min, ValidateIf} from 'class-validator';
+import {IsInt, Max, Min} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
@@ -12,7 +12,6 @@ export interface IIntegerFieldOptions extends IBaseFieldOptions {
 }
 
 const isEmpty = value => !value && value !== 0 && value !== '0';
-const isArrayEmpty = value => !value || (Array.isArray(value) && value?.length === 0);
 
 export function IntegerField(options: IIntegerFieldOptions = {}) {
     return applyDecorators(...[
@@ -21,7 +20,6 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             appType: 'integer',
             jsType: 'number',
         }),
-        !options.required && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
         Transform(({value}) => {
             if (Array.isArray(value)) {
                 return value.map(valueItem => !isEmpty(valueItem) ? _toInteger(valueItem) : null);
