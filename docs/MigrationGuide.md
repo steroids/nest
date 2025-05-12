@@ -1,6 +1,34 @@
 # Steroids Nest Migration Guide
 
-## [3.0.3](../CHANGELOG.md#303-2024-02-28) (2024-02-28)
+## [3.2.0](../CHANGELOG.md#320-2025-02-28) (2025-05-12)
+
+### Вынос инфраструктурной логики ORM из *Fields декораторов
+
+Теперь *Fields декораторы не включают в себя код TypeORM.
+Необходимые декораторы из TypeORM применяет новый декоратор ```TypeOrmTableFromModel```
+В проекте необходимо заменить использование ```TableFromModel``` на ```TypeOrmTableFromModel```
+
+До
+```ts
+import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
+import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TableFromModel';
+import {AuthConfirmModel} from '@steroidsjs/nest-auth/domain/models/AuthConfirmModel';
+
+@TableFromModel(AuthConfirmModel, 'auth_confirm')
+export class AuthConfirmTable implements IDeepPartial<AuthConfirmModel> {}
+```
+
+После
+```ts
+import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
+import {TypeOrmTableFromModel} from '@steroidsjs/nest/infrastructure/decorators/typeorm/TypeOrmTableFromModel';
+import {AuthConfirmModel} from '@steroidsjs/nest-auth/domain/models/AuthConfirmModel';
+
+@TypeOrmTableFromModel(AuthConfirmModel, 'auth_confirm')
+export class AuthConfirmTable implements IDeepPartial<AuthConfirmModel> {}
+```
+
+## [3.0.3](../CHANGELOG.md#303-2025-02-28) (2025-02-28)
 
 ### Рефакторинг процесса сохранения модели
 
@@ -37,7 +65,7 @@ async saveInternal(manager: ISaveManager, nextModel: TModel) {
 }
 ```
 
-## [3.0.0](../CHANGELOG.md#300-2024-02-18) (2024-02-18)
+## [3.0.0](../CHANGELOG.md#300-2024-02-18) (2025-02-18)
 
 ### diffModel в CrudService
 
