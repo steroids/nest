@@ -25,6 +25,7 @@ import {PrimaryKeyField} from './PrimaryKeyField';
 import {TextField} from './TextField';
 import {TimeField} from './TimeField';
 import {UidField} from './UidField';
+import {GeometryField, IGeometryFieldOptions} from './GeometryField';
 
 export {BooleanField} from './BooleanField';
 export {ComputableField} from './ComputableField';
@@ -53,11 +54,12 @@ export {TextField} from './TextField';
 export {TimeField} from './TimeField';
 export {UidField} from './UidField';
 export {UpdateTimeField} from './UpdateTimeField';
+export {GeometryField} from './GeometryField';
 
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
     & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions
-    & IDateFieldOptions & IComputableFieldOptions & IJSONBFieldOptions;
+    & IDateFieldOptions & IComputableFieldOptions & IJSONBFieldOptions & IGeometryFieldOptions;
 
 const DecoratorField = {
     BooleanField,
@@ -87,6 +89,7 @@ const DecoratorField = {
     TimeField,
     UidField,
     UpdateTimeField,
+    GeometryField,
 } as const;
 
 export type DecoratorFieldName = keyof typeof DecoratorField;

@@ -10,7 +10,7 @@ import {
     DeleteDateField,
     EmailField,
     EnumField,
-    FileField,
+    FileField, GeometryField,
     HtmlField,
     IAllFieldOptions,
     ImageField,
@@ -52,6 +52,7 @@ import typeOrmTextField from './fields/TypeOrmTextField';
 import typeOrmTimeField from './fields/TypeOrmTimeField';
 import typeOrmUidField from './fields/TypeOrmUidField';
 import typeOrmUpdateTimeField from './fields/TypeOrmUpdateTimeField';
+import typeOrmGeometryField from './fields/TypeOrmGeometryField';
 
 const fieldTypeOrmMap: {[key in DecoratorFieldName]?: (options: IAllFieldOptions) => Array<(target: any, fieldName: string) => void>} = {
     [BooleanField.name]: typeOrmBooleanField,
@@ -79,6 +80,7 @@ const fieldTypeOrmMap: {[key in DecoratorFieldName]?: (options: IAllFieldOptions
     [TimeField.name]: typeOrmTimeField,
     [UidField.name]: typeOrmUidField,
     [UpdateTimeField.name]: typeOrmUpdateTimeField,
+    [GeometryField.name]: typeOrmGeometryField,
 };
 
 export function typeOrmDecoratorFactory(decoratorName: DecoratorFieldName, options: IAllFieldOptions):
