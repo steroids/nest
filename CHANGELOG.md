@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [3.2.2](https://github.com/steroids/nest/compare/3.2.1...3.2.2) (2025-05-13)
+
+### Features
+
+-   Добавлен GeometryField
+
 ## [3.2.1](https://github.com/steroids/nest/compare/3.2.0...3.2.1) (2025-05-13)
 
 ### Bugfixes
