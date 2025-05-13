@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [3.2.1](https://github.com/steroids/nest/compare/3.2.0...3.2.1) (2025-05-13)
+
+### Bugfixes
+
+-   Фикс поведения RelationField ([#14](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/14))
+
 ## [3.2.0](https://github.com/steroids/nest/compare/3.1.0...3.2.0) (2025-05-12)
 
 ### Features
