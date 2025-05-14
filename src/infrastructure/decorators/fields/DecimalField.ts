@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-validator';
+import {IsDecimal, ValidateBy, ValidationOptions} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
@@ -54,7 +54,6 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
             appType: 'decimal',
             jsType: 'number',
         }),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsDecimal({
             decimal_digits: String(options.scale || 2),
         }, {
