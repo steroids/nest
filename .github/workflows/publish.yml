@@ -33,7 +33,7 @@ jobs:
         with:
           package: ./dist/package.json
           token: ${{ secrets.NPM_TOKEN }}
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: dist-package
           path: dist/package.json
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 18
-      - uses: actions/download-artifact@v1
+      - uses: actions/download-artifact@v3
         with:
           name: dist-package
           path: dist/
