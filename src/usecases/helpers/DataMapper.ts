@@ -28,6 +28,19 @@ export class DataMapper {
         skipBuilder?: boolean,
     ): T;
 
+    /**
+     * Creating an instance of the required class
+     * taking into account the meta information embedded
+     * using Fields decorators
+     * @param MetaClass class whose instance will be created.
+     * @param values object on the basis of which the class instance will be created.
+     * This argument can be an array, in which case DataMapper will create an array.
+     * @param transformType type of object transformation. Can take values:
+     * - `TRANSFORM_TYPE_DEFAULT` - default value
+     * - `TRANSFORM_TYPE_FROM_DB` - used when creating a model class when reading a record from the DB (when creating a `Model` from a `Table`).
+     * - `TRANSFORM_TYPE_TO_DB` - used when creating an entity class when writing data to the DB (when creating a `Table` from a `Model`).
+     * @param skipBuilder
+     */
     static create<T>(
         MetaClass: IType<T>,
         values: DeepPartial<T> | DeepPartial<T>[],
