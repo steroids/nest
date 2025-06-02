@@ -5,6 +5,7 @@ import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
 import {IAppModuleConfig} from '../IAppModuleConfig';
 import {DatabaseNamingStrategy} from '../../base/DatabaseNamingStrategy';
+import {EventEmitterModule} from '@nestjs/event-emitter';
 
 export default {
     rootTarget: AppModule,
@@ -35,6 +36,7 @@ export default {
                 dsn: config.sentry.dsn,
                 environment: config.sentry.environment || process.env.APP_ENVIRONMENT,
             }),
+            EventEmitterModule.forRoot(),
         ].filter(Boolean),
     }),
 };
