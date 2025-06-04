@@ -1,6 +1,7 @@
 import {TypeOrmModule, TypeOrmModuleOptions} from '@steroidsjs/nest-typeorm';
 import {PostgresConnectionOptions} from '@steroidsjs/typeorm/driver/postgres/PostgresConnectionOptions';
 import {SentryModule} from '@ntegral/nestjs-sentry';
+import {EventEmitterModule} from '@nestjs/event-emitter';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
 import {IAppModuleConfig} from '../IAppModuleConfig';
@@ -35,6 +36,7 @@ export default {
                 dsn: config.sentry.dsn,
                 environment: config.sentry.environment || process.env.APP_ENVIRONMENT,
             }),
+            EventEmitterModule.forRoot(),
         ].filter(Boolean),
     }),
 };
