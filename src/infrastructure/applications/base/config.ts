@@ -1,11 +1,11 @@
 import {TypeOrmModule, TypeOrmModuleOptions} from '@steroidsjs/nest-typeorm';
 import {PostgresConnectionOptions} from '@steroidsjs/typeorm/driver/postgres/PostgresConnectionOptions';
 import {SentryModule} from '@ntegral/nestjs-sentry';
+import {EventEmitterModule} from '@nestjs/event-emitter';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
 import {IAppModuleConfig} from '../IAppModuleConfig';
 import {DatabaseNamingStrategy} from '../../base/DatabaseNamingStrategy';
-import {EventEmitterModule} from '@nestjs/event-emitter';
 
 export default {
     rootTarget: AppModule,
