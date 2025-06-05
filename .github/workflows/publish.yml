@@ -6,6 +6,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    outputs:
+      isPublish: ${{ steps.is-publish.outputs.isPublish }}
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
