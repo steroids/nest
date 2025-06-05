@@ -1,6 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {ArrayNotEmpty, ValidateIf} from 'class-validator';
-import {isEmpty as _isEmpty, isBoolean as _isBoolean} from 'lodash';
+import {isBoolean as _isBoolean} from 'lodash';
 import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {getTableFromModel} from '../../base/ModelTableStorage';
@@ -54,8 +53,6 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
         options.nullable = true;
     }
 
-    const arrayNotEmptyMessage = options.isFieldValidConstraintMessage || 'Не должно быть пустым';
-
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -63,8 +60,6 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
                 appType: 'relationId',
                 jsType: 'number',
             }),
-            options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
-            options.isArray && !options.nullable && ArrayNotEmpty({message: arrayNotEmptyMessage}),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
         ].filter(Boolean),
