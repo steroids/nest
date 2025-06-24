@@ -1,5 +1,12 @@
 # Steroids Nest Changelog
 
+## [3.2.3](https://github.com/steroids/nest/compare/3.2.2...3.2.3) (2025-06-24)
+
+### Features
+
+-  Добавлена JSDoc документация ([#106](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/106))
+-  EventEmitterModule по-умолчанию подключен в AppModule ([#122](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/122))
+
 ## [3.2.2](https://github.com/steroids/nest/compare/3.2.1...3.2.2) (2025-05-13)
 
 ### Features
