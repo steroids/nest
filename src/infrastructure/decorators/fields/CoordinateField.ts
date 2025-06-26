@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsString, ValidateIf} from 'class-validator';
+import {IsString} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface ICoordinateFieldOptions extends IBaseFieldOptions {
@@ -15,7 +15,6 @@ export function CoordinateField(options: ICoordinateFieldOptions = {}) {
                 appType: 'decimal',
                 jsType: 'number',
             }),
-            options.nullable && ValidateIf((object, value) => value !== null),
             IsString(),
         ].filter(Boolean)
     );
