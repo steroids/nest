@@ -1,4 +1,4 @@
-import {Command, Positional, CommandOption} from 'nestjs-command';
+import {Command, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
