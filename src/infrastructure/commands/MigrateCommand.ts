@@ -1,4 +1,4 @@
-import {Command, Positional} from 'nestjs-command';
+import {Command, Positional, CommandOption} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
@@ -33,13 +33,24 @@ export class MigrateCommand {
     }
 
     @Command({
-        command: 'migrate:revert',
+        command: 'migrate:revert [count]',
         describe: 'Revert last migration',
     })
-    async redo() {
-        await this.dataSource.undoLastMigration({
-            transaction: 'each',
-        });
+    async revert(
+        @Positional({
+            name: 'count',
+            describe: 'Number of migrations to revert',
+            type: 'number',
+            default: 1,
+        })
+        count: number,
+    ) {
+        // TODO возможно стоит откатывать миграции в рамках одной транзакции?
+        for (let i = 0; i < count; i+= 1) {
+            await this.dataSource.undoLastMigration({
+                transaction: 'each',
+            });
+        }
     }
 
     @Command({
