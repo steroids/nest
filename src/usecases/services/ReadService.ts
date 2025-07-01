@@ -167,4 +167,11 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
     protected isModel(obj: unknown): obj is TModel {
         return obj instanceof this.modelClass;
     }
+
+    /**
+     * Get entity primary key
+     */
+    getPrimaryKey() {
+        return this.primaryKey;
+    }
 }
