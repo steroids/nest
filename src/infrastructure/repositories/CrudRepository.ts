@@ -1,4 +1,4 @@
-import {EntityManager, Repository} from '@steroidsjs/typeorm';
+import {DeepPartial, EntityManager, Repository} from '@steroidsjs/typeorm';
 import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository, TransactionHandler} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
@@ -252,12 +252,12 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param obj
      * @protected
      */
-    protected entityToModel(obj: any): TModel {
+    protected entityToModel(obj: DeepPartial<TModel>): TModel {
         if (!this.modelClass) {
             throw new Error('Property modelClass is not set in repository: ' + this.constructor.name);
         }
 
-        return DataMapper.create<TModel>(this.modelClass, obj as Partial<TModel>, TRANSFORM_TYPE_FROM_DB, true);
+        return DataMapper.create<TModel>(this.modelClass, obj, TRANSFORM_TYPE_FROM_DB, true);
     }
 
     /**

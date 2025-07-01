@@ -16,17 +16,17 @@ import {getModelBuilder} from '../../infrastructure/base/ModelTableStorage';
 export class DataMapper {
     static create<T>(
         MetaClass: IType<T>,
-        values: Array<DeepPartial<T> | Partial<T>>,
-        transformType?: ITransformType,
-        skipBuilder?: boolean,
-    ): T[];
-
-    static create<T>(
-        MetaClass: IType<T>,
-        values: DeepPartial<T> | Partial<T>,
+        values: DeepPartial<T>,
         transformType?: ITransformType,
         skipBuilder?: boolean,
     ): T;
+
+    static create<T>(
+        MetaClass: IType<T>,
+        values: Array<DeepPartial<T>>,
+        transformType?: ITransformType,
+        skipBuilder?: boolean,
+    ): T[];
 
     /**
      * Creating an instance of the required class
