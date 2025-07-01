@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [3.2.4](https://github.com/steroids/nest/compare/3.2.3...3.2.4) (2025-07-01)
+
+### Fixes
+
+-  Фикс перегрузки метода DataMapper.create
+
 ## [3.2.3](https://github.com/steroids/nest/compare/3.2.2...3.2.3) (2025-06-24)
 
 ### Features
