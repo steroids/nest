@@ -33,13 +33,23 @@ export class MigrateCommand {
     }
 
     @Command({
-        command: 'migrate:revert',
+        command: 'migrate:revert [count]',
         describe: 'Revert last migration',
     })
-    async redo() {
-        await this.dataSource.undoLastMigration({
-            transaction: 'each',
-        });
+    async revert(
+        @Positional({
+            name: 'count',
+            describe: 'Number of migrations to revert',
+            type: 'number',
+            default: 1,
+        })
+        count: number,
+    ) {
+        for (let i = 0; i < count; i+= 1) {
+            await this.dataSource.undoLastMigration({
+                transaction: 'each',
+            });
+        }
     }
 
     @Command({
