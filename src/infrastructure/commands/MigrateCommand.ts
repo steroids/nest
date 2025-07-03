@@ -45,7 +45,6 @@ export class MigrateCommand {
         })
         count: number,
     ) {
-        // TODO возможно стоит откатывать миграции в рамках одной транзакции?
         for (let i = 0; i < count; i+= 1) {
             await this.dataSource.undoLastMigration({
                 transaction: 'each',
