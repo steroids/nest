@@ -47,6 +47,7 @@ export class AutoCompleteSearchUseCase<TModel> {
 
         const selectedModels = await this.entityService.findMany(searchQuery);
 
+        // TODO разобраться с типизацией, чтобы убрать явное приведение
         return DataMapper.create(schemaClass, selectedModels) as InstanceType<TSchema>[];
     }
 }
