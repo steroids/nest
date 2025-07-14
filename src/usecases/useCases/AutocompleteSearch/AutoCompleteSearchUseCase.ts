@@ -6,11 +6,10 @@ import {ValidationHelper} from '../../helpers/ValidationHelper';
 import {ContextDto} from '../../dtos/ContextDto';
 import {ReadService} from '../../services/ReadService';
 
-export class AutoCompleteSearchUseCase<TModel> {
-    constructor(
+export abstract class AutoCompleteSearchUseCase<TModel> {
+    protected constructor(
        protected readonly entityService: ReadService<TModel>,
-
-    ) {}
+   ) {}
 
     public async handle<TSchema extends new (...args: any[]) => AutocompleteBaseItemSchema>(
         dto: AutocompleteBaseDto,
