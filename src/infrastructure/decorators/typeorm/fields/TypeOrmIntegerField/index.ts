@@ -7,5 +7,6 @@ export default (options: IAllFieldOptions) => [
         default: options.defaultValue,
         unique: options.unique,
         nullable: options.nullable,
+        array: options.isArray,
     }),
 ];

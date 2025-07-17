@@ -8,5 +8,6 @@ export default (options: IDecimalFieldOptions) => [
         nullable: options.nullable,
         precision: options.precision || 10,
         scale: options.scale || 2,
+        array: options.isArray,
     }),
 ];
