@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsEnum, ValidateIf} from 'class-validator';
+import {IsEnum} from 'class-validator';
 import {ApiProperty} from '@nestjs/swagger';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
@@ -35,7 +35,6 @@ export function EnumField(options: IEnumFieldOptions = {}) {
         ApiProperty({
             enum: options.enum,
         }),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsEnum(options.enum, {
             each: options.isArray,
             message: options.isEnumConstraintMessage || 'Выберите одно из значений',
