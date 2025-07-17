@@ -205,13 +205,19 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
 
 const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions) => [
     // Отключаем валидацию для null, не пропускаем undefined
-    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined)],
+    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined, {
+        message: 'Обязательно для заполнения',
+    })],
     // Не пропускаем null и undefined
-    required && !nullable && IsDefined(),
+    required && !nullable && IsDefined({
+        message: 'Обязательно для заполнения',
+    }),
     // Отключаем валидацию для null и undefined
     !required && nullable && IsOptional(),
     // Отключаем валидацию для undefined, не пропускаем null
-    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null)],
+    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null, {
+        message: 'Не может иметь null значение',
+    })],
 ].flat().filter(Boolean);
 
 const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
