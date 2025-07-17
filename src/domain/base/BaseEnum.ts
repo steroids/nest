@@ -38,4 +38,8 @@ export default class BaseEnum {
         }
         return this._arrayCache;
     }
+
+    static includesKey(key: string): boolean {
+        return this.getKeys().includes(key);
+    }
 }
