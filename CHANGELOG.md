@@ -1,5 +1,17 @@
 # Steroids Nest Changelog
 
+## [3.2.5](https://github.com/steroids/nest/compare/3.2.4...3.2.5) (2025-07-17)
+
+### Features
+
+-  Для команды migrate:revert добавлена поддержка параметра count - количество откатываемых миграций
+- Поддержка параметра isArray для DecimalField, DecimalNumberField и IntegerField
+- Для класса BaseEnum добавлен метод includesKey 
+
+### Fixes
+
+-  Исправлен интерфейс ISearchQueryConfig.onGetOne. SearchQuery.one теперь возвращает TModel | null
+
 ## [3.2.4](https://github.com/steroids/nest/compare/3.2.3...3.2.4) (2025-07-01)
 
 ### Fixes
