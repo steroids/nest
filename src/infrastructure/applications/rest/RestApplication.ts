@@ -2,6 +2,7 @@ import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {VersioningType} from '@nestjs/common';
+import {Connection} from '@steroidsjs/typeorm';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -11,6 +12,7 @@ import {UserExceptionFilter} from '../../filters/UserExceptionFilter';
 import {BaseApplication} from '../BaseApplication';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
+import {getNewPermissions} from '../../utils/getNewPermissions';
 
 /**
  * REST API application configuration class.
@@ -188,6 +190,17 @@ export class RestApplication extends BaseApplication {
         }
     }
 
+    protected async checkNewPermissions() {
+        const connection = this._app.get(Connection);
+
+        const newPermissions = await getNewPermissions(connection);
+
+        if (newPermissions.length > 0) {
+            throw new Error('The new permissions are available in the code,'
+                + ' but they are not in the database. Generate and run migrations.');
+        }
+    }
+
     /**
      * Initializes the project.
      * Applies all `init*` methods, and also creates an application instance using `NestFactory.create`.
@@ -198,6 +211,8 @@ export class RestApplication extends BaseApplication {
         this._app = await NestFactory.create(this._moduleClass, {
             logger: ['error', 'warn'],
         });
+
+        await this.checkNewPermissions();
 
         this.initSwagger();
         this.initCors();
