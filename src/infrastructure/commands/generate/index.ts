@@ -7,7 +7,7 @@ import {format} from '@sqltools/formatter';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
 import * as glob from "glob";
 import {ModuleHelper} from '../../helpers/ModuleHelper';
-import {PermissionsFactory} from '../../helpers/PermissionsFactory';
+import {getNewPermissions} from '../../utils/getNewPermissions';
 
 const ADD_PERMISSIONS_NAME = 'AddPermissions';
 
@@ -48,25 +48,7 @@ ${downSqls.join(`
     }
 }
 `;
-}
-
-const getNewPermissions = async (connection: Connection, tableName: string, columnName: string) => {
-    const allPermissions = PermissionsFactory.getAllPermissionsKeys();
-
-    if (allPermissions.length === 0) {
-        return allPermissions;
-    }
-
-    const existingPermissions = new Set<string>;
-    const existingPermissionsRows: Array<{ [column: string]: string }> = await connection.query(
-        `SELECT ${columnName} FROM ${tableName}`
-    );
-    for (const row of existingPermissionsRows) {
-        existingPermissions.add(row[columnName]);
-    }
-
-    return allPermissions.filter(permission => !existingPermissions.has(permission));
-}
+};
 
 const generatePermissions = async (newPermissions: string[], timestamp: number, dirPath: string, tableName: string, columnName: string) => {
     const values = newPermissions
@@ -100,7 +82,7 @@ const generatePermissions = async (newPermissions: string[], timestamp: number, 
 export const generate = async (connection: Connection, permissionOptions = {
     table: 'auth_permission',
     column: 'name',
-    module: 'auth'
+    module: 'auth',
 }) => {
     // Get mapping model name to table name
     const junctionTablesMap = {};
@@ -253,6 +235,6 @@ export const generate = async (connection: Connection, permissionOptions = {
             join(sourceRoot, permissionOptions.module, 'infrastructure', 'migrations'),
             permissionOptions.table,
             permissionOptions.column,
-        )
+        );
     }
-}
+};

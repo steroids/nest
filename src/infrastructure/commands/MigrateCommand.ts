@@ -111,5 +111,4 @@ export class MigrateCommand {
             module: permissionModule,
         });
     }
-
 }
