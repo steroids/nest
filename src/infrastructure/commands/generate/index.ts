@@ -1,6 +1,5 @@
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {join, resolve} from 'path';
-import * as lodash from 'lodash';
 import * as fs from 'fs';
 import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
 import {Connection} from '@steroidsjs/typeorm';
@@ -8,6 +7,9 @@ import {format} from '@sqltools/formatter';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
 import * as glob from "glob";
 import {ModuleHelper} from '../../helpers/ModuleHelper';
+import {PermissionsFactory} from '../../helpers/PermissionsFactory';
+
+const ADD_PERMISSIONS_NAME = 'AddPermissions';
 
 const queryParams = (parameters: any[] | undefined): string => {
     if (!parameters || !parameters.length) {
@@ -48,7 +50,58 @@ ${downSqls.join(`
 `;
 }
 
-export const generate = async (connection: Connection) => {
+const getNewPermissions = async (connection: Connection, tableName: string, columnName: string) => {
+    const allPermissions = PermissionsFactory.getAllPermissionsKeys();
+
+    if (allPermissions.length === 0) {
+        return allPermissions;
+    }
+
+    const existingPermissions = new Set<string>;
+    const existingPermissionsRows: Array<{ [column: string]: string }> = await connection.query(
+        `SELECT ${columnName} FROM ${tableName}`
+    );
+    for (const row of existingPermissionsRows) {
+        existingPermissions.add(row[columnName]);
+    }
+
+    return allPermissions.filter(permission => !existingPermissions.has(permission));
+}
+
+const generatePermissions = async (newPermissions: string[], timestamp: number, dirPath: string, tableName: string, columnName: string) => {
+    const values = newPermissions
+        .map(key => `('${key}')`)
+        .join(',\n            ');
+
+    const upRaw = `INSERT INTO ${tableName} (${columnName}) VALUES\n    ${values};`;
+
+    const downRaw = `DELETE FROM ${tableName} WHERE ${columnName} IN (${newPermissions.map(permission => `'${permission}'`).join(', ')});`;
+
+    const upQueries = [
+        `        await queryRunner.query(\`${prettifyQuery(upRaw)}\`);`,
+    ];
+
+    const downQueries = [
+        `        await queryRunner.query(\`${prettifyQuery(downRaw)}\`);`,
+    ];
+
+    const migrationFileContent = getTemplate(
+        ADD_PERMISSIONS_NAME,
+        timestamp,
+        upQueries,
+        downQueries,
+    );
+    const migrationFilePath = join(dirPath, `${timestamp}-${ADD_PERMISSIONS_NAME}.ts`);
+    // eslint-disable-next-line no-console
+    console.log('info', '\t' + migrationFilePath);
+    await CommandUtils.createFile(migrationFilePath, migrationFileContent);
+};
+
+export const generate = async (connection: Connection, permissionOptions = {
+    table: 'auth_permission',
+    column: 'name',
+    module: 'auth'
+}) => {
     // Get mapping model name to table name
     const junctionTablesMap = {};
 
@@ -127,12 +180,14 @@ export const generate = async (connection: Connection) => {
         );
     }
 
+    const newPermissions = await getNewPermissions(connection, permissionOptions.table, permissionOptions.column);
+
     // Generate migrations
-    const timestamp = new Date().getTime();
-    if (Object.keys(migrationsByTables).length === 0) {
+    if (Object.keys(migrationsByTables).length === 0 && newPermissions.length === 0) {
         // eslint-disable-next-line no-console
         console.log('info', 'No changes in database schema were found');
     } else {
+        const timestamp = new Date().getTime();
         // eslint-disable-next-line no-console
         console.log('info', 'Created migrations:');
         for (const tableName in migrationsByTables) {
@@ -187,5 +242,17 @@ export const generate = async (connection: Connection) => {
                 await CommandUtils.createFile(foreignKeysFilePath, foreignKeysFileContent);
             }
         }
+
+        if (!newPermissions.length) {
+            return;
+        }
+
+        await generatePermissions(
+            newPermissions,
+            migrationsByTables[permissionOptions.table] ? timestamp + 1 : timestamp,
+            join(sourceRoot, permissionOptions.module, 'infrastructure', 'migrations'),
+            permissionOptions.table,
+            permissionOptions.column,
+        )
     }
 }

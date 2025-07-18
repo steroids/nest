@@ -1,4 +1,4 @@
-import {Command, Positional} from 'nestjs-command';
+import {Command, Option, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
@@ -80,8 +80,36 @@ export class MigrateCommand {
         command: 'migrate:generate',
         describe: 'Create migrations for each model changes',
     })
-    async generate() {
-        await generate(this.dataSource);
+    async generate(
+        @Option({
+            name: 'permissionTable',
+            describe: 'Table name for permissions',
+            type: 'string',
+            default: 'auth_permission',
+        })
+            permissionTable: string,
+
+        @Option({
+            name: 'permissionColumn',
+            describe: 'Column name of permission',
+            type: 'string',
+            default: 'name',
+        })
+            permissionColumn: string,
+
+        @Option({
+            name: 'permissionModule',
+            describe: 'Module where write migrations of permissions',
+            type: 'string',
+            default: 'auth',
+        })
+            permissionModule: string,
+    ) {
+        await generate(this.dataSource, {
+            table: permissionTable,
+            column: permissionColumn,
+            module: permissionModule,
+        });
     }
 
 }
