@@ -12,7 +12,7 @@ import {IType} from '../interfaces/IType';
 /**
  * Generic Read service (search and find)
  */
-export class ReadService<TModel, TSearchDto = ISearchInputDto> {
+export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInputDto> {
     /**
      * Model primary key
      */
@@ -67,14 +67,33 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
             context,
         });
 
+        const searchQuery = schemaClass
+            ? SearchQuery.createFromSchema<TModel>(schemaClass)
+            : new SearchQuery<TModel>();
+
+        this.fillQueryFromSearchDto(searchQuery, dto);
+
         const result = await this.repository.search<TSchema>(
             dto,
-            schemaClass ? SearchQuery.createFromSchema<TModel>(schemaClass) : new SearchQuery(),
+            searchQuery,
         );
         if (schemaClass) {
             result.items = result.items.map((model: TModel) => this.modelToSchema<TSchema>(model, schemaClass));
         }
         return result;
+    }
+
+    /**
+     * Для переопределения в проекте в рамках сервиса конкретной сущности, чтобы не переписывать search метод
+     * @param searchQuery
+     * @param dto
+     * @protected
+     */
+    protected fillQueryFromSearchDto(
+        searchQuery: SearchQuery<TModel>,
+        dto: TSearchDto,
+    ) {
+        return searchQuery;
     }
 
     async findById(id: number | string, context?: ContextDto | null): Promise<TModel>
@@ -166,5 +185,12 @@ export class ReadService<TModel, TSearchDto = ISearchInputDto> {
      */
     protected isModel(obj: unknown): obj is TModel {
         return obj instanceof this.modelClass;
+    }
+
+    /**
+     * Get entity primary key
+     */
+    getPrimaryKey() {
+        return this.primaryKey;
     }
 }
