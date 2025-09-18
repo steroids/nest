@@ -83,13 +83,16 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
         return result;
     }
 
+    /**
+     * Для переопределения в проекте в рамках сервиса конкретной сущности, чтобы не переписывать search метод
+     * @param searchQuery
+     * @param dto
+     * @protected
+     */
     protected fillQueryFromSearchDto(
         searchQuery: SearchQuery<TModel>,
         dto: TSearchDto,
     ) {
-        if (dto.query) {
-            searchQuery.andWhere(['ilike', this.primaryKey, dto.query.trim()]);
-        }
         return searchQuery;
     }
 
