@@ -1,5 +1,12 @@
 # Steroids Nest Changelog
 
+## [3.2.6](https://github.com/steroids/nest/compare/3.2.5...3.2.6) (2025-09-18)
+
+### Features
+
+- Добавлен AutoCompleteSearchUseCase с новой схемой ответа (selectedItems, items и total)
+- В ReadService добавлен метод fillQueryFromSearchDto, отвечающий за заполнение searchQuery из searchDto, что позволяет не переопределять в проекте метод search
+
 ## [3.2.5](https://github.com/steroids/nest/compare/3.2.4...3.2.5) (2025-07-17)
 
 ### Features
