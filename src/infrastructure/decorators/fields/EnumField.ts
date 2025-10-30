@@ -9,9 +9,25 @@ export interface IEnumFieldOptions extends IBaseFieldOptions {
     isEnumConstraintMessage?: string,
 }
 
-export function EnumField(options: IEnumFieldOptions = {}) {
-    if (Array.isArray(options.enum)) {
-        options.enum = options.enum.reduce((obj, value) => {
+type BaseEnumClass<T extends BaseEnum = BaseEnum> = {
+    new (): T;
+} & typeof BaseEnum;
+
+function getOpenApiEnum(enumEntity: string[] | object | BaseEnumClass): string[] {
+    if (Array.isArray(enumEntity)) {
+        return enumEntity;
+    }
+
+    if (typeof enumEntity === 'function' && enumEntity.prototype instanceof BaseEnum) {
+        return (enumEntity as BaseEnumClass).getKeys();
+    }
+
+    return Object.keys(enumEntity);
+}
+
+function getValidatorEnum(enumEntity: string[] | object | any): Record<string, string> {
+    if (Array.isArray(enumEntity)) {
+        return enumEntity.reduce((obj, value) => {
             if (value.prototype instanceof BaseEnum) {
                 obj = {
                     ...obj,
@@ -22,10 +38,16 @@ export function EnumField(options: IEnumFieldOptions = {}) {
             }
             return obj;
         }, {});
-    } else if (typeof options.enum === 'function' && options.enum.prototype instanceof BaseEnum) {
-        options.enum = options.enum.toEnum();
     }
 
+    if (typeof enumEntity === 'function' && enumEntity.prototype instanceof BaseEnum) {
+        return enumEntity.toEnum();
+    }
+
+    return enumEntity;
+}
+
+export function EnumField(options: IEnumFieldOptions = {}) {
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'EnumField',
@@ -33,12 +55,15 @@ export function EnumField(options: IEnumFieldOptions = {}) {
             jsType: 'string',
         }),
         ApiProperty({
-            enum: options.enum,
+            enum: getOpenApiEnum(options.enum),
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
-        IsEnum(options.enum, {
-            each: options.isArray,
-            message: options.isEnumConstraintMessage || 'Выберите одно из значений',
-        }),
+        IsEnum(
+            getValidatorEnum(options.enum),
+            {
+                each: options.isArray,
+                message: options.isEnumConstraintMessage || 'Выберите одно из значений',
+            },
+        ),
     ].filter(Boolean));
 }
