@@ -5,7 +5,8 @@
     "script": "nps",
     "watch": "nps watch",
     "build": "nps build",
-    "test": "nps test"
+    "test": "nps test",
+    "test-unit": "jest --config jest.unit.config.ts"
   },
   "description": "",
   "main": "index.js",
