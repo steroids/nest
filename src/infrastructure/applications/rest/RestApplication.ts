@@ -1,7 +1,7 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
-import {VersioningType} from '@nestjs/common';
+import {INestApplication, VersioningType} from '@nestjs/common';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -20,7 +20,7 @@ export class RestApplication extends BaseApplication {
      * An instance of an application built with NestJS.
      * @protected
      */
-    protected _app: any;
+    protected _app: INestApplication;
 
     /**
      * The class of the application module (default is `AppModule`).

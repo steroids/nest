@@ -1,4 +1,5 @@
 import {NestFactory} from '@nestjs/core';
+import {INestApplicationContext} from "@nestjs/common";
 import {CommandModule, CommandService} from 'nestjs-command';
 import {BaseApplication} from '../BaseApplication';
 import {AppModule} from '../AppModule';
@@ -12,7 +13,7 @@ export class ConsoleApplication extends BaseApplication {
      * An instance of an application built with NestJS.
      * @protected
      */
-    protected _app: any;
+    protected _app: INestApplicationContext;
 
     /**
      * The class of the application module (default is `AppModule`).
