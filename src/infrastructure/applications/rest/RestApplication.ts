@@ -155,7 +155,7 @@ export class RestApplication extends BaseApplication {
      */
     protected initSentry() {
         if (process.env.APP_SENTRY_DSN) {
-            this._app.useGlobalFilters(new SentryExceptionFilter());
+            this._app.useGlobalFilters(new SentryExceptionFilter(this._config.exposeSentryErrorResponse));
         }
     }
 

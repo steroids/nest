@@ -5,9 +5,14 @@ import {RequestExecutionExceptionFilter} from './filters/RequestExecutionExcepti
 import {GracefulController} from "./graceful/GracefulController";
 import {GracefulService} from "./graceful/GracefulService";
 import {ValidationExceptionFilter} from '../../filters/ValidationExceptionFilter';
+import {normalizeBoolean} from "../../decorators/fields/BooleanField";
 
 export default {
     ...baseConfig,
+    config: () => ({
+        ...baseConfig.config(),
+        exposeSentryErrorResponse: normalizeBoolean(process.env.APP_ENVIRONMENT === 'dev' || process.env.SENTRY_EXPOSE_ERROR_RESPONSE),
+    }),
     module: (config: IRestAppModuleConfig) => ({
         ...baseConfig.module(config),
         providers: [
