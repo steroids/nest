@@ -236,4 +236,4 @@ export const generate = async (connection: Connection) => {
             }
         }
     }
-};
+}
