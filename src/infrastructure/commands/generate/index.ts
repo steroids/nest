@@ -50,7 +50,7 @@ ${downSqls.join(`
 `;
 };
 
-export const generatePermissions = async (dataSource: DataSource, permissionOptions = {
+export const generateMigrationsForPermissions = async (dataSource: DataSource, permissionOptions = {
     table: 'auth_permission',
     column: 'name',
     module: 'auth',

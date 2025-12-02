@@ -1,7 +1,7 @@
 import {Command, Option, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
-import {generate, generatePermissions} from './generate';
+import {generate, generateMigrationsForPermissions} from './generate';
 import {DataSource, getFromContainer, MigrationInterface} from '@steroidsjs/typeorm';
 import {ConnectionMetadataBuilder} from '@steroidsjs/typeorm/connection/ConnectionMetadataBuilder';
 import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
@@ -86,7 +86,7 @@ export class MigrateCommand {
 
     @Command({
         command: 'migrate:generate-permissions',
-        describe: 'Create migrations for permissions',
+        describe: 'Create migrations for permissions, it is used to synchronize the current list of permissions between the code and the database.',
     })
     async generatePermissions(
         @Option({
@@ -113,7 +113,7 @@ export class MigrateCommand {
         })
             permissionModule: string,
     ) {
-        await generatePermissions(this.dataSource, {
+        await generateMigrationsForPermissions(this.dataSource, {
             table: permissionTable,
             column: permissionColumn,
             module: permissionModule,
