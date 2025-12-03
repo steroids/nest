@@ -151,6 +151,9 @@ export class RestApplication extends BaseApplication {
     /**
      * Initializes Sentry for error tracking and logging.
      * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added.
+     *
+     * Sentry also automatically configures `process.on('uncaughtException')` and `process.on('unhandledRejection')` to log and handle these events,
+     * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
      * @protected
      */
     protected initSentry() {
