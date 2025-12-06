@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {Max, Min, ValidateIf, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
+import {Max, Min, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
 
 import {IDecimalFieldOptions} from './DecimalField';
 import {BaseField} from './BaseField';
@@ -43,7 +43,6 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
             jsType: 'number',
         }),
         Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsDecimalNumber(options, {
             message: options.isDecimalConstraintMessage || 'Должно быть числом',
         }),
