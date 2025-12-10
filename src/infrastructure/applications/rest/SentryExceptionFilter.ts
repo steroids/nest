@@ -6,6 +6,8 @@ import {CaptureContext} from '@sentry/types';
 
 @Catch(Error)
 export class SentryExceptionFilter implements ExceptionFilter {
+    constructor(private readonly exposeErrorResponse: boolean) {}
+
     catch(exception: Error, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
@@ -46,7 +48,12 @@ export class SentryExceptionFilter implements ExceptionFilter {
 
         Sentry.captureException(exception, context);
 
-        exception.message = 'Внутренняя ошибка сервера. ' + exception.message || '';
+        exception.message = 'Внутренняя ошибка сервера. ';
+
+        if (this.exposeErrorResponse) {
+            exception.message += exception.message || '';
+        }
+
         if (errorUid) {
             exception.message += ` Ошибка #${errorUid}`;
         }
