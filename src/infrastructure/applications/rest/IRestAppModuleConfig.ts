@@ -24,8 +24,4 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      * Enables .enableShutdownHooks() for NestJS app
      */
     gracefulEnabled?: boolean,
-    /**
-     * Show detailed error info in HTTP responses.
-     */
-    exposeSentryErrorResponse?: boolean
 }

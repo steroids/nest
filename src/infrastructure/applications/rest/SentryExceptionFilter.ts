@@ -48,11 +48,7 @@ export class SentryExceptionFilter implements ExceptionFilter {
 
         Sentry.captureException(exception, context);
 
-        exception.message = 'Внутренняя ошибка сервера. ';
-
-        if (this.exposeErrorResponse) {
-            exception.message += exception.message || '';
-        }
+        exception.message = 'Внутренняя ошибка сервера. ' + (this.exposeErrorResponse ? exception.message || '' : '');
 
         if (errorUid) {
             exception.message += ` Ошибка #${errorUid}`;
