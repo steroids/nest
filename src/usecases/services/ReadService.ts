@@ -71,7 +71,7 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
             ? SearchQuery.createFromSchema<TModel>(schemaClass)
             : new SearchQuery<TModel>();
 
-        this.fillQueryFromSearchDto(searchQuery, dto);
+        this.fillQueryFromSearchDto(searchQuery, dto, context);
 
         const result = await this.repository.search<TSchema>(
             dto,
@@ -87,11 +87,13 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
      * Для переопределения в проекте в рамках сервиса конкретной сущности, чтобы не переписывать search метод
      * @param searchQuery
      * @param dto
+     * @param context
      * @protected
      */
     protected fillQueryFromSearchDto(
         searchQuery: SearchQuery<TModel>,
         dto: TSearchDto,
+        context: ContextDto = null,
     ) {
         return searchQuery;
     }
