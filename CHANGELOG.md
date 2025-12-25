@@ -1,5 +1,15 @@
 # Steroids Nest Changelog
 
+## [3.2.7](https://github.com/steroids/nest/compare/3.2.6...3.2.7) (2025-12-25)
+
+### Features
+
+- Добавлен ApiOkAutocompleteResponse декоратор 
+- В параметры метода fillQueryFromSearchDto из ReadService добавлен context
+
+### Fixes
+- Исправлены типы openApi для EnumField и JSONBField
+
 ## [3.2.6](https://github.com/steroids/nest/compare/3.2.5...3.2.6) (2025-09-18)
 
 ### Features
