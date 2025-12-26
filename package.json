@@ -26,8 +26,6 @@
     "@sentry/node": "^7.34.0",
     "@sentry/types": "^7.34.0",
     "@sqltools/formatter": "^1.2.5",
-    "@steroidsjs/nest-typeorm": "^10.0.3",
-    "@steroidsjs/typeorm": "^0.3.23",
     "@supercharge/request-ip": "^1.2.0",
     "body-parser": "^2.2.1",
     "class-transformer": "^0.5.1",
@@ -46,6 +44,8 @@
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^10.4.19",
     "@nestjs/swagger": "^6.1.4",
+    "@steroidsjs/nest-typeorm": "^10.0.3",
+    "@steroidsjs/typeorm": "^0.3.23",
     "class-validator": "^0.14.0"
   },
   "devDependencies": {
@@ -57,6 +57,8 @@
     "@nestjs/platform-express": "^10.4.19",
     "@nestjs/swagger": "^6.1.4",
     "@steroidsjs/eslint-config": "2.1.2",
+    "@steroidsjs/nest-typeorm": "^10.0.3",
+    "@steroidsjs/typeorm": "^0.3.23",
     "@types/jest": "^29.4.0",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
