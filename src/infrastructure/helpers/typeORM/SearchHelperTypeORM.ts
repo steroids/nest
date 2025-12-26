@@ -1,5 +1,4 @@
 import {DeepPartial, Repository} from '@steroidsjs/typeorm';
-import * as Promise from 'bluebird';
 import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
 import {SearchInputDto} from '../../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../../usecases/dtos/SearchResultDto';
@@ -52,8 +51,8 @@ export class SearchHelperTypeORM {
         }
 
         // Execute query
-        const [items, total] = await Promise.resolve(dbQuery.getManyAndCount());
-        result.items = items;
+        const [items, total] = await dbQuery.getManyAndCount();
+        result.items = items as TTable[];
         result.total = total;
 
         return result;
