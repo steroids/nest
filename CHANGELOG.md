@@ -1,5 +1,10 @@
 # Steroids Nest Changelog
 
+## [3.2.8](https://github.com/steroids/nest/compare/3.2.7...3.2.8) (2026-01-14)
+
+### Fixes
+- Исправлена валидация чисел в DecimalField
+
 ## [3.2.7](https://github.com/steroids/nest/compare/3.2.6...3.2.7) (2025-12-25)
 
 ### Features
