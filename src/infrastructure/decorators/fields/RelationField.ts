@@ -121,7 +121,6 @@ export function RelationField(options: IRelationFieldOptions) {
                 isArray: ['ManyToMany', 'OneToMany'].includes(options.type),
             }),
             //options.type === 'ManyToOne' && JoinColumn(),
-            ValidateIf((object, value) => !!value),
             ValidateNested({each: true}),
             Type(options.relationClass),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),

@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {IsOptional, IsString, MaxLength, MinLength} from 'class-validator';
+import {IsString, MaxLength, MinLength} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IStringFieldOptions extends IBaseFieldOptions {
@@ -23,7 +23,6 @@ export function StringField(options: IStringFieldOptions = {}) {
             each: options.isArray,
             message: options.isStringConstraintMessage || 'Должна быть строка',
         }),
-        !options.required && IsOptional(), // TODO check nullable and required
         typeof options.min === 'number' && MinLength(options.min, {
             message: options.minConstraintMessage,
             each: options.isArray,

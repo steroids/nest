@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
-import {IsNotEmpty, isString} from 'class-validator';
+import {IsArray, IsDefined, IsOptional, isString, NotEquals, ValidateIf} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
 
@@ -203,6 +203,23 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
     return decorator;
 };
 
+const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions) => [
+    // Отключаем валидацию для null, не пропускаем undefined
+    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined, {
+        message: 'Обязательно для заполнения',
+    })],
+    // Не пропускаем null и undefined
+    required && !nullable && IsDefined({
+        message: 'Обязательно для заполнения',
+    }),
+    // Отключаем валидацию для null и undefined
+    !required && nullable && IsOptional(),
+    // Отключаем валидацию для undefined, не пропускаем null
+    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null, {
+        message: 'Не может иметь null значение',
+    })],
+].flat().filter(Boolean);
+
 const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInternalFieldOptions) => (object, propertyName) => {
     //проверить getOwnMetadata
     Reflect.defineMetadata(STEROIDS_META_FIELD, options, object, propertyName);
@@ -214,28 +231,30 @@ const ColumnMetaDecorator = (options: IBaseFieldOptions, internalOptions: IInter
 };
 
 export function BaseField(options: IBaseFieldOptions = null, internalOptions: IInternalFieldOptions = {}) {
+    const isArray = typeof options.isArray === 'boolean'
+        ? options.isArray
+        : (internalOptions.isArray || null);
+
     return applyDecorators(
         ...[
             ColumnMetaDecorator({
                 label: null,
                 hint: null,
                 ...options,
-                isArray: typeof options.isArray === 'boolean'
-                    ? options.isArray
-                    : (internalOptions.isArray || null),
+                isArray,
                 appType: internalOptions.appType || null,
             }, internalOptions),
             ApiProperty({
                 type: options.jsType || internalOptions.swaggerType || internalOptions.jsType,
                 description: options.label || undefined,
                 example: options.example || undefined,
-                required: options.nullable === false,
+                required: options.required,
+                nullable: options.nullable,
                 isArray: options.isArray || internalOptions.isArray,
             }),
             options.transform && Transform(options.transform),
-            options.required && IsNotEmpty({
-                message: 'Обязательно для заполнения',
-            }),
+            ...getRequiredNullableValidators(options),
+            isArray && IsArray(),
         ].filter(Boolean),
     );
 }

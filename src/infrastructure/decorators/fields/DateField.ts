@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsISO8601, ValidateIf, ValidationArguments} from 'class-validator';
+import {IsISO8601, ValidationArguments} from 'class-validator';
 import {formatISO9075, parseISO} from 'date-fns';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
@@ -46,7 +46,6 @@ export function DateField(options: IDateFieldOptions = {}) {
             }),
             Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_FROM_DB),
             Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_TO_DB),
-            options.nullable && ValidateIf((object, value) => value),
             options.minDate && MinDate(options.minDate, {
                 each: options.isArray,
                 message: (args) => `Выбрана дата раньше минимально допустимой (${normalizeFunctionDate(options.minDate, args)})`,
