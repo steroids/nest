@@ -24,4 +24,9 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      * Enables .enableShutdownHooks() for NestJS app
      */
     gracefulEnabled?: boolean,
+    /**
+     * Is the application host localhost?
+     * (value from `process.env.APP_LISTEN_LOCALHOST`)
+     */
+    isListenLocalhost?: boolean,
 }

@@ -220,7 +220,16 @@ export class RestApplication extends BaseApplication {
 
         // Start application
         const port = parseInt(process.env.PORT, 10);
-        await this._app.listen(
+
+        if (this._config.isListenLocalhost) {
+            return this._app.listen(
+                port,
+                'localhost',
+                () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
+            );
+        }
+
+        return this._app.listen(
             port,
             () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
         );
