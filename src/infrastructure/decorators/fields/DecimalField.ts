@@ -56,7 +56,7 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsDecimal({
-            decimal_digits: options.scale ? String(options.scale) : '0,',
+            decimal_digits: '0,' + (options.scale ?? ''),
         }, {
             message: options.isDecimalConstraintMessage || 'Должно быть числом',
         }),
