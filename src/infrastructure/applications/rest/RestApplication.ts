@@ -221,18 +221,14 @@ export class RestApplication extends BaseApplication {
         // Start application
         const port = parseInt(process.env.PORT, 10);
 
-        if (this._config.isListenLocalhost) {
-            return this._app.listen(
-                port,
-                'localhost',
-                () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
-            );
-        }
+        // eslint-disable-line no-console
+        const onStartCallback = () => console.log(`Server started http://localhost:${port}`);
+        const appListenArguments = this._config.isListenLocalhost
+            ? [port, 'localhost', onStartCallback]
+            : [port, onStartCallback];
 
-        return this._app.listen(
-            port,
-            () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
-        );
+        // @ts-ignore
+        return this._app.listen(...appListenArguments);
     }
 
     /**

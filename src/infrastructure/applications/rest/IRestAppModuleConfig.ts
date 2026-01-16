@@ -25,7 +25,7 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      */
     gracefulEnabled?: boolean,
     /**
-     * Is the application host localhost?
+     * Is listen on localhost only?
      * (value from `process.env.APP_LISTEN_LOCALHOST`)
      */
     isListenLocalhost?: boolean,
