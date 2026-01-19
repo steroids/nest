@@ -1,5 +1,13 @@
 # Steroids Nest Changelog
 
+## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
+
+[Migration guide](docs/MigrationGuide.md#400-2025-01-19)
+
+### Features
+
+- NestJS и связанные с ним зависимости обновлены до 10 версии и перенесены в peerDependencies
+
 ## [3.2.7](https://github.com/steroids/nest/compare/3.2.6...3.2.7) (2025-12-25)
 
 ### Features

@@ -1,5 +1,38 @@
 # Steroids Nest Migration Guide
 
+## [4.0.0](../CHANGELOG.md#400-2026-01-19) (2026-01-19)
+
+### обновление до NestJS 10
+
+В проекте необходимо обновить NestJS и связанные с ним зависимости до 10 версий.
+Также нужно обновить все "@steroidsjs/* зависимости до версий, указанных в примере, или новее.
+Пример с версиями на момент написания этого MigrationGuide:
+
+```json
+{
+  "dependencies": {
+    "@nestjs/axios": "^3.0.0",
+    "@nestjs/cache-manager": "^3.0.1",
+    "@nestjs/cli": "^10.4.9",
+    "@nestjs/common": "^10.4.19",
+    "@nestjs/core": "^10.4.19",
+    "@nestjs/event-emitter": "^3.0.1",
+    "@nestjs/platform-express": "^10.4.19",
+    "@nestjs/swagger": "^8.1.1",
+    "@nestjs/schedule": "^6.0.0",
+
+    "@steroidsjs/nest": "^4.0.0",
+    "@steroidsjs/nest-file": "^0.4.1",
+    "@steroidsjs/nest-modules": "^0.1.5",
+    "@steroidsjs/nest-notifier": "^0.4.0",
+    "@steroidsjs/nest-typeorm": "^10.0.3"
+  }
+}
+```
+
+Если в проекте используется CacheModule из ```@nestjs/common```, необходимо заменить его на реализацию из отдельного пакета
+```@nestjs/cache-manager```
+
 ## [3.2.0](../CHANGELOG.md#320-2025-02-28) (2025-05-12)
 
 ### Вынос инфраструктурной логики ORM из *Fields декораторов
