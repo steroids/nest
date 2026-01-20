@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [4.0.1](https://github.com/steroids/nest/compare/4.0.0...4.0.1) (2026-01-19)
+
+### Features
+
+- Добавлена возможность использовать регулярные выражения в декораторе StringField
+
 ## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
 
 [Migration guide](docs/MigrationGuide.md#400-2025-01-19)
