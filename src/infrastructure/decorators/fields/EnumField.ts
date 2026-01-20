@@ -22,7 +22,7 @@ function getOpenApiEnum(enumEntity: string[] | object | BaseEnumClass): string[]
         return (enumEntity as BaseEnumClass).getKeys();
     }
 
-    return Object.keys(enumEntity);
+    return Object.values(enumEntity);
 }
 
 function getValidatorEnum(enumEntity: string[] | object | any): Record<string, string> {
