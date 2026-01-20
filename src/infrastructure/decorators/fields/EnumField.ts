@@ -56,6 +56,7 @@ export function EnumField(options: IEnumFieldOptions = {}) {
         }),
         ApiProperty({
             enum: getOpenApiEnum(options.enum),
+            isArray: options.isArray,
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsEnum(
