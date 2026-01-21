@@ -5,9 +5,14 @@ import {RequestExecutionExceptionFilter} from './filters/RequestExecutionExcepti
 import {GracefulController} from "./graceful/GracefulController";
 import {GracefulService} from "./graceful/GracefulService";
 import {ValidationExceptionFilter} from '../../filters/ValidationExceptionFilter';
+import {normalizeBoolean} from '../../decorators/fields/BooleanField';
 
 export default {
     ...baseConfig,
+    config: (): IRestAppModuleConfig => ({
+        ...baseConfig.config(),
+        isListenLocalhost: normalizeBoolean(process.env.APP_LISTEN_LOCALHOST),
+    }),
     module: (config: IRestAppModuleConfig) => ({
         ...baseConfig.module(config),
         providers: [
