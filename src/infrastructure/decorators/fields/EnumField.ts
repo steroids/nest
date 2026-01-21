@@ -22,7 +22,7 @@ function getOpenApiEnum(enumEntity: string[] | object | BaseEnumClass): string[]
         return (enumEntity as BaseEnumClass).getKeys();
     }
 
-    return Object.keys(enumEntity);
+    return Object.values(enumEntity);
 }
 
 function getValidatorEnum(enumEntity: string[] | object | any): Record<string, string> {
@@ -56,6 +56,7 @@ export function EnumField(options: IEnumFieldOptions = {}) {
         }),
         ApiProperty({
             enum: getOpenApiEnum(options.enum),
+            isArray: options.isArray,
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsEnum(

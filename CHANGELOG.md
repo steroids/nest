@@ -1,5 +1,27 @@
 # Steroids Nest Changelog
 
+## [4.0.2](https://github.com/steroids/nest/compare/4.0.1...4.0.2) (2026-01-20)
+
+### Fixes
+- Исправлен тип openApi для EnumField - добавлено отображение параметра isArray
+
+## [4.0.1](https://github.com/steroids/nest/compare/4.0.0...4.0.1) (2026-01-20)
+
+### Features
+
+- Добавлена возможность использовать регулярные выражения в декораторе StringField
+
+### Fixes
+- Исправлен тип openApi для EnumField - вместо ключей словаря отображаются значения
+
+## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
+
+[Migration guide](docs/MigrationGuide.md#400-2025-01-19)
+
+### Features
+
+- NestJS и связанные с ним зависимости обновлены до 10 версии и перенесены в peerDependencies
+
 ## [3.2.8](https://github.com/steroids/nest/compare/3.2.7...3.2.8) (2026-01-14)
 
 ### Fixes
