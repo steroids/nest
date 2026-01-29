@@ -30,8 +30,8 @@ jobs:
       - run: yarn
       - run: yarn jest --config jest.e2e.config.ts
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: test_db
-          DB_USER: test
-          DB_PASSWORD: test
+          TYPEORM_HOST: localhost
+          TYPEORM_PORT: 5432
+          TYPEORM_DATABASE: test_db
+          TYPEORM_USERNAME: test
+          TYPEORM_PASSWORD: test
