@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 22
 
+      - run: npm ci
       - run: npx jest --config jest.e2e.config.ts
         env:
           DB_HOST: localhost
