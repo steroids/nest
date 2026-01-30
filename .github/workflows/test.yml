@@ -10,22 +10,19 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:15
         env:
           POSTGRES_DB: test_db
           POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
+          POSTGRES_PASSWORD: test_pass
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-    env:
-          TYPEORM_HOST: postgres
-          TYPEORM_PORT: 5432
-          TYPEORM_DATABASE: test_db
-          TYPEORM_USERNAME: test
-          TYPEORM_PASSWORD: test
+
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -35,15 +32,15 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Wait for Postgres to be ready
-        run: |
-          until pg_isready -h postgres -p 5432 -U test; do
-            echo "Waiting for Postgres..."
-            sleep 2
-          done
-
       - name: Check Postgres connection
         run: |
           psql postgresql://test:test@postgres:5432/test_db -c "SELECT 1;"
 
-      - run: yarn jest --config jest.e2e.config.ts
+      - name: Start e2e test
+        env:
+          TYPEORM_HOST: postgres
+          TYPEORM_PORT: 5432
+          TYPEORM_DATABASE: test_db
+          TYPEORM_USERNAME: test
+          TYPEORM_PASSWORD: test_pass
+        run: yarn jest --config jest.e2e.config.ts
