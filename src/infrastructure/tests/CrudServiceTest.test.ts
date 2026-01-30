@@ -29,7 +29,8 @@ const createPhoto = (app) => app.get(FileService).create(DataMapper.create<FileS
     ],
 }));
 
-describe('ModelTest', () => {
+/** Test verify saving entities and relations **/
+describe('CrudServiceTest', () => {
     let app;
     beforeAll(async () => {
         app = await bootstrap();
@@ -151,8 +152,6 @@ describe('ModelTest', () => {
         expect(user?.mainPhotoId).toEqual(mainPhoto.id);
         expect(user?.info?.passport).toEqual('0409 123456');
         expect(user?.galleryPhotosIds?.length).toEqual(photos.length);
-
-        // console.log('TEST RESULT', user);
     });
 
     afterAll(async () => {
