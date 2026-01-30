@@ -29,10 +29,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check Postgres connection
-        run: |
-          psql postgresql://test:test_pass@localhost:5432/test_db -c "SELECT 1;"
-          
       - name: Install dependencies
         run: yarn
 
