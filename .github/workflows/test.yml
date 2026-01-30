@@ -37,13 +37,13 @@ jobs:
 
       - name: Wait for Postgres to be ready
         run: |
-          until pg_isready -h $TYPEORM_HOST -p $TYPEORM_PORT -U $TYPEORM_USERNAME; do
+          until pg_isready -h postgres -p 5432 -U test; do
             echo "Waiting for Postgres..."
             sleep 2
           done
 
       - name: Check Postgres connection
         run: |
-          psql postgresql://$TYPEORM_USERNAME:$TYPEORM_PASSWORD@$TYPEORM_HOST:$TYPEORM_PORT/$TYPEORM_DATABASE -c "SELECT 1;"
+          psql postgresql://test:test@postgres:5432/test_db -c "SELECT 1;"
 
       - run: yarn jest --config jest.e2e.config.ts
