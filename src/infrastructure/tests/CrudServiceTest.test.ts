@@ -29,7 +29,7 @@ const createPhoto = (app) => app.get(FileService).create(DataMapper.create<FileS
     ],
 }));
 
-/** Test verify saving entities and relations **/
+/** Test ensures that CRUD services correctly persist entities and their relations **/
 describe('CrudServiceTest', () => {
     let app;
     beforeAll(async () => {
