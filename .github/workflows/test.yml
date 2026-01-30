@@ -21,6 +21,13 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+    env:
+      TYPEORM_HOST: localhost
+      TYPEORM_PORT: 5432
+      TYPEORM_DATABASE: test_db
+      TYPEORM_USERNAME: test
+      TYPEORM_PASSWORD: test
+
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -29,9 +36,3 @@ jobs:
 
       - run: yarn
       - run: yarn jest --config jest.e2e.config.ts
-        env:
-          TYPEORM_HOST: localhost
-          TYPEORM_PORT: 5432
-          TYPEORM_DATABASE: test_db
-          TYPEORM_USERNAME: test
-          TYPEORM_PASSWORD: test
