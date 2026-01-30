@@ -29,16 +29,16 @@ jobs:
         with:
           node-version: 22
 
+      - name: Check Postgres connection
+        run: |
+          psql postgresql://test:test_pass@localhost:5432/test_db -c "SELECT 1;"
+          
       - name: Install dependencies
         run: yarn
 
-      - name: Check Postgres connection
-        run: |
-          psql postgresql://test:test@postgres:5432/test_db -c "SELECT 1;"
-
       - name: Start e2e test
         env:
-          TYPEORM_HOST: postgres
+          TYPEORM_HOST: localhost
           TYPEORM_PORT: 5432
           TYPEORM_DATABASE: test_db
           TYPEORM_USERNAME: test
