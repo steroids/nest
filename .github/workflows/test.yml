@@ -21,7 +21,7 @@ jobs:
           --health-timeout=5s
           --health-retries=5
     env:
-          TYPEORM_HOST: localhost
+          TYPEORM_HOST: postgres
           TYPEORM_PORT: 5432
           TYPEORM_DATABASE: test_db
           TYPEORM_USERNAME: test
