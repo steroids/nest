@@ -6,6 +6,7 @@ import BaseEnum from '../../../domain/base/BaseEnum';
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum?: object | string[] | any,
+    enumName?: string;
     isEnumConstraintMessage?: string,
 }
 
@@ -56,6 +57,7 @@ export function EnumField(options: IEnumFieldOptions = {}) {
         }),
         ApiProperty({
             enum: getOpenApiEnum(options.enum),
+            enumName: options.enumName,
             isArray: options.isArray,
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
