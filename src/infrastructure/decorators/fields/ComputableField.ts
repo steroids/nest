@@ -1,4 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
+import {ApiPropertyOptions} from '@nestjs/swagger';
+import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
 import {BaseField, IBaseFieldOptions, IRelationData} from './BaseField';
 import {Computable, IComputableCallback} from '../Computable';
 
@@ -6,6 +8,7 @@ export interface IComputableFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
     requiredRelations?: Array<IRelationData | string>,
     callback?: IComputableCallback,
+    swaggerType?: ApiPropertyOptions['type'];
 }
 
 export function ComputableField(options: IComputableFieldOptions) {
@@ -15,6 +18,7 @@ export function ComputableField(options: IComputableFieldOptions) {
                 decoratorName: 'ComputableField',
                 appType: 'computable',
                 jsType: options.jsType,
+                swaggerType: options.swaggerType as ColumnType,
             }),
             Computable(options.callback),
         ].filter(Boolean),
