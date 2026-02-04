@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [4.0.3](https://github.com/steroids/nest/compare/4.0.2...4.0.3) (2026-01-20)
+
+### Features
+
+- Добавлена проверка есть ли не примененные миграции при старте команды migrate:generate
+
 ## [4.0.2](https://github.com/steroids/nest/compare/4.0.1...4.0.2) (2026-01-20)
 
 ### Fixes
