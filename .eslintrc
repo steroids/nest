@@ -6,7 +6,7 @@
       "no-continue": "off"
     },
     "parser": "@typescript-eslint/parser",
-      "env": {
-          "node": true
-      }
+    "env": {
+        "node": true
+    }
 }
