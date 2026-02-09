@@ -8,6 +8,7 @@ export interface IComputableFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
     requiredRelations?: Array<IRelationData | string>,
     callback?: IComputableCallback,
+    // Use to manually define a field type in Swagger
     swaggerType?: ApiPropertyOptions['type'];
 }
 
