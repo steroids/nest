@@ -79,27 +79,6 @@ export class EntityCodeGenerator {
         }
     }
 
-    private getImportPath(modulePath: string) {
-        const repositoryPath = path.resolve(
-            this.modulePath,
-            resultPaths.repositoryInterface.replace(
-                ENTITY_NAME_PLACEHOLDER,
-                this.entityName,
-            ),
-        );
-
-        // Получаем относительный путь
-        let relativePath = path.relative(path.dirname(modulePath), repositoryPath);
-
-        relativePath = relativePath.replace(/\.ts$/, '');
-
-        if (!relativePath.startsWith('.')) {
-            relativePath = './' + relativePath;
-        }
-
-        return relativePath;
-    }
-
     private shouldSkipTemplate(fileType: string): boolean {
         const skipIfReadOnly = ['crudService', 'saveDto'];
         const skipIfNotReadOnly = ['readService'];
