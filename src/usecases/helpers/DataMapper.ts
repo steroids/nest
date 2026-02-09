@@ -97,11 +97,14 @@ export class DataMapper {
 
             if (_has(values, sourceName)) {
                 if (options?.appType === 'relation') {
+                    const relationClass = options.relationClass();
                     if (options.isArray && Array.isArray(values[sourceName])) {
                         object[name] = values[sourceName]
-                            .map(item => DataMapper.create(options.relationClass(), item, transformType));
-                    } else if (_isObject(values[sourceName])) {
-                        object[name] = DataMapper.create(options.relationClass(), values[sourceName], transformType);
+                            .map(item => item instanceof relationClass
+                                ? item
+                                : DataMapper.create(relationClass, item, transformType));
+                    } else if (_isObject(values[sourceName]) && !(values[sourceName] instanceof relationClass)) {
+                        object[name] = DataMapper.create(relationClass, values[sourceName], transformType);
                     } else {
                         object[name] = values[sourceName];
                     }
