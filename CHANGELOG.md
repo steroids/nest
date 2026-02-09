@@ -1,5 +1,10 @@
 # Steroids Nest Changelog
 
+[Migration guide](docs/MigrationGuide.md)
+
+### Features
+- Переход с библиотеки `@ntegral/nestjs-sentry` на `@sentry/nestjs`
+
 ## [4.0.2](https://github.com/steroids/nest/compare/4.0.1...4.0.2) (2026-01-20)
 
 ### Fixes

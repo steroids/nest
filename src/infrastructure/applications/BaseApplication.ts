@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import * as Sentry from '@sentry/nestjs';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 
 /**
@@ -11,6 +12,8 @@ export abstract class BaseApplication {
      */
     protected _config: any;
 
+    protected isSentryInitialized: boolean = false;
+
     /**
      * The project initialization method, which causes
      * three other methods (`initEnv`, `initConfig`, `initModules`).
@@ -18,6 +21,7 @@ export abstract class BaseApplication {
      */
     protected async init() {
         this.initEnv();
+        this.initSentry();
         this.initConfig();
         this.initModules();
     }
@@ -44,6 +48,42 @@ export abstract class BaseApplication {
      */
     protected initConfig() {
 
+    }
+
+    /**
+     * Initializes Sentry for error tracking and logging.
+     *
+     * Sentry also automatically configures `process.on('uncaughtException')` and `process.on('unhandledRejection')` to log and handle these events,
+     * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
+     */
+    protected initSentry(): void {
+        if (!process.env.APP_SENTRY_DSN) {
+            return;
+        }
+
+        Sentry.init({
+            dsn: process.env.APP_SENTRY_DSN,
+            environment: process.env.APP_ENVIRONMENT,
+            integrations: [
+                Sentry.onUncaughtExceptionIntegration({
+                    onFatalError: async (err) => {
+                        if (err.name === 'SentryError') {
+                            console.log(err);
+                        } else {
+                            Sentry.getCurrentScope()
+                                .getClient()
+                                .captureException(err);
+                            process.exit(1);
+                        }
+                    },
+                }),
+                Sentry.onUnhandledRejectionIntegration({
+                    mode: 'warn',
+                }),
+            ],
+        });
+
+        this.isSentryInitialized = true;
     }
 
     /**
