@@ -5,7 +5,7 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
-    enum?: object | string[] | any,
+    enum: object | string[] | any,
     enumName?: string;
     isEnumConstraintMessage?: string,
 }
@@ -48,7 +48,7 @@ function getValidatorEnum(enumEntity: string[] | object | any): Record<string, s
     return enumEntity;
 }
 
-export function EnumField(options: IEnumFieldOptions = {}) {
+export function EnumField(options: IEnumFieldOptions) {
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'EnumField',
