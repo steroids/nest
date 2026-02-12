@@ -2,25 +2,26 @@
 
 ### Переход на @sentry/nestjs
 
-Необходимо удалить библиотеки:
+Чтобы перейти с `@ntegral/nestjs-sentry` на `@sentry/nestjs` нужно:
+
+1. Удалить библиотеки:
 - `@ntegral/nestjs-sentry`
 - `@sentry/node`
 
-Необходимо установить библиотеки:
+2. Установить библиотеки:
 - `@sentry/nestjs`
 
-В местах, где использовалось 
+3. Заменить на импорт из библиотеки `@sentry/nestjs` в местах, где использовалось 
 ```ts 
 import * as Sentry from '@sentry/node'
 ``` 
-заменить библиотеку на `@sentry/nestjs`
 
-Если был переопределён класс `RestApplication`, то проверить:
+4. Если был переопределён класс `RestApplication`, то проверить:
 - метод `initSentry`: был удален из `RestApplication` и перемещён в `BaseApplication`, должен вызываться до создания `NestJS`-приложения
 (по умолчанию вызывается в `init` класса `BaseApplication`)
 - метод `initFilters`: теперь `SentryExceptionFilter` инициализируется в этом методе, а не в `initSentry`
 
-Если в импортах `AppModule` был переопределён `SentryModule` из базового конфига, то:
+5. Если в импортах `AppModule` был переопределён `SentryModule` из базового конфига, то:
 - настройки `SentryModule` из `@ntegral/nestjs-sentry` перенести в `Sentry.init` внутри метода `initSentry` класса `RestApplication` (он наследуется от `BaseApplication`)
 - использовать `SentryModule.forRoot()` из `@sentry/nestjs/setup`
 
