@@ -1,9 +1,12 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
+import {max as _max} from 'lodash';
 import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty, isString} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
+import {IType} from '../../../usecases/interfaces/IType';
+import {getAllObjectKeyPaths} from '../../../usecases/helpers/getAllObjectKeyPaths';
 
 export const STEROIDS_META_FIELD = 'steroids_meta_field';
 export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
@@ -176,6 +179,156 @@ export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
             return allRelations;
         }, []);
     return findRelationsRecursive(MetaClass, []);
+};
+
+export const getMetaRelationsMap = (MetaClass: IType, maxRecursiveDepth = Infinity) => {
+    const findRelationMapRecursive = (
+        RelationMetaClass: IType,
+        foundClasses = new Set<string>(),
+        recursiveDepth = 1,
+    ) => getMetaFields(RelationMetaClass)
+        .filter(fieldName => getFieldOptions(RelationMetaClass, fieldName)?.appType === 'relationId')
+        .reduce((allRelationsMap, relationIdFieldName) => {
+            const relationIdOptions = getFieldOptions(RelationMetaClass, relationIdFieldName);
+
+            const relationName = relationIdOptions.relationName;
+
+            if (!relationName) {
+                return allRelationsMap;
+            }
+
+            if (!allRelationsMap.has(relationIdFieldName)) {
+                allRelationsMap.set(relationIdFieldName, relationName);
+            }
+
+            const relationOptions = getFieldOptions(RelationMetaClass, relationName);
+
+            if (!relationOptions?.relationClass) {
+                return allRelationsMap;
+            }
+
+            const relationClass = relationOptions.relationClass();
+            // Из-за этого кода возвращаются не все реляции в случаях, когда у одного MetaClass'а
+            // есть несколько реляций с одним и тем же классом (см. ImageDownloadSchema для примера)
+            // @todo нужно исправить этот баг, иначе реализовав кэширование уже обработанных классов
+            const key = [relationName, relationClass.name].join('.');
+
+            if (foundClasses.has(key)) {
+                return allRelationsMap;
+            }
+            foundClasses.add(key);
+
+            if (isMetaClass(relationClass) && recursiveDepth <= maxRecursiveDepth) {
+                const subRelationsMap = findRelationMapRecursive(relationClass, foundClasses, recursiveDepth + 1);
+                subRelationsMap.forEach((subRelationId: string, subRelationName: string) => {
+                    allRelationsMap.set(`${relationName}.${subRelationId}`, `${relationName}.${subRelationName}`);
+                });
+            }
+
+            return allRelationsMap;
+        }, new Map<string, string>());
+    return findRelationMapRecursive(MetaClass);
+};
+
+export const getMetaRelationsWithoutId = (MetaClass: IType, maxRecursiveDepth = Infinity) => {
+    const relationsWithId = new Set<string>();
+    const findRelationsWithoutIdRecursive = (
+        RelationMetaClass: IType,
+        foundClasses = new Set<string>(),
+        recursiveDepth = 1,
+    ) => getMetaFields(RelationMetaClass)
+        .reduce((relationsWithoutId, fieldName) => {
+            const options = getFieldOptions(RelationMetaClass, fieldName);
+
+            let relationData: IRelationData | null = null;
+
+            if (options?.appType === 'computable' && options?.requiredRelations?.length) {
+                options.requiredRelations.forEach(requiredRelation => {
+                    const relationName = typeof requiredRelation === 'string'
+                        ? requiredRelation
+                        : requiredRelation.relationName;
+
+                    relationsWithoutId.add(relationName);
+
+                    if (typeof requiredRelation !== 'string' && requiredRelation?.relationClass) {
+                        relationData = {
+                            relationClass: requiredRelation.relationClass,
+                            relationName,
+                        };
+                    }
+                });
+            }
+
+            if (options?.appType === 'relationId') {
+                relationsWithId.add(options.relationName);
+                relationsWithoutId.delete(options.relationName);
+            }
+
+            if (options?.appType === 'relation' && options?.relationClass && !relationsWithId.has(options.relationName)) {
+                relationsWithoutId.add(fieldName);
+                relationData = {
+                    relationClass: options.relationClass,
+                    relationName: fieldName,
+                };
+            }
+
+            if (!relationData || !relationData.relationName || !relationData.relationClass) {
+                return relationsWithoutId;
+            }
+
+            // Из-за этого кода возвращаются не все реляции в случаях, когда у одного MetaClass'а
+            // есть несколько реляций с одним и тем же классом (см. ImageDownloadSchema для примера)
+            // @todo нужно исправить этот баг, иначе реализовав кэширование уже обработанных классов
+            const relationClass = relationData.relationClass();
+            const relationName = relationData.relationName;
+
+            const key = [relationName, relationClass.name].join('.');
+
+            if (foundClasses.has(key)) {
+                return relationsWithoutId;
+            }
+            foundClasses.add(key);
+
+            if (isMetaClass(relationClass) && recursiveDepth <= maxRecursiveDepth) {
+                const subRelations = findRelationsWithoutIdRecursive(relationClass, foundClasses, recursiveDepth + 1);
+                subRelations.forEach((subRelation: string) => {
+                    relationsWithoutId.add(`${relationName}.${subRelation}`);
+                });
+            }
+
+            return relationsWithoutId;
+        }, new Set<string>());
+    return findRelationsWithoutIdRecursive(MetaClass);
+};
+
+export const getMetaRelationsFromObject = (obj: Record<string, any>, ModelClass: IType) => {
+    const objKeyPaths = getAllObjectKeyPaths(obj);
+    const objKeyDepth = _max(objKeyPaths.map(keyPath => keyPath.split('.').length));
+
+    const modelMetaRelationsMap = getMetaRelationsMap(ModelClass, objKeyDepth);
+
+    const modelMetaRelationsWithoutId = getMetaRelationsWithoutId(ModelClass, objKeyDepth);
+
+    const modelMetaRelations = new Set<string>([
+        ...modelMetaRelationsMap.values(),
+        ...modelMetaRelationsWithoutId,
+    ]);
+
+    const objMetaRelations = new Set<string>();
+
+    objKeyPaths
+        .forEach((key) => {
+            // Проверяем по relationId
+            if (modelMetaRelationsMap.has(key)) {
+                objMetaRelations.add(modelMetaRelationsMap.get(key));
+            }
+            // Проверяем по relationName
+            if (modelMetaRelations.has(key)) {
+                objMetaRelations.add(key);
+            }
+        });
+
+    return Array.from(objMetaRelations);
 };
 
 export const getRelationsByFilter = (
