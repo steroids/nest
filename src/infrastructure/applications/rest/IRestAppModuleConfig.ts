@@ -24,4 +24,8 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      * Enables .enableShutdownHooks() for NestJS app
      */
     gracefulEnabled?: boolean,
+    /**
+     * Secret for signing cookies
+     */
+    cookieSecret?: string,
 }

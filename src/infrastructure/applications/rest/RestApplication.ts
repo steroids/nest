@@ -1,5 +1,6 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {INestApplication, VersioningType} from '@nestjs/common';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
@@ -173,12 +174,17 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Initialization of middlewares
+     *
      * Configuring request body parsers with request size limitation.
+     *
+     * Use cookie-parser for comfortable working with cookie.
      * @protected
      */
-    protected initSettings() {
+    protected initMiddlewares() {
         this._app.use(json({ limit: this._config.requestSizeLimit }));
         this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
+        this._app.use(cookieParser(this._config.cookieSecret));
     }
 
     /**
@@ -208,7 +214,7 @@ export class RestApplication extends BaseApplication {
         this.initFilters();
         this.initSentry();
         this.initInterceptors();
-        this.initSettings();
+        this.initMiddlewares();
         this.initGraceful();
     }
 
