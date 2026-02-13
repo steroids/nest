@@ -1,5 +1,15 @@
 # Steroids Nest Changelog
 
+## [4.0.4](https://github.com/steroids/nest/compare/4.0.3...4.0.4) (2026-02-09)
+
+### Fixes
+- Команда cli entity:generate теперь не пересоздает файлы сущностей если они уже есть в проекте
+- Исправлены импорты в шаблонах используемых в команде cli entity:generate
+
+### Features
+
+- Добавлен флаг onlyReadService для команды cli entity:generate, при применении которого создается ReadService без лишних сущностей для CrudService
+
 ## [4.0.3](https://github.com/steroids/nest/compare/4.0.2...4.0.3) (2026-01-20)
 
 ### Features

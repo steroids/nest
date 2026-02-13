@@ -2,6 +2,9 @@
     "extends": [
         "@steroidsjs/eslint-config"
     ],
+    "rules": {
+      "no-continue": "off"
+    },
     "parser": "@typescript-eslint/parser",
     "env": {
         "node": true

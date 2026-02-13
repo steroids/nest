@@ -1,0 +1,16 @@
+import {ReadService} from '@steroidsjs/nest/usecases/services/ReadService';
+import {%entityName%SearchDto} from '../dtos/%entityName%SearchDto';
+import {%entityName%SaveDto} from '../dtos/%entityName%SaveDto';
+import {%entityName%Model} from '../models/%entityName%Model';
+import {I%entityName%Repository} from '../interfaces/I%entityName%Repository';
+
+export class %entityName%Service extends ReadService<%entityName%Model, %entityName%SearchDto> {
+    protected modelClass = %entityName%Model;
+
+    constructor(
+        /** %entityName%Repository */
+        public repository: I%entityName%Repository,
+    ) {
+        super();
+    }
+}

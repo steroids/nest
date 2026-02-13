@@ -10,33 +10,43 @@ const resultPaths = {
     repository: 'infrastructure/repositories/%entityName%Repository.ts',
     repositoryInterface: 'domain/interfaces/I%entityName%Repository.ts',
     table: 'infrastructure/tables/%entityName%Table.ts',
-    service: 'domain/services/%entityName%Service.ts',
+    crudService: 'domain/services/%entityName%Service.ts',
+    readService: 'domain/services/%entityName%Service.ts',
     saveDto: 'domain/dtos/%entityName%SaveDto.ts',
     searchDto: 'domain/dtos/%entityName%SearchDto.ts',
-}
+};
 
 const templates = {
     model: 'ModelTemplate.txt',
     repository: 'RepositoryTemplate.txt',
     repositoryInterface: 'RepositoryInterfaceTemplate.txt',
     table: 'TableTemplate.txt',
-    service: 'ServiceTemplate.txt',
-    saveDto: 'SaveDtoTemplate.txt',
+    readService: 'ReadServiceTemplate.txt',
+    crudService: 'CrudServiceTemplate.txt',
     searchDto: 'SearchDtoTemplate.txt',
-}
+    saveDto: 'SaveDtoTemplate.txt',
+};
 
 export class EntityCodeGenerator {
     readonly entityName: string;
+
     readonly moduleName: string;
+
     readonly tableName: string;
-    readonly projectRootPath: string
+
+    readonly projectRootPath: string;
+
     readonly modulePath: string;
+
+    readonly onlyReadService: boolean;
+
     readonly placeholdersValuesMap: Record<string, string> = {};
 
     constructor(
         entityName: string,
         moduleName: string,
         rootPath: string = null,
+        onlyReadService = false,
     ) {
         // set first letter in upper case if it's not
         if (entityName[0].toUpperCase() !== entityName[0]) {
@@ -46,6 +56,7 @@ export class EntityCodeGenerator {
         }
 
         this.moduleName = moduleName;
+        this.onlyReadService = onlyReadService;
         this.projectRootPath = rootPath || process.cwd();
         this.modulePath = this.findModulePath(moduleName);
         this.tableName = this.getTableName();
@@ -53,15 +64,30 @@ export class EntityCodeGenerator {
         this.placeholdersValuesMap = {
             [ENTITY_NAME_PLACEHOLDER]: this.entityName,
             [TABLE_NAME_PLACEHOLDER]: this.tableName,
-        }
+        };
     }
 
     public generate() {
         const allFileTypes = Object.keys(templates);
 
         for (const fileType of allFileTypes) {
+            if (this.shouldSkipTemplate(fileType)) {
+                continue;
+            }
+
             this.generateFileByType(fileType);
         }
+    }
+
+    private shouldSkipTemplate(fileType: string): boolean {
+        const skipIfReadOnly = ['crudService', 'saveDto'];
+        const skipIfNotReadOnly = ['readService'];
+
+        if (this.onlyReadService) {
+            return skipIfReadOnly.includes(fileType);
+        }
+
+        return skipIfNotReadOnly.includes(fileType);
     }
 
     private generateFileByType(fileType) {
@@ -79,7 +105,7 @@ export class EntityCodeGenerator {
             );
         }
 
-        let resultFilePath = path.resolve(
+        const resultFilePath = path.resolve(
             this.modulePath,
             resultPaths[fileType].replace(
                 ENTITY_NAME_PLACEHOLDER,
@@ -88,8 +114,13 @@ export class EntityCodeGenerator {
         );
 
         const resultFileDirPath = path.dirname(resultFilePath);
-        if (!fs.existsSync(resultFileDirPath)){
+        if (!fs.existsSync(resultFileDirPath)) {
             fs.mkdirSync(resultFileDirPath, {recursive: true});
+        }
+
+        if (fs.existsSync(resultFilePath)) {
+            console.log(`File ${resultFilePath} already exists, skipping to avoid overwriting.`);
+            return;
         }
 
         fs.writeFileSync(
@@ -99,10 +130,10 @@ export class EntityCodeGenerator {
     }
 
     private findModulePath(moduleName) {
-        let possibleModulePaths = [
+        const possibleModulePaths = [
             path.resolve(this.projectRootPath, 'src', moduleName),
             path.resolve(this.projectRootPath, moduleName),
-        ]
+        ];
 
         for (const path of possibleModulePaths) {
             if (fs.existsSync(path)) {
@@ -114,7 +145,7 @@ export class EntityCodeGenerator {
     }
 
     private getTableName() {
-        let tableName = snakeCase(this.entityName)
+        let tableName = snakeCase(this.entityName);
         const isTableNameContainsModuleName = (
             new RegExp(`^${this.moduleName}.*`)
         ).test(tableName);
