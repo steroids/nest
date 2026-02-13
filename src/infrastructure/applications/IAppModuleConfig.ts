@@ -43,5 +43,9 @@ export interface IAppModuleConfig {
          * Application Environment for Sentry
          */
         environment: string,
+        /**
+         * Show detailed error info in HTTP responses.
+         */
+        exposeSentryErrorResponse?: boolean
     },
 }
