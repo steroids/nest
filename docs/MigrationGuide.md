@@ -1,5 +1,16 @@
 # Steroids Nest Migration Guide
 
+### Переименование `RestApplication.initSettings` в `RestApplication.initMiddlewares`
+
+Если в проекте была переопределена функция `RestApplication.initSettings`, то её нужно переименовать в `RestApplication.initMiddlewares`
+и добавить поддержку middleware `cookie-parser`, если не вызывается `super.initMiddlewares`:
+
+```typescript
+import * as cookieParser from 'cookie-parser';
+
+this._app.use(cookieParser(this._config.cookieSecret));
+```
+
 ## [4.0.0](../CHANGELOG.md#400-2026-01-19) (2026-01-19)
 
 ### обновление до NestJS 10

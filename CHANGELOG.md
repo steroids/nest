@@ -1,5 +1,15 @@
 # Steroids Nest Changelog
 
+### Features
+
+- Добавлена middleware `cookie-parser`, для удобной работы с куками
+- Добавлено поле `IRestAppModuleConfig.cookieSecret` для возможности подписи кук
+
+### Fixes
+
+- Функция `RestApplication.initSettings` переименована в `RestApplication.initMiddlewares`
+
+
 ## [4.0.3](https://github.com/steroids/nest/compare/4.0.2...4.0.3) (2026-01-20)
 
 ### Features
