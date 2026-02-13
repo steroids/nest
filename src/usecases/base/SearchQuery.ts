@@ -2,6 +2,7 @@ import {trim as _trim} from 'lodash';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
+import {wrapInDoubleQuotes} from '../utils/wrapInDoubleQuotes';
 
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
@@ -272,15 +273,78 @@ export default class SearchQuery<TModel> {
         return this._condition;
     }
 
+    /**
+     * Converts the input value for orderBy to a single view
+     *
+     * @param orderValue string or object with keys such as:
+     * - `field`
+     * - `modelAlias.field`
+     * - `modelAlias.relationAlias.field`
+     * - `modelAlias_relationAlias.field`
+     * - `modelAlias_relationAlias_field`
+     *
+     * It also works with the same values, but in double quotes for each word separated by a dot
+     * (example, `"modelAlias"."field"` or `modelAlias."field"`).
+     *
+     * @param direction sorting direction
+     *
+     * @return `ISearchQueryOrder` object, which contains keys such as:
+     * - `"modelAlias"."field"`
+     * - `"modelAlias_relationAlias"."field"`
+     * - `"modelAlias_relationAlias_field"`
+     *
+     * @protected
+     */
+    protected normalizeOrderByValue(
+        orderValue: string | ISearchQueryOrder,
+        direction: 'asc' | 'desc',
+    ): ISearchQueryOrder {
+        if (typeof orderValue === 'string') {
+            const pathToField = orderValue.split('.');
+            const field = pathToField.pop();
+
+            if (pathToField[0] === this._alias) {
+                pathToField.shift();
+            }
+
+            if (!pathToField.length) {
+                if (field.split('_')[0] === this._alias) {
+                    return {
+                        [`${wrapInDoubleQuotes(field)}`]: direction,
+                    };
+                }
+                return {
+                    [`${wrapInDoubleQuotes(this._alias)}.${wrapInDoubleQuotes(field)}`]: direction,
+                };
+            }
+
+            if (pathToField.length === 1 && pathToField[0].split('_')[0] === this._alias) {
+                return {
+                    [`${wrapInDoubleQuotes(pathToField[0])}.${wrapInDoubleQuotes(field)}`]: direction,
+                };
+            }
+
+            const relationAlias = this.getRelationAlias(pathToField.join('.'));
+            return {
+                [`${wrapInDoubleQuotes(relationAlias)}.${wrapInDoubleQuotes(field)}`]: direction,
+            };
+        }
+
+        return Object.entries(orderValue).reduce((acc, [key, value]) => ({
+            ...acc,
+            ...this.normalizeOrderByValue(key, value),
+        }), {});
+    }
+
     orderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
-        this._orders = typeof value === 'string' ? {[value]: direction} : value;
+        this._orders = this.normalizeOrderByValue(value, direction);
         return this;
     }
 
     addOrderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
         this._orders = {
             ...this._orders,
-            ...(typeof value === 'string' ? {[value]: direction} : value),
+            ...this.normalizeOrderByValue(value, direction),
         };
         return this;
     }
