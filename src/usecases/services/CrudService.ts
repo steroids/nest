@@ -4,7 +4,7 @@ import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import SearchQuery from '../base/SearchQuery';
 import {ContextDto} from '../dtos/ContextDto';
-import {getMetaRelations, getRelationsByFilter} from '../../infrastructure/decorators/fields/BaseField';
+import {getMetaRelations, getMetaRelationsFromObject, getRelationsByFilter, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {RelationTypeEnum} from '../../domain/enums/RelationTypeEnum';
 import {UserException} from '../exceptions';
 import {ReadService} from './ReadService';
@@ -97,8 +97,12 @@ export class CrudService<
         // Fetch previous model state
         let prevModel = null;
         if (id) {
+            const relationsNames = isMetaClass(dto.constructor)
+                ? getMetaRelations(dto.constructor)
+                : getMetaRelationsFromObject(dto, this.modelClass);
+
             prevModel = await this.createQuery()
-                .with(getMetaRelations(dto.constructor))
+                .with(relationsNames)
                 .where({[this.primaryKey]: id})
                 .one();
             if (!prevModel) {
