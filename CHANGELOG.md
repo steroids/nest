@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+[Migration guide](docs/MigrationGuide.md#)
+
+### Features
+
+- Добавлена проверка сложности пароля в `PasswordField`
+
 ## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
 
 ### Features
