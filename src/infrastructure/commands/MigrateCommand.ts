@@ -1,7 +1,7 @@
-import {Command, Positional} from 'nestjs-command';
+import {Command, Option, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
-import {generate} from './generate';
+import {generate, generateMigrationsForPermissions} from './generate';
 import {DataSource, getFromContainer, MigrationInterface} from '@steroidsjs/typeorm';
 import {ConnectionMetadataBuilder} from '@steroidsjs/typeorm/connection/ConnectionMetadataBuilder';
 import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
@@ -84,4 +84,39 @@ export class MigrateCommand {
         await generate(this.dataSource);
     }
 
+    @Command({
+        command: 'migrate:generate-permissions',
+        describe: 'Create migrations for permissions, it is used to synchronize the current list of permissions between the code and the database.',
+    })
+    async generatePermissions(
+        @Option({
+            name: 'permissionTable',
+            describe: 'Table name for permissions',
+            type: 'string',
+            default: 'auth_permission',
+        })
+            permissionTable: string,
+
+        @Option({
+            name: 'permissionColumn',
+            describe: 'Column name of permission',
+            type: 'string',
+            default: 'name',
+        })
+            permissionColumn: string,
+
+        @Option({
+            name: 'permissionModule',
+            describe: 'Module where write migrations of permissions',
+            type: 'string',
+            default: 'auth',
+        })
+            permissionModule: string,
+    ) {
+        await generateMigrationsForPermissions(this.dataSource, {
+            table: permissionTable,
+            column: permissionColumn,
+            module: permissionModule,
+        });
+    }
 }

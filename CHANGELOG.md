@@ -1,5 +1,47 @@
 # Steroids Nest Changelog
 
+[Migration guide](docs/MigrationGuide.md#)
+
+### Features
+
+- Добавлена проверка сложности пароля в `PasswordField`
+
+## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
+
+### Features
+
+- Добавлена проверка есть ли не примененные миграции при старте команды migrate:generate ([#171](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/171))
+- В пайплайн выгрузки добавлен запуск тестов ([#197](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/197))
+- Добавлена CLI команда ```migrate:generate-permissions``` для генерации миграций по добавлению новых пермишенов ([#156](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/156))
+- Из текста ошибок, возвращаемых клиенту, по-умолчанию убрано подробное описание. Старое поведение включается по переменной окружение SENTRY_EXPOSE_ERROR_RESPONSE ([#129](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/129))
+- Для ComputableField добавлен параметр swaggerType ([#201](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/201))
+
+### Fixes
+- Тесты в ModelTest.test приведены в актуальное состояние ([#197](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/197))
+- Исправлена валидация чисел в DecimalField ([#204](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/204))
+
+## [4.0.2](https://github.com/steroids/nest/compare/4.0.1...4.0.2) (2026-01-20)
+
+### Fixes
+- Исправлен тип openApi для EnumField - добавлено отображение параметра isArray
+
+## [4.0.1](https://github.com/steroids/nest/compare/4.0.0...4.0.1) (2026-01-20)
+
+### Features
+
+- Добавлена возможность использовать регулярные выражения в декораторе StringField
+
+### Fixes
+- Исправлен тип openApi для EnumField - вместо ключей словаря отображаются значения
+
+## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
+
+[Migration guide](docs/MigrationGuide.md#400-2025-01-19)
+
+### Features
+
+- NestJS и связанные с ним зависимости обновлены до 10 версии и перенесены в peerDependencies
+
 ## [3.2.7](https://github.com/steroids/nest/compare/3.2.6...3.2.7) (2025-12-25)
 
 ### Features
