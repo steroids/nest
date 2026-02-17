@@ -1,5 +1,30 @@
 # Steroids Nest Migration Guide
 
+### Переход на @sentry/nestjs
+
+Чтобы перейти с `@ntegral/nestjs-sentry` на `@sentry/nestjs` нужно:
+
+1. Удалить библиотеки:
+- `@ntegral/nestjs-sentry`
+- `@sentry/node`
+
+2. Установить библиотеки:
+- `@sentry/nestjs`
+
+3. Заменить на импорт из библиотеки `@sentry/nestjs` в местах, где использовалось 
+```ts 
+import * as Sentry from '@sentry/node'
+``` 
+
+4. Если был переопределёны методы `init`, `initFilters` или `initSentry` класса `RestApplication`, то:
+- перенести инициализацию `SentryExceptionFilter` из `initSentry` в `initFilters`
+- удалить метод `initSentry` или вызвать в нём `super.initSentry`
+- метод `initSentry` вызвать в `init` до создания NestJS-приложения, но после метода `initConfig`, если уже не вызван `super.init`
+
+5. Если в импортах `AppModule` был переопределён `SentryModule` из базового конфига, то:
+- настройки `SentryModule` из `@ntegral/nestjs-sentry` перенести в `Sentry.init` внутри метода `initSentry` класса `RestApplication` (он наследуется от `BaseApplication`)
+- использовать `SentryModule.forRoot()` из `@sentry/nestjs/setup`
+
 ## [4.0.0](../CHANGELOG.md#400-2026-01-19) (2026-01-19)
 
 ### обновление до NestJS 10

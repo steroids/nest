@@ -22,9 +22,7 @@
   },
   "dependencies": {
     "@dbml/core": "^2.4.4",
-    "@ntegral/nestjs-sentry": "^4.0.0",
-    "@sentry/node": "^7.34.0",
-    "@sentry/types": "^7.34.0",
+    "@sentry/nestjs": "^10.38.0",
     "@sqltools/formatter": "^1.2.5",
     "@supercharge/request-ip": "^1.2.0",
     "body-parser": "^2.2.1",

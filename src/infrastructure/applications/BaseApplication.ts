@@ -1,5 +1,8 @@
 import * as dotenv from 'dotenv';
+import * as Sentry from '@sentry/nestjs';
 import {ModuleHelper} from '../helpers/ModuleHelper';
+import {AppModule} from './AppModule';
+import {IAppModuleConfig} from './IAppModuleConfig';
 
 /**
  * Abstract class for creating application configuration classes.
@@ -19,6 +22,7 @@ export abstract class BaseApplication {
     protected async init() {
         this.initEnv();
         this.initConfig();
+        this.initSentry();
         this.initModules();
     }
 
@@ -44,6 +48,42 @@ export abstract class BaseApplication {
      */
     protected initConfig() {
 
+    }
+
+    /**
+     * Initializes Sentry for error tracking and logging.
+     *
+     * Sentry also automatically configures `process.on('uncaughtException')` and `process.on('unhandledRejection')` to log and handle these events,
+     * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
+     */
+    protected initSentry(): void {
+        const config = ModuleHelper.getConfig<IAppModuleConfig>(AppModule);
+
+        if (!config.sentry) {
+            return;
+        }
+
+        Sentry.init({
+            dsn: config.sentry.dsn,
+            environment: config.sentry.environment,
+            integrations: [
+                Sentry.onUncaughtExceptionIntegration({
+                    onFatalError: async (err) => {
+                        if (err.name === 'SentryError') {
+                            console.log(err);
+                        } else {
+                            Sentry.getCurrentScope()
+                                .getClient()
+                                .captureException(err);
+                            process.exit(1);
+                        }
+                    },
+                }),
+                Sentry.onUnhandledRejectionIntegration({
+                    mode: 'warn',
+                }),
+            ],
+        });
     }
 
     /**
