@@ -16,10 +16,10 @@
 import * as Sentry from '@sentry/node'
 ``` 
 
-4. Если был переопределён класс `RestApplication`, то проверить:
-- метод `initSentry`: был удален из `RestApplication` и перемещён в `BaseApplication`, должен вызываться до создания `NestJS`-приложения
-(по умолчанию вызывается в `init` класса `BaseApplication`)
-- метод `initFilters`: теперь `SentryExceptionFilter` инициализируется в этом методе, а не в `initSentry`
+4. Если был переопределёны методы `init`, `initFilters` или `initSentry` класса `RestApplication`, то:
+- перенести инициализацию `SentryExceptionFilter` из `initSentry` в `initFilters`
+- удалить метод `initSentry` или вызвать в нём `super.initSentry`
+- метод `initSentry` вызвать в `init` до создания NestJS-приложения, но после метода `initConfig`, если уже не вызван `super.init`
 
 5. Если в импортах `AppModule` был переопределён `SentryModule` из базового конфига, то:
 - настройки `SentryModule` из `@ntegral/nestjs-sentry` перенести в `Sentry.init` внутри метода `initSentry` класса `RestApplication` (он наследуется от `BaseApplication`)

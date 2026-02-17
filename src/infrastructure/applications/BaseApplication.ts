@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv';
 import * as Sentry from '@sentry/nestjs';
 import {ModuleHelper} from '../helpers/ModuleHelper';
+import {AppModule} from './AppModule';
+import {IAppModuleConfig} from './IAppModuleConfig';
 
 /**
  * Abstract class for creating application configuration classes.
@@ -12,8 +14,6 @@ export abstract class BaseApplication {
      */
     protected _config: any;
 
-    protected isSentryInitialized: boolean = false;
-
     /**
      * The project initialization method, which causes
      * three other methods (`initEnv`, `initConfig`, `initModules`).
@@ -21,8 +21,8 @@ export abstract class BaseApplication {
      */
     protected async init() {
         this.initEnv();
-        this.initSentry();
         this.initConfig();
+        this.initSentry();
         this.initModules();
     }
 
@@ -57,13 +57,15 @@ export abstract class BaseApplication {
      * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
      */
     protected initSentry(): void {
-        if (!process.env.APP_SENTRY_DSN) {
+        const config = ModuleHelper.getConfig<IAppModuleConfig>(AppModule);
+
+        if (!config.sentry) {
             return;
         }
 
         Sentry.init({
-            dsn: process.env.APP_SENTRY_DSN,
-            environment: process.env.APP_ENVIRONMENT,
+            dsn: config.sentry.dsn,
+            environment: config.sentry.environment,
             integrations: [
                 Sentry.onUncaughtExceptionIntegration({
                     onFatalError: async (err) => {
@@ -82,8 +84,6 @@ export abstract class BaseApplication {
                 }),
             ],
         });
-
-        this.isSentryInitialized = true;
     }
 
     /**

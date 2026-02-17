@@ -145,7 +145,7 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected initFilters() {
-        if (this.isSentryInitialized) {
+        if (this._config.sentry) {
             this._app.useGlobalFilters(new SentryExceptionFilter());
         }
         // Validation
