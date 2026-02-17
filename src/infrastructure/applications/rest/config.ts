@@ -2,8 +2,8 @@ import {APP_FILTER} from '@nestjs/core';
 import baseConfig from '../base/config';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
 import {RequestExecutionExceptionFilter} from './filters/RequestExecutionExceptionFilter';
-import {GracefulController} from "./graceful/GracefulController";
-import {GracefulService} from "./graceful/GracefulService";
+import {GracefulController} from './graceful/GracefulController';
+import {GracefulService} from './graceful/GracefulService';
 import {ValidationExceptionFilter} from '../../filters/ValidationExceptionFilter';
 import {normalizeBoolean} from '../../decorators/fields/BooleanField';
 
