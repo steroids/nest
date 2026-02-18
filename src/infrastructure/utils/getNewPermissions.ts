@@ -1,7 +1,7 @@
-import {Connection} from '@steroidsjs/typeorm';
+import {DataSource} from '@steroidsjs/typeorm';
 import {PermissionsFactory} from '../helpers/PermissionsFactory';
 
-export const getNewPermissions = async (connection: Connection, tableName = 'auth_permission', columnName = 'name') => {
+export const getNewPermissions = async (dataSource: DataSource, tableName = 'auth_permission', columnName = 'name') => {
     const allPermissions = PermissionsFactory.getAllPermissionsKeys();
 
     if (allPermissions.length === 0) {
@@ -9,7 +9,7 @@ export const getNewPermissions = async (connection: Connection, tableName = 'aut
     }
 
     const existingPermissions = new Set<string>();
-    const existingPermissionsRows: Array<{ [column: string]: string }> = await connection.query(
+    const existingPermissionsRows: Array<{ [column: string]: string }> = await dataSource.query(
         `SELECT ${columnName} FROM ${tableName}`,
     );
     for (const row of existingPermissionsRows) {

@@ -10,6 +10,7 @@ export function JSONBField(options: IJSONBFieldOptions = {}) {
             decoratorName: 'JSONBField',
             appType: 'object',
             jsType: 'jsonb',
+            swaggerType: 'string',
         }),
         !options.required && IsOptional(),
     ].filter(Boolean));

@@ -1,7 +1,7 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
-import {VersioningType} from '@nestjs/common';
+import {INestApplication, VersioningType} from '@nestjs/common';
 import {Connection} from '@steroidsjs/typeorm';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
@@ -22,7 +22,7 @@ export class RestApplication extends BaseApplication {
      * An instance of an application built with NestJS.
      * @protected
      */
-    protected _app: any;
+    protected _app: INestApplication;
 
     /**
      * The class of the application module (default is `AppModule`).
@@ -153,11 +153,14 @@ export class RestApplication extends BaseApplication {
     /**
      * Initializes Sentry for error tracking and logging.
      * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added.
+     *
+     * Sentry also automatically configures `process.on('uncaughtException')` and `process.on('unhandledRejection')` to log and handle these events,
+     * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
      * @protected
      */
     protected initSentry() {
         if (process.env.APP_SENTRY_DSN) {
-            this._app.useGlobalFilters(new SentryExceptionFilter());
+            this._app.useGlobalFilters(new SentryExceptionFilter(this._config.sentry.exposeSentryErrorResponse));
         }
     }
 
@@ -232,10 +235,15 @@ export class RestApplication extends BaseApplication {
 
         // Start application
         const port = parseInt(process.env.PORT, 10);
-        await this._app.listen(
-            port,
-            () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
-        );
+
+        // eslint-disable-line no-console
+        const onStartCallback = () => console.log(`Server started http://localhost:${port}`);
+        const appListenArguments = this._config.isListenLocalhost
+            ? [port, 'localhost', onStartCallback]
+            : [port, onStartCallback];
+
+        // @ts-ignore
+        return this._app.listen(...appListenArguments);
     }
 
     /**

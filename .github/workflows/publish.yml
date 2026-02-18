@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - beta
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -12,7 +13,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
-          node-version: 18
+          node-version: 22
       - run: yarn
       - run: yarn build
       - id: previous-version
@@ -24,6 +25,13 @@ jobs:
         run: |
           CURRENT_VERSION=$(node -p "require('./dist/package.json').version")
           echo "currentVersion=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+      - id: npm-tag
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "beta" ]; then
+            echo "tag=beta" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
       - id: is-publish
         run: |
           if [ "${{ steps.previous-version.outputs.previousVersion }}" != "${{ steps.current-version.outputs.currentVersion }}" ]; then
@@ -32,9 +40,11 @@ jobs:
             echo "isPublish=false" >> $GITHUB_OUTPUT
           fi
       - uses: JS-DevTools/npm-publish@v1
+        if: steps.is-publish.outputs.isPublish == 'true'
         with:
           package: ./dist/package.json
           token: ${{ secrets.NPM_TOKEN }}
+          tag: ${{ steps.npm-tag.outputs.tag }}
       - uses: actions/upload-artifact@v4
         with:
           name: dist-package

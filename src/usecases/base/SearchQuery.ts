@@ -9,7 +9,7 @@ export const DEFAULT_ALIAS = 'model';
 
 export interface ISearchQueryConfig<TModel> {
     useShortAliases?: boolean,
-    onGetOne?: (searchQuery: SearchQuery<TModel>) => Promise<TModel>,
+    onGetOne?: (searchQuery: SearchQuery<TModel>) => Promise<TModel | null>,
     onGetMany?: (searchQuery: SearchQuery<TModel>) => Promise<Array<TModel>>,
 }
 
