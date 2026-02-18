@@ -29,4 +29,13 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      * (value from `process.env.APP_LISTEN_LOCALHOST`)
      */
     isListenLocalhost?: boolean,
+
+    /**
+     * Check if there are new permissions in the code that are not in the database?
+     * (value from `process.env.APP_CHECK_NEW_PERMISSIONS` or names of the table and column with permissions)
+     */
+    checkNewPermissions?: boolean | {
+        tableName?: string,
+        columnName?: string,
+    };
 }

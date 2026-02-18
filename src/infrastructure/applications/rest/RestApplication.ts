@@ -2,7 +2,7 @@ import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {INestApplication, VersioningType} from '@nestjs/common';
-import {Connection} from '@steroidsjs/typeorm';
+import {DataSource} from '@steroidsjs/typeorm';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -194,11 +194,18 @@ export class RestApplication extends BaseApplication {
     }
 
     protected async checkNewPermissions() {
-        const connection = this._app.get(Connection);
+        const dataSource = this._app.get(DataSource);
 
-        const newPermissions = await getNewPermissions(connection);
+        const {
+            tableName = undefined,
+            columnName = undefined,
+        } = typeof this._config.checkNewPermissions === 'object'
+            ? this._config.checkNewPermissions
+            : {};
 
-        if (newPermissions.length > 0) {
+        const newPermissions = await getNewPermissions(dataSource, tableName, columnName);
+
+        if (newPermissions.length) {
             throw new Error('The new permissions are available in the code,'
                 + ' but they are not in the database. Generate and run migrations.');
         }
@@ -215,7 +222,9 @@ export class RestApplication extends BaseApplication {
             logger: ['error', 'warn'],
         });
 
-        await this.checkNewPermissions();
+        if (this._config.checkNewPermissions) {
+            await this.checkNewPermissions();
+        }
 
         this.initSwagger();
         this.initCors();
