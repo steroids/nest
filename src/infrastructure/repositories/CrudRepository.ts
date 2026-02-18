@@ -20,7 +20,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * Table primary key
      */
-    public primaryKey = 'id';
+    public primaryKey: string = 'id';
 
     /**
      * TypeORM repository instance
@@ -66,7 +66,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
             this.dbRepository as any,
             dto,
             searchQuery,
-            null,
+            null
         );
         result.items = result.items.map(item => this.entityToModel(item));
         return result;
@@ -136,7 +136,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      */
     protected createQueryBuilder(
         conditionOrQuery: ICondition | SearchQuery<TModel>,
-        eagerLoading = true,
+        eagerLoading: boolean = true,
     ): [SelectQueryBuilder<any>, SearchQuery<TModel>] {
         let searchQuery = conditionOrQuery as SearchQuery<TModel>;
         if (!(conditionOrQuery instanceof SearchQuery)) {
@@ -189,15 +189,20 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         };
 
         if (transactionHandler) {
-            return this.dbRepository.manager.transaction<TModel>(async (manager) => transactionHandler(async () => this.saveInternal(
-                {save: (nextModel) => saver(manager, nextModel)},
+            return this.dbRepository.manager.transaction<TModel>(
+                async (manager) => transactionHandler(
+                    async () => this.saveInternal(
+                        {save: (nextModel) => saver(manager, nextModel)},
+                        model,
+                    ),
+                ),
+            );
+        } else {
+            return this.saveInternal(
+                {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
                 model,
-            )));
+            );
         }
-        return this.saveInternal(
-            {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
-            model,
-        );
     }
 
     /**
