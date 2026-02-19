@@ -17,7 +17,9 @@ export default {
             exposeSentryErrorResponse: normalizeBoolean(process.env.APP_ENVIRONMENT === 'dev' || process.env.SENTRY_EXPOSE_ERROR_RESPONSE),
         },
         isListenLocalhost: normalizeBoolean(process.env.APP_LISTEN_LOCALHOST),
-        checkNewPermissions: normalizeBoolean(process.env.APP_CHECK_NEW_PERMISSIONS),
+        newPermissionsCheck: {
+            enabled: normalizeBoolean(process.env.APP_CHECK_NEW_PERMISSIONS),
+        },
     }),
     module: (config: IRestAppModuleConfig) => ({
         ...baseConfig.module(config),

@@ -194,14 +194,13 @@ export class RestApplication extends BaseApplication {
     }
 
     protected async checkNewPermissions() {
+        if (!this._config.newPermissionsCheck?.enabled) {
+            return;
+        }
+
         const dataSource = this._app.get(DataSource);
 
-        const {
-            tableName = undefined,
-            columnName = undefined,
-        } = typeof this._config.checkNewPermissions === 'object'
-            ? this._config.checkNewPermissions
-            : {};
+        const {tableName, columnName} = this._config.newPermissionsCheck;
 
         const newPermissions = await getNewPermissions(dataSource, tableName, columnName);
 
@@ -222,9 +221,7 @@ export class RestApplication extends BaseApplication {
             logger: ['error', 'warn'],
         });
 
-        if (this._config.checkNewPermissions) {
-            await this.checkNewPermissions();
-        }
+        await this.checkNewPermissions();
 
         this.initSwagger();
         this.initCors();

@@ -32,9 +32,12 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
 
     /**
      * Check if there are new permissions in the code that are not in the database?
-     * (value from `process.env.APP_CHECK_NEW_PERMISSIONS` or names of the table and column with permissions)
+     * (value: `enabled` from `process.env.APP_CHECK_NEW_PERMISSIONS` and names of the table and column with permissions)
      */
-    checkNewPermissions?: boolean | {
+    newPermissionsCheck?: {
+        enabled: false,
+    } | {
+        enabled: true,
         tableName?: string,
         columnName?: string,
     };
