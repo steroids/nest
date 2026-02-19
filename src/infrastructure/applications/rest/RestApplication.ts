@@ -82,17 +82,23 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Set global prefix with versioning
+     * @protected
+     */
+    protected initRouting(): void {
+        this._app.setGlobalPrefix('/api');
+        this._app.enableVersioning({
+            type: VersioningType.URI,
+            defaultVersion: '1',
+        });
+    }
+
+    /**
      * Initialize Swagger to generate API documentation.
      * Documentation will be available at the `/api/docs` endpoint.
      * @protected
      */
     protected initSwagger() {
-        // Versioning
-        this._app.setGlobalPrefix('/api/v1');
-        this._app.enableVersioning({
-            type: VersioningType.URI,
-        });
-
         // Swagger config
         const swaggerConfig = new DocumentBuilder()
             .setTitle(this._config.title || 'Application')
@@ -202,6 +208,7 @@ export class RestApplication extends BaseApplication {
             logger: ['error', 'warn'],
         });
 
+        this.initRouting();
         this.initSwagger();
         this.initCors();
         this.initPipes();
