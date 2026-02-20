@@ -4,6 +4,7 @@ import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty, isString} from 'class-validator';
 import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
+import {mapColumnTypeToSwagger} from '../../adapters/TypeORMColumnSwaggerAdapter';
 
 export const STEROIDS_META_FIELD = 'steroids_meta_field';
 export const STEROIDS_META_FIELD_DECORATOR = 'steroids_meta_field_decorator';
@@ -226,7 +227,7 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
                 appType: internalOptions.appType || null,
             }, internalOptions),
             ApiProperty({
-                type: options.jsType || internalOptions.swaggerType || internalOptions.jsType,
+                type: mapColumnTypeToSwagger(options.jsType || internalOptions.swaggerType || internalOptions.jsType),
                 description: options.label || undefined,
                 example: options.example || undefined,
                 required: options.nullable === false,
@@ -239,3 +240,4 @@ export function BaseField(options: IBaseFieldOptions = null, internalOptions: II
         ].filter(Boolean),
     );
 }
+
