@@ -43,7 +43,7 @@
     "@nestjs/core": "^10.4.19",
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^10.4.19",
-    "@nestjs/swagger": "^6.1.4",
+    "@nestjs/swagger": "^8.1.1",
     "@steroidsjs/nest-typeorm": "^10.0.3",
     "@steroidsjs/typeorm": "^0.3.23",
     "class-validator": "^0.14.0"
@@ -55,7 +55,7 @@
     "@nestjs/core": "^10.4.19",
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^10.4.19",
-    "@nestjs/swagger": "^6.1.4",
+    "@nestjs/swagger": "^8.1.1",
     "@steroidsjs/eslint-config": "2.1.2",
     "@steroidsjs/nest-typeorm": "^10.0.3",
     "@steroidsjs/typeorm": "^0.3.23",
