@@ -1,5 +1,5 @@
-<!-- VitePress landing page. For navigation use the sidebar or see README.md. -->
 ---
+# VitePress landing page. For navigation use the sidebar or see README.md.
 layout: home
 
 hero:

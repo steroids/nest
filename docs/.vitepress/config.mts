@@ -1,6 +1,4 @@
-import { defineConfig } from 'vitepress'
-
-export default defineConfig({
+export default {
     title: 'Steroids Nest',
     description: 'Библиотека инструментов и утилит для NestJS',
     lang: 'ru',
@@ -56,4 +54,4 @@ export default defineConfig({
             { icon: 'github', link: 'https://github.com/steroids/nest' },
         ],
     },
-})
+}
