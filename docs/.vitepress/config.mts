@@ -2,6 +2,7 @@ export default {
     title: 'Steroids Nest',
     description: 'Библиотека инструментов и утилит для NestJS',
     lang: 'ru',
+    base: '/nest/',
     srcExclude: ['**/MigrationGuide.md'],
 
     themeConfig: {
