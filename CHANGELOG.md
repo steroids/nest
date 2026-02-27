@@ -6,6 +6,7 @@
 
 - Добавлена проверка сложности пароля в `PasswordField` ([#223](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/223))
 - Добавлен параметр `isListenLocalhost` в `RestApplication` для прослушивания только localhost'а, env-переменная для него - `APP_LISTEN_LOCALHOST` ([#215](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/215))
+- Добавлен параметр `newPermissionsCheck` в `RestApplication` для проверки наличия объявленных в коде прав доступа в БД. Принимает объект с полем `enabled` из env `APP_CHECK_NEW_PERMISSIONS` и с названиями таблицы и колонки прав доступа (по умолчанию `auth_permission` и `name`)
 
 ## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
 
