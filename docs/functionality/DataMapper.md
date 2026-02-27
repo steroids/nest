@@ -10,25 +10,6 @@ DataMapper.create(StoreStatusChangeEventDto, {
 });
 ```
 
-Метод create имеет следующий интерфейс:
-
-```typescript
-static create<T>(
-    MetaClass: IType<T>,
-    values: DeepPartial<T> | DeepPartial<T>[],
-    transformType: ITransformType = TRANSFORM_TYPE_DEFAULT,
-    skipBuilder = false,
-): T | T[]
-```
-
-- `MetaClass` - класс, экземпляр которого будет создан
-- `values` - объект, на основе которого будет создан экземпляр класса. Данный аргумент может быть массивом, в таком случае DataMapper создаст массив.
-- `transformType` - тип трансформации объекта. Может принимать значения
-    - `*TRANSFORM_TYPE_DEFAULT` - значение по-умолчанию*
-    - `*TRANSFORM_TYPE_FROM_DB*` - используется при создании класса модели при чтении записи из БД (при создании `Model` из `Table`).
-    - `*TRANSFORM_TYPE_TO_DB*` - используется при создании entity класса при записи данных в БД (при создании `Table` из `Model`).
-- `skipBuilder` - ?
-
 DataMapper создает также экземпляры вложенных классов, если поля с их типом имеют RelationField декоратор:
 
 ```ts

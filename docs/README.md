@@ -1,12 +1,11 @@
-# Steroids Nest Core - документация
+# сайт документации steroids nest
 
 ## 1. Обзор
 
-- [Что такое и для чего нужен Steroids Nest](overview/Review.md#обзор)
-- [Описание компонентов](overview/Components.md)
-- [Архитектура проекта](overview/ProjectArchitecture.md)
+- [Что такое и для чего нужен Steroids Nest](overview/Overview.md#обзор)
 - [Экосистема фреймворка](overview/FrameworkEcosystem.md)
-		
+- [Предлагаемая архитектура проекта](overview/ProjectArchitecture.md)
+
 ## 2. Использование
 - [быстрый старт и подключение библиотеки](usage/Start.md)
 - [дебаг фреймворка в проекте](usage/Debug.md)
@@ -27,7 +26,7 @@
 - [расширение модулей](modules/Modules.md)
 - подключение модулей - в README.md каждого модуля
 - использование ситуативных модулей
-    - [EventEmitterModule](modules/Events.md)
-    - [Transactional TypeOrmModule](modules/Transactions.md)
-    - LoggerModule
-    - I18nModule
+  - [EventEmitterModule](modules/Events.md)
+  - [Transactional TypeOrmModule](modules/Transactions.md)
+  - LoggerModule
+  - I18nModule

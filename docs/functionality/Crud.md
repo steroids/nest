@@ -46,116 +46,19 @@ import {UserModel} from '../models/UserModel';
 export interface IUserRepository extends ICrudRepository<UserModel> {}
 ```
 
-### Свойства
+### Функциональность
 
----
+Этот класс реализует функциональность управления ORM-сущностями.
+Он позволяет инициализировать TypeORM-репозиторий, а также выполнять основные операции:
+чтение, создание, обновление, удаление и [мягкое удаление](Crud.md#2-мягкое-удаление) записей.
+Для поиска данных реализованы методы, поддерживающие фильтрацию, сортировку и пагинацию,
+а также возможность получения одной или нескольких записей по условиям.
 
-`primaryKey`
+[Внутренние методы](Crud.md#3-внутренние-методы) сохранения и удаления могут быть переопределены.
 
-По умолчанию: `id`. Определяет имя первичного ключа таблицы.
+Также класс содержит методы для преобразования моделей в ORM-сущности и обратно,
+обеспечивая соответствие между структурой базы данных и бизнес-логикой.
 
-`dbRepository`
-
-Экземпляр репозитория TypeORM, привязанного к конкретной ORM-сущности.
-
-`modelClass`
-
-Класс модели для CRUD операций (такой же, как `TModel`).
-
-
-### Методы
-
----
-```typescript
-init(dbRepository: Repository<any>, modelClass: any): void
-```
-
-Сеттер для `dbRepository` и `modelClass`.
-
-```typescript
-async save(model: TModel, transactionHandler?: (callback) => Promise<void>): Promise<TModel>
-```
-
-Создание или обновление записи; [transactionHandler](#transaction-handler).
-
-```typescript
-async remove(id: number, transactionHandler?: (callback) => Promise<void>): Promise<void>
-```
-
-Удаление запись по `id`; [transactionHandler](#transaction-handler).
-
-```typescript
-async softRemove(id: number, transactionHandler?: (callback: () => Promise<void>) => Promise<void>): Promise<void>`
-```
-
-[Мягкое удаление](#soft-remove) модели по `id`, метод будет работать,
-только если у модели есть поле, помеченное декоратором `DeleteDateField`; [transactionHandler](#transaction-handler).
-
-```typescript
-async search(dto: SearchInputDto, searchQuery: SearchQuery<TModel>): Promise<SearchResultDto<TModel>>
-```
-
-Поиск с учетом фильтров, сортировки и пагинации.
-
-```typescript
-async findOne(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel | null>
-```
-
-Поиск одной записи по условию (`ICondition`) или по [SearchQuery](SearchQuery.md).
-
-```typescript
-async findMany(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel[]>
-```
-
-Поиск нескольких записей по условию (`ICondition`) или по [SearchQuery](SearchQuery.md). 
-
-
-```typescript
-createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel>
-```
-
-Создание объекта [SearchQuery](SearchQuery.md) в контексте репозитория,
-что позволяет вызывать методы `one`, `many` у [SearchQuery](SearchQuery.md)
-(связывание с методами `findOne` и `findMany`).
-
-```typescript
-protected createQueryBuilder(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading: boolean = true): [SelectQueryBuilder<any>, SearchQuery<TModel>]
-```
-
-Создание билдера запросов по условию (`ICondition`) или по [SearchQuery](SearchQuery.md) для методов `findOne()` и `findMany()`.
-
-```typescript
-async saveInternal(manager: ISaveManager, nextModel: TModel): Promise<void>
-```
-
-[Внутренний метод](#internal-methods) сохранения, который можно переопределять. Используется внутри метода `save`.
-
-```typescript
-async removeInternal(manager: EntityManager, id: number): Promise<void>
-```
-
-[Внутренний метод](#internal-methods) удаления, который можно переопределять. Используется внутри метода `remove`.
-
-```typescript
-async softRemoveInternal(manager: EntityManager, id: number): Promise<void>
-```
-
-[Внутренний метод](#internal-methods) [мягкого удаления](#soft-remove), который можно переопределять. Используется внутри метода `softRemove`.
-
-
-```typescript
-protected modelToEntity(model): any
-```
-
-Преобразование модели в класс ORM-сущности.
-
-```typescript
-protected entityToModel(obj: any): TModel
-```
-
-Преобразование объекта класса ORM-сущности в модель. 
-Выбрасывается исключение (`Property modelClass is not set in repository: <repositoryName>`),
-если `modelClass` не установлен.
 
 ## ReadService
 
@@ -188,82 +91,16 @@ export class FileService extends ReadService<FileModel, FileSearchDto> {
 }
 ```
 
-### Свойства
+### Функциональность
 
----
+Этот класс управляет взаимодействием с репозиторием и моделями, обеспечивая их поиск.
+Поиск может осуществляться по идентификатору, с использованием фильтров, сортировки и пагинации,
+а также через специализированные поисковые запросы ([SearchQuery](SearchQuery.md)).
 
-`primaryKey`
-
-По умолчанию: `id`. Определяет имя первичного ключа таблицы.
-
-`repository`
-
-Экземпляр класса, реализующего `ICrudRepository<TModel>`.
-
-`modelClass`
-
-Класс модели для операций чтения такой же, как `TModel`.
-
-`validators`
-
-Список экземпляров классов, реализующих интерфейс `IValidator`, для валидации 
-объектов с помощью [ValidationHelper](Validation.md).
-
-### Методы
-
----
-
-```typescript
-init(repository: ICrudRepository<TModel>, ModelClass: IType<TModel>): void
- ```
-
-Сеттер для `repository` и `modelClass`.
-
-```typescript
-async search<TSchema>(dto: TSearchDto, context: ContextDto = null, schemaClass: IType<TSchema> = null): Promise<SearchResultDto<TModel | TSchema>>
- ```
-
-Поиск моделей с учетом сортировки и пагинации. 
-Переданное dto валидируется.
-Результат преобразуется в указанную схему (`schemaClass`), если она предоставлена.
-
-```typescript
-async findById<TSchema>(id: number | string, context: ContextDto = null, schemaClass: IType<TSchema> = null): Promise<TModel | TSchema>
-```
-
-Поиск модель по ее идентификатору.
-Результат преобразуется в указанную схему (`schemaClass`), если она предоставлена.
-
-```typescript
-async findOne(searchQuery: SearchQuery<TModel>): Promise<TModel>
-```
-
-Поиск одной модели, соответствующей переданному запросу ([SearchQuery](SearchQuery.md)).
-
-```typescript
-async findMany(searchQuery: SearchQuery<TModel>): Promise<TModel[]>
-```
-
-Поиск нескольких моделей, соответствующих переданному запросу ([SearchQuery](SearchQuery.md)).
-
-```typescript
-createQuery(config?: ISearchQueryConfig<TModel>): SearchQuery<TModel>
-```
-Создание объекта [SearchQuery](SearchQuery.md) в контексте репозитория,
-что позволяет вызывать методы `one`, `many` у [SearchQuery](SearchQuery.md) (связывание с методами `findOne` и `findMany`).
-
-```typescript
-protected modelToSchema<TSchema>(model: TModel, schemaClass: IType<TSchema>): TSchema
-```
-
-Преобразование модели в указанный класс схемы (`schemaClass`) с использованием `DataMapper`.
-
-```typescript
-protected async validate(dto: any, params?: IValidatorParams)
-```
-
-Валидация dto с помощью зарегистрированных валидаторов (`validators`).
-
+Результаты поиска могут быть преобразованы в указанный класс схемы (schemaClass).
+Для работы с запросами предусмотрен метод создания [SearchQuery](SearchQuery.md), который связывается с методами поиска.
+Также реализованы механизмы преобразования моделей в схемы через [DataMapper](DataMapper.md) и валидации входных данных
+с использованием зарегистрированных валидаторов.
 ## CrudService
 
 `CrudService` - обобщённый класс сервиса для работы с CRUD операциями.
@@ -304,80 +141,17 @@ export class UserService extends CrudService<UserModel, UserSearchDto> {
 
 `CrudService` наследует свойства от `ReadService`.
 
-### Методы
+### Функциональность 
+`CrudService` расширяет `ReadService`, добавляя возможности для управления данными.
+Можно создавать новые записи, обновлять существующие, а также удалять или помечать их как удалённые ([мягкое удаление](Crud.md#2-мягкое-удаление)).
+Перед сохранением выполняется валидация, а итоговый объект может быть преобразован в указанную схему.
 
----
+При удалении сначала проверяется наличие связанных элементов,
+чтобы избежать удаления зависимых данных. 
 
-`CrudService` расширяет возможности `ReadService`, добавляя собственные методы.
+[Внутренние методы](Crud.md#3-внутренние-методы) сохранения и удаления могут быть переопределены.
 
-```typescript
-async save<TSchema>(rawId: number | string | null, dto: Partial<TModel>, context: ContextDto = null, schemaClass: IType<TSchema> = null): Promise<TModel | TSchema>
-```
-
-Универсальный метод, объединяющий логику создания и обновления.
-Если `id` указан, ищет существующую модель и применяет изменения.
-Перед сохранением валидирует переданное dto и модель с применёнными изменениями.
-Преобразует результат в указанную схему (`schemaClass`), если она предоставлена.
-
-```typescript
-async create<TSchema>(dto: Partial<TModel>, context: ContextDto = null, schemaClass: IType<TSchema> = null): Promise<TModel | TSchema> 
-```
-
-Создание модели. Использует метод `save` без переданного `id`.
-
-```typescript
-async update<TSchema>(rawId: number | string, dto: Partial<TModel>, context: ContextDto = null, schemaClass: IType<TSchema> = null): Promise<TModel | TSchema>
-```
-
-Обновление модели. Использует метод `save` с переданным `id`.
-
-```typescript
-async saveInternal(prevModel: TModel | null, nextModel: TModel, context?: ContextDto): Promise<void>
-```
-
-[Внутренний метод](#internal-methods) сохранения, который можно переопределять. Используется внутри метода `save`.
-
-```typescript
-async remove(rawId: number | string, context: ContextDto = null): Promise<void> 
-```
-
-Удаление модели по `id`.
-Перед удалением проверяется наличие связанных моделей.
-
-```typescript
-async checkHasRelatedModels(id: string | number, service: CrudService<any>): Promise<void>
-```
-
-Проверка наличия связанных элементов у модели, используется внутри метода `remove`.
-Выбрасывается исключение (`Нельзя удалить, есть связные элементы (<relation>)`), если удаление невозможно из-за связей.
-
-```typescript
-async removeInternal(id: number, context?: ContextDto): Promise<void>
-```
-
-[Внутренний метод](#internal-methods) удаления, который можно переопределять. Используется внутри метода `remove`.
-
-```typescript
-async softRemove(rawId: number | string, context: ContextDto = null): Promise<void>
-```
-
-[Мягкое удаление](#soft-remove) модели по `id`.
-
-```typescript
-async softRemoveInternal(id: number, context?: ContextDto): Promise<void>
-```
-
-[Внутренний метод](#internal-methods) [мягкого удаления](#soft-remove), который можно переопределять.
-Используется внутри метода `softRemove`.
-
-```typescript
-protected dtoToModel(dto: Partial<TModel>): TModel
-```
-
-Преобразование dto в модель.
-Использует `DataMapper` для копирования значений.
-Выбрасывается исключение (`Property modelClass is not set in service: <serviceName>`),
-если `modelClass` не установлен.
+Преобразование входных данных в модель выполняется с помощью [DataMapper](DataMapper.md).
 
 ---
 
