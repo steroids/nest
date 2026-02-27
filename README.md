@@ -5,3 +5,4 @@ Steroids Nest — это библиотека инструментов и ути
 
 Документация по библиотеке доступна:
 - в папке [`docs` в этом репозитории](docs/README.md)
+- на сайте [https://steroids.github.io/nest](https://steroids.github.io/nest)
