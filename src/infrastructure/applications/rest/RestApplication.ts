@@ -1,7 +1,7 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
-import {INestApplication, VersioningType} from '@nestjs/common';
+import {INestApplication, RequestMethod, VersioningType} from '@nestjs/common';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -88,7 +88,11 @@ export class RestApplication extends BaseApplication {
      */
     protected initSwagger() {
         // Versioning
-        this._app.setGlobalPrefix('/api/v1');
+        this._app.setGlobalPrefix('/api/v1', {
+            exclude: [
+                { path: 'internal/(.*)', method: RequestMethod.ALL },
+            ],
+        });
         this._app.enableVersioning({
             type: VersioningType.URI,
         });
