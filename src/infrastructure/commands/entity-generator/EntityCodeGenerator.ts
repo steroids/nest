@@ -80,14 +80,14 @@ export class EntityCodeGenerator {
     }
 
     private shouldSkipTemplate(fileType: string): boolean {
-        const skipIfReadOnly = ['crudService', 'saveDto'];
-        const skipIfNotReadOnly = ['readService'];
+        const entitiesToSkipIfReadOnly = ['crudService', 'saveDto'];
+        const entitiesToSkipIfNotReadOnly = ['readService'];
 
         if (this.onlyReadService) {
-            return skipIfReadOnly.includes(fileType);
+            return entitiesToSkipIfReadOnly.includes(fileType);
         }
 
-        return skipIfNotReadOnly.includes(fileType);
+        return entitiesToSkipIfNotReadOnly.includes(fileType);
     }
 
     private generateFileByType(fileType) {
