@@ -2,7 +2,7 @@ import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
 import {ColumnType} from '@steroidsjs/typeorm/driver/types/ColumnTypes';
 import {IsNotEmpty, isString} from 'class-validator';
-import {IAllFieldOptions, IntegerField} from './index';
+import {IAllFieldOptions} from './index';
 import {ITransformCallback, Transform} from '../Transform';
 
 export const STEROIDS_META_FIELD = 'steroids_meta_field';
