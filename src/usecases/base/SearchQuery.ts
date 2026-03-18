@@ -31,6 +31,7 @@ export default class SearchQuery<TModel> {
     protected _offset?: number;
     protected _useShortAliases: boolean;
     protected _withDeleted: boolean;
+    protected _shortAliasRegistry: Map<string, string> = new Map();
     protected _onGetOne: ISearchQueryConfig<TModel>['onGetOne'];
     protected _onGetMany: ISearchQueryConfig<TModel>['onGetMany'];
 
@@ -61,34 +62,24 @@ export default class SearchQuery<TModel> {
     /**
      * Short aliases primary usage is to avoid DB's alias length restriction. It's disabled by default.
      *
-     * @param {string} relationPath
-     * @example model.firstRelation.secondRelation
-     *
-     * @param {boolean} isShort
+     * @param {string} relationPath e.g. model.firstRelation.secondRelation
+     * @param {Map<string, string>} [registry] instance-level registry for short aliases
      */
-    public static getRelationAlias(relationPath: string, isShort = false) {
+    public static getRelationAlias(relationPath: string, registry?: Map<string, string>): string {
         const relationsArray = relationPath.split('.');
 
-        if (!isShort) {
+        if (!registry || relationsArray.length === 1) {
             return relationsArray.join('_');
-        } else {
-            // first letter + the uppercase letters + relation index in path + relation length
-            // model.firstRelation.secondRelation -> m0_fr113_sr214
-            return relationsArray.map((relation, index) => {
-                // root alias shouldn't change
-                if (index === 0) {
-                    return relation;
-                }
-
-                return relation[0]
-                    + relation.split('')
-                        .filter(letter => /\w/.test(letter) && letter === letter.toUpperCase())
-                        .map(letter => letter.toLowerCase())
-                        .join('')
-                    + String(index)
-                    + relation.length;
-            }).join('_');
         }
+
+        let short = registry.get(relationPath);
+
+        if (!short) {
+            short = `${relationsArray[0]}_${registry.size + 1}`;
+            registry.set(relationPath, short);
+        }
+
+        return short;
     }
 
     select(value: string | string[]) {
@@ -135,11 +126,20 @@ export default class SearchQuery<TModel> {
     }
 
     public getRelationAlias(relationPath) {
-        return SearchQuery.getRelationAlias([this._alias, relationPath].join('.'), this._useShortAliases);
+        return SearchQuery.getRelationAlias(
+            [this._alias, relationPath].join('.'),
+            this._useShortAliases
+                ? this._shortAliasRegistry
+                : undefined,
+        );
     }
 
     getShortAliasesAreUsed(): boolean {
         return this._useShortAliases;
+    }
+
+    getRelationAliasRegistry(): Map<string, string> | undefined {
+        return this._useShortAliases ? this._shortAliasRegistry : undefined;
     }
 
     with(relation: Record<string, string | string[]> | string | string[], useJoin = true) {
