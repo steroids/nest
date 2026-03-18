@@ -1,9 +1,12 @@
 # Steroids Nest Changelog
 
-[Migration guide](docs/MigrationGuide.md)
+[Migration guide](docs/MigrationGuide.md#)
 
 ### Features
+
 - Переход с библиотеки `@ntegral/nestjs-sentry` на `@sentry/nestjs`
+- Добавлена проверка сложности пароля в `PasswordField` ([#223](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/223))
+- Добавлен параметр `isListenLocalhost` в `RestApplication` для прослушивания только localhost'а, env-переменная для него - `APP_LISTEN_LOCALHOST` ([#215](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/215))
 
 ## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
 
