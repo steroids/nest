@@ -3,7 +3,7 @@ import {%entityName%SearchDto} from '../dtos/%entityName%SearchDto';
 import {%entityName%SaveDto} from '../dtos/%entityName%SaveDto';
 import {%entityName%Model} from '../models/%entityName%Model';
 import {I%entityName%Repository} from '../interfaces/I%entityName%Repository';
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 
 @Injectable()
 export class %entityName%Service extends CrudService<%entityName%Model, %entityName%SearchDto, %entityName%SaveDto> {
@@ -11,6 +11,7 @@ export class %entityName%Service extends CrudService<%entityName%Model, %entityN
 
     constructor(
         /** %entityName%Repository */
+        @Inject(I%entityName%Repository)
         protected readonly repository: I%entityName%Repository,
     ) {
         super();
