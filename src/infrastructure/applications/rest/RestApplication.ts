@@ -139,28 +139,20 @@ export class RestApplication extends BaseApplication {
 
     /**
      * Initialize global exception filters
-     * (by default, `ValidationExceptionFilter` and `UserExceptionFilter` are used).
+     *
+     * (by default, `ValidationExceptionFilter` and `UserExceptionFilter` are used.
+     * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added).
      * @protected
      */
     protected initFilters() {
+        if (this._config.sentry) {
+            this._app.useGlobalFilters(new SentryExceptionFilter(this._config.sentry.exposeSentryErrorResponse));
+        }
         // Validation
         this._app.useGlobalFilters(new ValidationExceptionFilter());
         this._app.useGlobalFilters(new UserExceptionFilter());
     }
 
-    /**
-     * Initializes Sentry for error tracking and logging.
-     * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added.
-     *
-     * Sentry also automatically configures `process.on('uncaughtException')` and `process.on('unhandledRejection')` to log and handle these events,
-     * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
-     * @protected
-     */
-    protected initSentry() {
-        if (process.env.APP_SENTRY_DSN) {
-            this._app.useGlobalFilters(new SentryExceptionFilter(this._config.sentry.exposeSentryErrorResponse));
-        }
-    }
 
     /**
      * Initialization of global interceptors (default is `SchemaSerializer`).
@@ -206,7 +198,6 @@ export class RestApplication extends BaseApplication {
         this.initCors();
         this.initPipes();
         this.initFilters();
-        this.initSentry();
         this.initInterceptors();
         this.initSettings();
         this.initGraceful();
