@@ -6,6 +6,7 @@ import {DataSource, getFromContainer, MigrationInterface} from '@steroidsjs/type
 import {ConnectionMetadataBuilder} from '@steroidsjs/typeorm/connection/ConnectionMetadataBuilder';
 import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
 import {importClassesFromDirectories} from './importClassesFromDirectories';
+import {PermissionsFactory} from '../helpers/PermissionsFactory';
 
 ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
     const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
@@ -93,7 +94,7 @@ export class MigrateCommand {
             name: 'permissionTable',
             describe: 'Table name for permissions',
             type: 'string',
-            default: 'auth_permission',
+            demandOption: false,
         })
             permissionTable: string,
 
@@ -101,7 +102,7 @@ export class MigrateCommand {
             name: 'permissionColumn',
             describe: 'Column name of permission',
             type: 'string',
-            default: 'name',
+            demandOption: false,
         })
             permissionColumn: string,
 
@@ -109,14 +110,16 @@ export class MigrateCommand {
             name: 'permissionModule',
             describe: 'Module where write migrations of permissions',
             type: 'string',
-            default: 'auth',
+            demandOption: false,
         })
             permissionModule: string,
     ) {
+        const defaultConfig = PermissionsFactory.getDefaultPermissionsConfig();
+
         await generateMigrationsForPermissions(this.dataSource, {
-            table: permissionTable,
-            column: permissionColumn,
-            module: permissionModule,
+            table: permissionTable || defaultConfig.table,
+            column: permissionColumn || defaultConfig.column,
+            module: permissionModule || defaultConfig.module,
         });
     }
 }

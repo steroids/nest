@@ -200,9 +200,9 @@ export class RestApplication extends BaseApplication {
 
         const dataSource = this._app.get(DataSource);
 
-        const {tableName, columnName} = this._config.newPermissionsCheck;
+        const {table, column} = this._config.newPermissionsCheck;
 
-        const newPermissions = await getNewPermissions(dataSource, tableName, columnName);
+        const newPermissions = await getNewPermissions(dataSource, table, column);
 
         if (newPermissions.length) {
             throw new Error('The new permissions are available in the code,'

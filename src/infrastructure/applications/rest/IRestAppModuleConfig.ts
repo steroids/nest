@@ -38,7 +38,7 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
         enabled: false,
     } | {
         enabled: true,
-        tableName?: string,
-        columnName?: string,
+        table?: string,
+        column?: string,
     };
 }

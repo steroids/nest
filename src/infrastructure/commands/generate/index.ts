@@ -50,12 +50,15 @@ ${downSqls.join(`
 `;
 };
 
-export const generateMigrationsForPermissions = async (dataSource: DataSource, permissionOptions = {
-    table: 'auth_permission',
-    column: 'name',
-    module: 'auth',
-}) => {
-    const newPermissions = await getNewPermissions(dataSource, permissionOptions.table, permissionOptions.column);
+export const generateMigrationsForPermissions = async (
+    dataSource: DataSource,
+    permissionsConfig: {
+        table: string,
+        column: string,
+        module: string,
+    },
+) => {
+    const newPermissions = await getNewPermissions(dataSource, permissionsConfig.table, permissionsConfig.column);
 
     if (!newPermissions.length) {
         // eslint-disable-next-line no-console
@@ -64,15 +67,15 @@ export const generateMigrationsForPermissions = async (dataSource: DataSource, p
     }
 
     const cliConfiguration = await loadConfiguration();
-    const dirPath = join(process.cwd(), cliConfiguration.sourceRoot, permissionOptions.module, 'infrastructure', 'migrations');
+    const dirPath = join(process.cwd(), cliConfiguration.sourceRoot, permissionsConfig.module, 'infrastructure', 'migrations');
 
     const values = newPermissions
         .map(key => `('${key}')`)
         .join(',\n            ');
 
-    const upRaw = `INSERT INTO ${permissionOptions.table} (${permissionOptions.column}) VALUES\n    ${values};`;
+    const upRaw = `INSERT INTO ${permissionsConfig.table} (${permissionsConfig.column}) VALUES\n    ${values};`;
 
-    const downRaw = `DELETE FROM ${permissionOptions.table} WHERE ${permissionOptions.column} IN (${newPermissions.map(permission => `'${permission}'`).join(', ')});`;
+    const downRaw = `DELETE FROM ${permissionsConfig.table} WHERE ${permissionsConfig.column} IN (${newPermissions.map(permission => `'${permission}'`).join(', ')});`;
 
     const upQueries = [
         `        await queryRunner.query(\`${prettifyQuery(upRaw)}\`);`,
