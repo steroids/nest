@@ -279,6 +279,7 @@ export default class SearchQuery<TModel> {
      * @param orderValue string or object with keys such as:
      * - `field`
      * - `modelAlias.field`
+     * - `modelAlias_field`
      * - `modelAlias.relationAlias.field`
      * - `modelAlias_relationAlias.field`
      * - `modelAlias_relationAlias_field`
@@ -290,6 +291,7 @@ export default class SearchQuery<TModel> {
      *
      * @return `ISearchQueryOrder` object, which contains keys such as:
      * - `"modelAlias"."field"`
+     * - `"modelAlias_field"`
      * - `"modelAlias_relationAlias"."field"`
      * - `"modelAlias_relationAlias_field"`
      *
@@ -303,7 +305,7 @@ export default class SearchQuery<TModel> {
             const pathToField = orderValue.split('.');
             const field = pathToField.pop();
 
-            if (pathToField[0] === this._alias) {
+            if (pathToField[0] && wrapInDoubleQuotes(pathToField[0]) === wrapInDoubleQuotes(this._alias)) {
                 pathToField.shift();
             }
 
