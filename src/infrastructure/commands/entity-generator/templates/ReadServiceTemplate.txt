@@ -1,8 +1,8 @@
+import {Inject, Injectable} from '@nestjs/common';
 import {ReadService} from '@steroidsjs/nest/usecases/services/ReadService';
 import {%entityName%SearchDto} from '../dtos/%entityName%SearchDto';
 import {%entityName%Model} from '../models/%entityName%Model';
 import {I%entityName%Repository} from '../interfaces/I%entityName%Repository';
-import {Inject, Injectable} from '@nestjs/common';
 
 @Injectable()
 export class %entityName%Service extends ReadService<%entityName%Model, %entityName%SearchDto> {
