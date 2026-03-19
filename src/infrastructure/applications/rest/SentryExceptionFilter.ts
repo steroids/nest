@@ -1,11 +1,13 @@
 import {ExceptionFilter, Catch, ArgumentsHost, HttpStatus, HttpException} from '@nestjs/common';
 import {Response} from 'express';
-import * as Sentry from '@sentry/node';
-import { v4 as uuidv4 } from 'uuid';
-import {CaptureContext} from '@sentry/types';
+import * as Sentry from '@sentry/nestjs';
+import {v4 as uuidv4} from 'uuid';
+import {CaptureContext} from '@sentry/nestjs';
 
 @Catch(Error)
 export class SentryExceptionFilter implements ExceptionFilter {
+    constructor(private readonly exposeErrorResponse: boolean) {}
+
     catch(exception: Error, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
@@ -46,7 +48,8 @@ export class SentryExceptionFilter implements ExceptionFilter {
 
         Sentry.captureException(exception, context);
 
-        exception.message = 'Внутренняя ошибка сервера. ' + exception.message || '';
+        exception.message = 'Внутренняя ошибка сервера. ' + (this.exposeErrorResponse ? exception.message || '' : '');
+
         if (errorUid) {
             exception.message += ` Ошибка #${errorUid}`;
         }
