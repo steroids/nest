@@ -3,6 +3,7 @@ import type {Config} from '@jest/types';
 const config: Config.InitialOptions = {
     preset: 'ts-jest',
     testEnvironment: 'node',
+    cache: false,
     modulePathIgnorePatterns: [
         'dist',
         // ignore usecases tests - it's for unit tests
