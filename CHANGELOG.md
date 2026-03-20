@@ -9,6 +9,17 @@
 - Добавлен параметр `isListenLocalhost` в `RestApplication` для прослушивания только localhost'а, env-переменная для него - `APP_LISTEN_LOCALHOST` ([#215](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/215))
 
 ## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
+## [4.0.4](https://github.com/steroids/nest/compare/4.0.3...4.0.4) (2026-02-09)
+
+### Fixes
+- Команда cli entity:generate теперь не пересоздает файлы сущностей если они уже есть в проекте
+- Исправлены импорты в шаблонах используемых в команде cli entity:generate
+
+### Features
+
+- Добавлен флаг onlyReadService для команды cli entity:generate, при применении которого создается ReadService без лишних сущностей для CrudService
+
+## [4.0.3](https://github.com/steroids/nest/compare/4.0.2...4.0.3) (2026-01-20)
 
 ### Features
 
@@ -43,6 +54,11 @@
 ### Features
 
 - NestJS и связанные с ним зависимости обновлены до 10 версии и перенесены в peerDependencies
+
+## [3.2.8](https://github.com/steroids/nest/compare/3.2.7...3.2.8) (2026-01-14)
+
+### Fixes
+- Исправлена валидация чисел в DecimalField
 
 ## [3.2.7](https://github.com/steroids/nest/compare/3.2.6...3.2.7) (2025-12-25)
 

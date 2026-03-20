@@ -1,5 +1,5 @@
 import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
-import {TypeOrmTableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TypeOrmTableFromModel';
+import {TypeOrmTableFromModel} from '@steroidsjs/nest/infrastructure/decorators/typeorm/TypeOrmTableFromModel';
 import {%entityName%Model} from '../../domain/models/%entityName%Model';
 
 @TypeOrmTableFromModel(%entityName%Model, '%tableName%')
