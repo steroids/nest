@@ -1,3 +1,5 @@
+import {LogLevel} from '@nestjs/common';
+
 export interface IAppModuleConfig {
     /**
      * Application name (default is `app`)
@@ -11,6 +13,10 @@ export interface IAppModuleConfig {
      * Application version (default `1.0`)
      */
     version: string,
+    /**
+     * NestJS logger levels (default is `['error', 'warn']`)
+     */
+    loggerLevels: LogLevel[],
     database?: {
         /**
          * Database host (value from `process.env.APP_DATABASE_HOST`)
