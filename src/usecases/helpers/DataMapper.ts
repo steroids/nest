@@ -82,7 +82,7 @@ export class DataMapper {
     static applyValues(object, values, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT) {
         const MetaClass = object.constructor;
         const keys = isMetaClass(MetaClass) ? getMetaFields(MetaClass) : Object.keys(values);
-        const preparedValues = {...values};
+        const preparedValues = Object.assign(Object.create(Object.getPrototypeOf(values)), values);
         const fieldsMap = new Map(keys.map(name => [name, getFieldOptions(MetaClass, name)]));
 
         const transformTypes = transformType === TRANSFORM_TYPE_DEFAULT
