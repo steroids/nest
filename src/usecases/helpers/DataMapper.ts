@@ -82,13 +82,14 @@ export class DataMapper {
     static applyValues(object, values, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT) {
         const MetaClass = object.constructor;
         const keys = isMetaClass(MetaClass) ? getMetaFields(MetaClass) : Object.keys(values);
+        const preparedValues = {...values};
+        const fieldsMap = new Map(keys.map(name => [name, getFieldOptions(MetaClass, name)]));
 
         const transformTypes = transformType === TRANSFORM_TYPE_DEFAULT
             ? [transformType, TRANSFORM_TYPE_COMPUTABLE]
             : [transformType];
 
-        keys.forEach(name => {
-            const options = getFieldOptions(MetaClass, name);
+        fieldsMap.forEach((options, name) => {
             const sourceName = options?.sourceFieldName || name;
 
             if (!options && isMetaClass(MetaClass)) {
@@ -96,23 +97,29 @@ export class DataMapper {
             }
 
             if (_has(values, sourceName)) {
-                values[sourceName] = options?.isArray && values[sourceName] != null && !Array.isArray(values[sourceName])
+                const value = options?.isArray && values[sourceName] != null && !Array.isArray(values[sourceName])
                     ? [values[sourceName]]
                     : values[sourceName];
 
+                preparedValues[sourceName] = value;
+
                 if (options?.appType === 'relation') {
-                    if (options.isArray && Array.isArray(values[sourceName])) {
-                        object[name] = values[sourceName]
+                    if (options.isArray && Array.isArray(value)) {
+                        object[name] = value
                             .map(item => DataMapper.create(options.relationClass(), item, transformType));
-                    } else if (_isObject(values[sourceName])) {
-                        object[name] = DataMapper.create(options.relationClass(), values[sourceName], transformType);
+                    } else if (_isObject(value)) {
+                        object[name] = DataMapper.create(options.relationClass(), value, transformType);
                     } else {
-                        object[name] = values[sourceName];
+                        object[name] = value;
                     }
                 } else {
-                    object[name] = values[sourceName];
+                    object[name] = value;
                 }
             }
+        });
+
+        fieldsMap.forEach((options, name) => {
+            const sourceName = options?.sourceFieldName || name;
 
             for (let type of transformTypes) {
                 if (_has(values, sourceName) || type !== TRANSFORM_TYPE_DEFAULT) {
@@ -120,7 +127,7 @@ export class DataMapper {
                     for (let callback of callbacks) {
                         const value = callback({
                             value: object[name],
-                            item: values,
+                            item: preparedValues,
                             key: name,
                             transformType: type,
                             options,
