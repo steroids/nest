@@ -96,6 +96,10 @@ export class DataMapper {
             }
 
             if (_has(values, sourceName)) {
+                values[sourceName] = options?.isArray && values[sourceName] != null && !Array.isArray(values[sourceName])
+                    ? [values[sourceName]]
+                    : values[sourceName];
+
                 if (options?.appType === 'relation') {
                     if (options.isArray && Array.isArray(values[sourceName])) {
                         object[name] = values[sourceName]
