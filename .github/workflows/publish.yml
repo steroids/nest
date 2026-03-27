@@ -4,11 +4,6 @@ on:
     branches:
       - main
       - beta
-
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -20,7 +15,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
       - run: yarn
       - run: yarn test-unit
       - run: yarn build
@@ -47,6 +41,7 @@ jobs:
         if: steps.check-version.outputs.isPublish == 'true'
         with:
           package: ./dist/package.json
+          token: ${{ secrets.NPM_TOKEN }}
           tag: ${{ steps.npm-tag.outputs.tag }}
       - uses: actions/upload-artifact@v4
         with:
