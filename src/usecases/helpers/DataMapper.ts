@@ -82,14 +82,13 @@ export class DataMapper {
     static applyValues(object, values, transformType: ITransformType = TRANSFORM_TYPE_DEFAULT) {
         const MetaClass = object.constructor;
         const keys = isMetaClass(MetaClass) ? getMetaFields(MetaClass) : Object.keys(values);
-        const preparedValues = Object.assign(Object.create(Object.getPrototypeOf(values)), values);
-        const fieldsMap = new Map(keys.map(name => [name, getFieldOptions(MetaClass, name)]));
 
         const transformTypes = transformType === TRANSFORM_TYPE_DEFAULT
             ? [transformType, TRANSFORM_TYPE_COMPUTABLE]
             : [transformType];
 
-        fieldsMap.forEach((options, name) => {
+        keys.forEach(name => {
+            const options = getFieldOptions(MetaClass, name);
             const sourceName = options?.sourceFieldName || name;
 
             if (!options && isMetaClass(MetaClass)) {
@@ -100,8 +99,6 @@ export class DataMapper {
                 const value = options?.isArray && values[sourceName] != null && !Array.isArray(values[sourceName])
                     ? [values[sourceName]]
                     : values[sourceName];
-
-                preparedValues[sourceName] = value;
 
                 if (options?.appType === 'relation') {
                     if (options.isArray && Array.isArray(value)) {
@@ -116,10 +113,6 @@ export class DataMapper {
                     object[name] = value;
                 }
             }
-        });
-
-        fieldsMap.forEach((options, name) => {
-            const sourceName = options?.sourceFieldName || name;
 
             for (let type of transformTypes) {
                 if (_has(values, sourceName) || type !== TRANSFORM_TYPE_DEFAULT) {
@@ -127,7 +120,7 @@ export class DataMapper {
                     for (let callback of callbacks) {
                         const value = callback({
                             value: object[name],
-                            item: preparedValues,
+                            item: values,
                             key: name,
                             transformType: type,
                             options,
