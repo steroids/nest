@@ -7,6 +7,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     outputs:
       isPublish: ${{ steps.check-version.outputs.isPublish }}
       version: ${{ steps.check-version.outputs.currentVersion }}
@@ -41,7 +44,6 @@ jobs:
         if: steps.check-version.outputs.isPublish == 'true'
         with:
           package: ./dist/package.json
-          token: ${{ secrets.NPM_TOKEN }}
           tag: ${{ steps.npm-tag.outputs.tag }}
       - uses: actions/upload-artifact@v4
         with:
