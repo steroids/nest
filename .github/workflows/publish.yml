@@ -4,12 +4,14 @@ on:
     branches:
       - main
       - beta
+
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     outputs:
       isPublish: ${{ steps.check-version.outputs.isPublish }}
       version: ${{ steps.check-version.outputs.currentVersion }}
