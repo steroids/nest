@@ -1,5 +1,7 @@
 # Steroids Nest Changelog
 
+## [4.2.0](https://github.com/steroids/nest/compare/4.1.0...4.2.0) (2026-04-02)
+
 [Migration guide](docs/MigrationGuide.md#)
 
 ### Features
@@ -11,7 +13,7 @@
 ### Fixes
 - Фикс поведения UpdateTimeField (дубль подписки на BEFORE_INSERT заменен на BEFORE_UPDATE)
 
-## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
+## [4.1.0](https://github.com/steroids/nest/compare/4.0.4...4.1.0) (2026-02-13)
 ## [4.0.4](https://github.com/steroids/nest/compare/4.0.3...4.0.4) (2026-02-09)
 
 ### Fixes
