@@ -1,5 +1,7 @@
 # Steroids Nest Migration Guide
 
+## [4.2.0](../CHANGELOG.md#420-2026-04-02) (2026-04-02)
+
 ### Переход на @sentry/nestjs
 
 Чтобы перейти с `@ntegral/nestjs-sentry` на `@sentry/nestjs` нужно:
@@ -69,7 +71,7 @@ import * as Sentry from '@sentry/node'
 Если в проекте используется CacheModule из ```@nestjs/common```, необходимо заменить его на реализацию из отдельного пакета
 ```@nestjs/cache-manager```
 
-## [3.2.0](../CHANGELOG.md#320-2025-02-28) (2025-05-12)
+## [3.2.0](../CHANGELOG.md#320-2025-05-12) (2025-05-12)
 
 ### Вынос инфраструктурной логики ORM из *Fields декораторов
 
@@ -134,7 +136,7 @@ async saveInternal(manager: ISaveManager, nextModel: TModel) {
 }
 ```
 
-## [3.0.0](../CHANGELOG.md#300-2024-02-18) (2025-02-18)
+## [3.0.0](../CHANGELOG.md#300-2025-02-18) (2025-02-18)
 
 ### diffModel в CrudService
 
