@@ -10,7 +10,7 @@ export class EntityCodeGenerateCommand {
      * yarn cli entity:generate entity module
      */
     @Command({
-        command: 'entity:generate <entityName> <moduleName>',
+        command: 'entity:generate <entityName> <moduleName> [onlyReadService]',
         describe: 'Generate code for entity (model, repository, dtos and so on...)',
     })
     async index(
@@ -26,6 +26,12 @@ export class EntityCodeGenerateCommand {
             type: 'string',
         })
             moduleName: string,
+        @Positional({
+            name: 'onlyReadService',
+            describe: 'Generate only read service entities',
+            type: 'boolean',
+        })
+        onlyReadService?: boolean,
     ) {
         if (!entityName || !moduleName) {
             throw new Error('Required parameters are not provided');
@@ -34,6 +40,8 @@ export class EntityCodeGenerateCommand {
         (new EntityCodeGenerator(
             entityName,
             moduleName,
+            null,
+            onlyReadService,
         )).generate();
     }
 }

@@ -2,11 +2,14 @@ import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {join, resolve} from 'path';
 import * as fs from 'fs';
 import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
-import {Connection} from '@steroidsjs/typeorm';
+import {Connection, DataSource} from '@steroidsjs/typeorm';
 import {format} from '@sqltools/formatter';
 import * as glob from 'glob';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
+import {getNewPermissions} from '../../utils/getNewPermissions';
+
+const ADD_PERMISSIONS_NAME = 'AddPermissions';
 
 const queryParams = (parameters: any[] | undefined): string => {
     if (!parameters || !parameters.length) {
@@ -45,7 +48,53 @@ ${downSqls.join(`
     }
 }
 `;
-}
+};
+
+export const generateMigrationsForPermissions = async (dataSource: DataSource, permissionOptions = {
+    table: 'auth_permission',
+    column: 'name',
+    module: 'auth',
+}) => {
+    const newPermissions = await getNewPermissions(dataSource, permissionOptions.table, permissionOptions.column);
+
+    if (!newPermissions.length) {
+        // eslint-disable-next-line no-console
+        console.log('info', 'No changes in permissions were found');
+        return;
+    }
+
+    const cliConfiguration = await loadConfiguration();
+    const dirPath = join(process.cwd(), cliConfiguration.sourceRoot, permissionOptions.module, 'infrastructure', 'migrations');
+
+    const values = newPermissions
+        .map(key => `('${key}')`)
+        .join(',\n            ');
+
+    const upRaw = `INSERT INTO ${permissionOptions.table} (${permissionOptions.column}) VALUES\n    ${values};`;
+
+    const downRaw = `DELETE FROM ${permissionOptions.table} WHERE ${permissionOptions.column} IN (${newPermissions.map(permission => `'${permission}'`).join(', ')});`;
+
+    const upQueries = [
+        `        await queryRunner.query(\`${prettifyQuery(upRaw)}\`);`,
+    ];
+
+    const downQueries = [
+        `        await queryRunner.query(\`${prettifyQuery(downRaw)}\`);`,
+    ];
+
+    const timestamp = new Date().getTime();
+
+    const migrationFileContent = getTemplate(
+        ADD_PERMISSIONS_NAME,
+        timestamp,
+        upQueries,
+        downQueries,
+    );
+    const migrationFilePath = join(dirPath, `${timestamp}-${ADD_PERMISSIONS_NAME}.ts`);
+    // eslint-disable-next-line no-console
+    console.log('info', '\t' + migrationFilePath);
+    await CommandUtils.createFile(migrationFilePath, migrationFileContent);
+};
 
 export const generate = async (connection: Connection) => {
     const hasPendingMigrations = await connection.showMigrations();

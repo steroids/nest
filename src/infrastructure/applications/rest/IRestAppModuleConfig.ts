@@ -25,6 +25,11 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      */
     gracefulEnabled?: boolean,
     /**
+     * Is listen on localhost only?
+     * (value from `process.env.APP_LISTEN_LOCALHOST`)
+     */
+    isListenLocalhost?: boolean,
+    /**
      * Secret for signing cookies
      */
     cookieSecret?: string,
