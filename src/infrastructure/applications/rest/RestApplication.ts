@@ -166,17 +166,12 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
-     * Initialization of middlewares
-     *
      * Configuring request body parsers with request size limitation.
-     *
-     * Use cookie-parser for comfortable working with cookie.
      * @protected
      */
-    protected initMiddlewares() {
+    protected initSettings() {
         this._app.use(json({ limit: this._config.requestSizeLimit }));
         this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
-        this._app.use(cookieParser(this._config.cookieSecret));
     }
 
     /**
@@ -187,6 +182,14 @@ export class RestApplication extends BaseApplication {
         if (this._config.gracefulEnabled) {
             this._app.enableShutdownHooks();
         }
+    }
+
+    /**
+     * Init cookie-parser for comfortable working with cookie.
+     * @protected
+     */
+    protected initCookieParser() {
+        this._app.use(cookieParser(this._config.cookieSecret));
     }
 
     /**
@@ -202,10 +205,11 @@ export class RestApplication extends BaseApplication {
 
         this.initSwagger();
         this.initCors();
+        this.initCookieParser();
         this.initPipes();
         this.initFilters();
         this.initInterceptors();
-        this.initMiddlewares();
+        this.initSettings();
         this.initGraceful();
     }
 

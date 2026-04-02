@@ -1,15 +1,10 @@
 # Steroids Nest Migration Guide
 
-### Переименование `RestApplication.initSettings` в `RestApplication.initMiddlewares`
+### Добавление `RestApplication.initCookieParser`
 
-Если в проекте была переопределена функция `RestApplication.initSettings`, то её нужно переименовать в `RestApplication.initMiddlewares`
-и добавить поддержку middleware `cookie-parser`, если не вызывается `super.initMiddlewares`:
-
-```typescript
-import * as cookieParser from 'cookie-parser';
-
-this._app.use(cookieParser(this._config.cookieSecret));
-```
+Если в проекте был переопределен метод `RestApplication.init`, 
+то в нём после создания приложения нужно вызвать метод `super.initCookieParser`.
+Для подписи кук можно передать в конфиг приложения поле `cookieSecret`.
 
 ### Переход на @sentry/nestjs
 
