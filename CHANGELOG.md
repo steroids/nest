@@ -1,6 +1,8 @@
 # Steroids Nest Changelog
 
-[Migration guide](docs/MigrationGuide.md#)
+## [4.2.0](https://github.com/steroids/nest/compare/4.1.0...4.2.0) (2026-04-02)
+
+[Migration guide](docs/MigrationGuide.md#420-2026-04-02)
 
 ### Features
 
@@ -11,7 +13,7 @@
 ### Fixes
 - Фикс поведения UpdateTimeField (дубль подписки на BEFORE_INSERT заменен на BEFORE_UPDATE)
 
-## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
+## [4.1.0](https://github.com/steroids/nest/compare/4.0.4...4.1.0) (2026-02-13)
 ## [4.0.4](https://github.com/steroids/nest/compare/4.0.3...4.0.4) (2026-02-09)
 
 ### Fixes
@@ -52,7 +54,7 @@
 
 ## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
 
-[Migration guide](docs/MigrationGuide.md#400-2025-01-19)
+[Migration guide](docs/MigrationGuide.md#400-2026-01-19)
 
 ### Features
 
@@ -133,7 +135,7 @@
 
 ## [3.0.3](https://github.com/steroids/nest/compare/3.0.2...3.0.3) (2025-02-28)
 
-[Migration guide](docs/MigrationGuide.md#303-2024-02-28)
+[Migration guide](docs/MigrationGuide.md#303-2025-02-28)
 
 ### Bugfixes
 
@@ -154,7 +156,7 @@
 
 ## [3.0.0](https://github.com/steroids/nest/compare/2.2.1...3.0.0) (2025-02-18)
 
-[Migration guide](docs/MigrationGuide.md#300-2024-02-18)
+[Migration guide](docs/MigrationGuide.md#300-2025-02-18)
 
 ### Features
 
