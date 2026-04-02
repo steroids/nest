@@ -29,4 +29,8 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
      * (value from `process.env.APP_LISTEN_LOCALHOST`)
      */
     isListenLocalhost?: boolean,
+    /**
+     * Secret for signing cookies
+     */
+    cookieSecret?: string,
 }

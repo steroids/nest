@@ -1,5 +1,11 @@
 # Steroids Nest Migration Guide
 
+### Добавление `RestApplication.initCookieParser`
+
+Если в проекте был переопределен метод `RestApplication.init`, 
+то в нём после создания приложения нужно вызвать метод `super.initCookieParser`.
+Для подписи кук можно передать в конфиг приложения поле `cookieSecret`.
+
 ### Переход на @sentry/nestjs
 
 Чтобы перейти с `@ntegral/nestjs-sentry` на `@sentry/nestjs` нужно:

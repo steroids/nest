@@ -1,5 +1,6 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
+import * as cookieParser from 'cookie-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {INestApplication, VersioningType} from '@nestjs/common';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
@@ -184,6 +185,14 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Init cookie-parser for comfortable working with cookie.
+     * @protected
+     */
+    protected initCookieParser() {
+        this._app.use(cookieParser(this._config.cookieSecret));
+    }
+
+    /**
      * Initializes the project.
      * Applies all `init*` methods, and also creates an application instance using `NestFactory.create`.
      */
@@ -196,6 +205,7 @@ export class RestApplication extends BaseApplication {
 
         this.initSwagger();
         this.initCors();
+        this.initCookieParser();
         this.initPipes();
         this.initFilters();
         this.initInterceptors();
