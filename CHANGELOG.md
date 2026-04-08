@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [4.2.1](https://github.com/steroids/nest/compare/4.2.0...4.2.1) (2026-04-08)
+
+### Fixes
+- Параметр logger для метода NestFactory.create вынесен в конфиг как loggerLevels ([#241](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/241))
+- Инициализация свойства RestApplication._app вынесена в метод createApp ([#241](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/241))
+
 ## [4.2.0](https://github.com/steroids/nest/compare/4.1.0...4.2.0) (2026-04-02)
 
 [Migration guide](docs/MigrationGuide.md#420-2026-04-02)
