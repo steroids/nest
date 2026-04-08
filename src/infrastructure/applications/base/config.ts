@@ -13,6 +13,7 @@ export default {
         name: 'app',
         title: 'Application',
         version: '1.0',
+        loggerLevels: ['error', 'warn'],
         database: {
             type: 'postgres',
             host: process.env.APP_DATABASE_HOST,

@@ -184,15 +184,23 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Creates a NestJS application instance using `NestFactory.create`.
+     * @protected
+     */
+    protected async createApp() {
+        this._app = await NestFactory.create(this._moduleClass, {
+            logger: this._config.loggerLevels,
+        });
+    }
+
+    /**
      * Initializes the project.
      * Applies all `init*` methods, and also creates an application instance using `NestFactory.create`.
      */
     public async init() {
         await super.init();
 
-        this._app = await NestFactory.create(this._moduleClass, {
-            logger: ['error', 'warn'],
-        });
+        await this.createApp();
 
         this.initSwagger();
         this.initCors();
