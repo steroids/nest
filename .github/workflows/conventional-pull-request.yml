@@ -13,6 +13,7 @@ on:
 jobs:
   main:
     name: Validate PR title
+    if: ${{ !vars.ENABLE_CC_CHECK || vars.ENABLE_CC_CHECK == 'true' || vars.ENABLE_CC_CHECK == '1' || vars.ENABLE_CC_CHECK == 'yes' }}
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
