@@ -1,3 +1,4 @@
+/** @deprecated */
 export class UserException {
     public message;
 
