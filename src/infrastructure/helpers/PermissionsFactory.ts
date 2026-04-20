@@ -24,4 +24,12 @@ export class PermissionsFactory {
     static getAllPermissionsTreeKeys() {
         return this._permissions;
     }
+
+    static getDefaultPermissionsConfig() {
+        return {
+            table: 'auth_permission',
+            column: 'name',
+            module: 'auth',
+        };
+    }
 }
