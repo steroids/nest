@@ -45,7 +45,7 @@ export class QueryAdapterTypeORM {
                 searchQuery.getWith(),
                 prefix,
                 dbRepository.target,
-                searchQuery.getRelationAliasRegistry(),
+                searchQuery.getShortAliasesAreUsed(),
                 eagerLoading,
             );
         }
@@ -218,9 +218,10 @@ export class QueryAdapterTypeORM {
         relationsWithAliases: string[],
         rootPrefix: string,
         rootClass: any,
-        registry?: Map<string, string>,
+        useShortAliases: boolean = false,
         eagerLoading: boolean = true,
     ) {
+
         // Normalize relations: a.b.c -> a, a.b, a.b.c
         const relationToAliasMap = {};
         const relations = [];
@@ -230,7 +231,7 @@ export class QueryAdapterTypeORM {
 
             // Store alias
             const [relation, alias] = relationWithAlias.split(' ');
-            relationToAliasMap[relation] = alias || SearchQuery.getRelationAlias(relation, registry);
+            relationToAliasMap[relation] = alias || SearchQuery.getRelationAlias(relation, useShortAliases);
             relations.push(relation);
 
             // Store intermediate relations
@@ -238,7 +239,7 @@ export class QueryAdapterTypeORM {
             relation.split('.').forEach(name => {
                 path = [path, name].filter(Boolean).join('.');
                 if (!relationToAliasMap[path]) {
-                    relationToAliasMap[path] = SearchQuery.getRelationAlias(path, registry);
+                    relationToAliasMap[path] = SearchQuery.getRelationAlias(path, useShortAliases);
                     if (path !== rootPrefix) {
                         relations.push(path);
                     }

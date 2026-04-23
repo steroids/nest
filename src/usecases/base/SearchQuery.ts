@@ -1,4 +1,5 @@
 import {trim as _trim} from 'lodash';
+import {randomBytes} from 'crypto';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
@@ -6,6 +7,8 @@ import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTy
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export const DEFAULT_ALIAS = 'model';
+
+const ALIAS_RANDOM_BYTES = 8;
 
 export interface ISearchQueryConfig<TModel> {
     useShortAliases?: boolean,
@@ -31,7 +34,6 @@ export default class SearchQuery<TModel> {
     protected _offset?: number;
     protected _useShortAliases: boolean;
     protected _withDeleted: boolean;
-    protected _shortAliasRegistry: Map<string, string> = new Map();
     protected _onGetOne: ISearchQueryConfig<TModel>['onGetOne'];
     protected _onGetMany: ISearchQueryConfig<TModel>['onGetMany'];
 
@@ -62,24 +64,24 @@ export default class SearchQuery<TModel> {
     /**
      * Short aliases primary usage is to avoid DB's alias length restriction. It's disabled by default.
      *
-     * @param {string} relationPath e.g. model.firstRelation.secondRelation
-     * @param {Map<string, string>} [registry] instance-level registry for short aliases
+     * Note: with isShort=true there is a negligibly small chance of two different relation paths
+     * receiving the same alias within one query.
+     *
+     * @param {string} relationPath
+     * @example model.firstRelation.secondRelation
+     *
+     * @param {boolean} isShort
      */
-    public static getRelationAlias(relationPath: string, registry?: Map<string, string>): string {
+    public static getRelationAlias(relationPath: string, isShort = false) {
         const relationsArray = relationPath.split('.');
 
-        if (!registry || relationsArray.length === 1) {
+        if (!isShort) {
             return relationsArray.join('_');
+        } else {
+            return relationsArray.length === 1
+                ? relationsArray[0]
+                : randomBytes(ALIAS_RANDOM_BYTES).toString('hex');
         }
-
-        let short = registry.get(relationPath);
-
-        if (!short) {
-            short = `${relationsArray[0]}_${registry.size + 1}`;
-            registry.set(relationPath, short);
-        }
-
-        return short;
     }
 
     select(value: string | string[]) {
@@ -126,20 +128,11 @@ export default class SearchQuery<TModel> {
     }
 
     public getRelationAlias(relationPath) {
-        return SearchQuery.getRelationAlias(
-            [this._alias, relationPath].join('.'),
-            this._useShortAliases
-                ? this._shortAliasRegistry
-                : undefined,
-        );
+        return SearchQuery.getRelationAlias([this._alias, relationPath].join('.'), this._useShortAliases);
     }
 
     getShortAliasesAreUsed(): boolean {
         return this._useShortAliases;
-    }
-
-    getRelationAliasRegistry(): Map<string, string> | undefined {
-        return this._useShortAliases ? this._shortAliasRegistry : undefined;
     }
 
     with(relation: Record<string, string | string[]> | string | string[], useJoin = true) {
