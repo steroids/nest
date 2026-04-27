@@ -1,15 +1,15 @@
 import {DeepPartial, EntityManager, Repository} from '@steroidsjs/typeorm';
+import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository, TransactionHandler} from '../../usecases/interfaces/ICrudRepository';
 import {SearchInputDto} from '../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../usecases/dtos/SearchResultDto';
 import SearchQuery, {ISearchQueryConfig} from '../../usecases/base/SearchQuery';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
-import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
 import {ICondition} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {ISaveManager} from '../../usecases/interfaces/ISaveManager';
 import {TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../decorators/Transform';
-import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {QueryAdapterTypeORM} from '../adapters/QueryAdapterTypeORM';
 import {getTableFromModel, setModelBuilder} from '../base/ModelTableStorage';
 
@@ -79,7 +79,9 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      */
     async findOne(conditionOrQuery: ICondition | SearchQuery<TModel>, eagerLoading = true): Promise<TModel | null> {
         const [dbQuery, searchQuery] = this.createQueryBuilder(conditionOrQuery, eagerLoading);
-        let row = await dbQuery.getOne();
+        let row = await dbQuery
+            .take(1)
+            .getOne();
         if (!row) {
             return null;
         }
@@ -187,14 +189,14 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
         };
 
         if (transactionHandler) {
-            return this.dbRepository.manager.transaction<TModel>(async (manager) => {
-                return transactionHandler(async () => {
-                    return this.saveInternal(
-                        {save: (nextModel) => saver(manager, nextModel),},
+            return this.dbRepository.manager.transaction<TModel>(
+                async (manager) => transactionHandler(
+                    async () => this.saveInternal(
+                        {save: (nextModel) => saver(manager, nextModel)},
                         model,
-                    );
-                });
-            });
+                    ),
+                ),
+            );
         } else {
             return this.saveInternal(
                 {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},

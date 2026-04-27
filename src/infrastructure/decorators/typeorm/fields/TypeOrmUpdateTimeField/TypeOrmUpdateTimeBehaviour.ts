@@ -11,7 +11,7 @@ export const TypeOrmUpdateTimeBehaviour = (object, propertyName) => {
         };
     }
 
-    [EventListenerTypes.BEFORE_INSERT, EventListenerTypes.BEFORE_INSERT].forEach(type => {
+    [EventListenerTypes.BEFORE_INSERT, EventListenerTypes.BEFORE_UPDATE].forEach(type => {
         getMetadataArgsStorage().entityListeners.push({
             target: object.constructor,
             propertyName: methodName,

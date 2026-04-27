@@ -1,5 +1,43 @@
 # Steroids Nest Migration Guide
 
+## [4.2.0](../CHANGELOG.md#420-2026-04-02) (2026-04-02)
+
+### Переход на @sentry/nestjs
+
+Чтобы перейти с `@ntegral/nestjs-sentry` на `@sentry/nestjs` нужно:
+
+1. Удалить библиотеки:
+- `@ntegral/nestjs-sentry`
+- `@sentry/node`
+
+2. Установить библиотеки:
+- `@sentry/nestjs`
+
+3. Заменить на импорт из библиотеки `@sentry/nestjs` в местах, где использовалось 
+```ts 
+import * as Sentry from '@sentry/node'
+``` 
+
+4. Если был переопределёны методы `init`, `initFilters` или `initSentry` класса `RestApplication`, то:
+- перенести инициализацию `SentryExceptionFilter` из `initSentry` в `initFilters`
+- удалить метод `initSentry` или вызвать в нём `super.initSentry`
+- метод `initSentry` вызвать в `init` до создания NestJS-приложения, но после метода `initConfig`, если уже не вызван `super.init`
+
+5. Если в импортах `AppModule` был переопределён `SentryModule` из базового конфига, то:
+- настройки `SentryModule` из `@ntegral/nestjs-sentry` перенести в `Sentry.init` внутри метода `initSentry` класса `RestApplication` (он наследуется от `BaseApplication`)
+- использовать `SentryModule.forRoot()` из `@sentry/nestjs/setup`
+
+### Требования к паролю
+
+Если вы используете в проекте `@PasswordField`, то сейчас в нём проверяется сложность пароля. По умолчанию настройки такие:
+- Минимальная длина: 8
+- Минимальное количество букв в нижнем регистре: 1
+- Минимальное количество букв в верхнем регистре: 1
+- Минимальное количество цифр: 1
+- Минимальное количество специальных символов (```-#!$@£%^&*()_+|~=`{}\[\]:";'<>?,.\/\\ ```): 0
+
+Если эти настройки не соответствуют требованиям проекта, то нужно передать в `@PasswordField` корректные параметры
+
 ## [4.0.0](../CHANGELOG.md#400-2026-01-19) (2026-01-19)
 
 ### обновление до NestJS 10
@@ -33,7 +71,7 @@
 Если в проекте используется CacheModule из ```@nestjs/common```, необходимо заменить его на реализацию из отдельного пакета
 ```@nestjs/cache-manager```
 
-## [3.2.0](../CHANGELOG.md#320-2025-02-28) (2025-05-12)
+## [3.2.0](../CHANGELOG.md#320-2025-05-12) (2025-05-12)
 
 ### Вынос инфраструктурной логики ORM из *Fields декораторов
 
@@ -98,7 +136,7 @@ async saveInternal(manager: ISaveManager, nextModel: TModel) {
 }
 ```
 
-## [3.0.0](../CHANGELOG.md#300-2024-02-18) (2025-02-18)
+## [3.0.0](../CHANGELOG.md#300-2025-02-18) (2025-02-18)
 
 ### diffModel в CrudService
 

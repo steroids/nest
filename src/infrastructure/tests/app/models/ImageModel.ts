@@ -1,6 +1,6 @@
 import {
     PrimaryKeyField, RelationField, RelationIdField,
-    StringField
+    StringField,
 } from '../../../decorators/fields';
 import {FileModel} from './FileModel';
 

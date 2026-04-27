@@ -82,17 +82,23 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Set global prefix with versioning
+     * @protected
+     */
+    protected initRouting(): void {
+        this._app.setGlobalPrefix('/api');
+        this._app.enableVersioning({
+            type: VersioningType.URI,
+            defaultVersion: '1',
+        });
+    }
+
+    /**
      * Initialize Swagger to generate API documentation.
      * Documentation will be available at the `/api/docs` endpoint.
      * @protected
      */
     protected initSwagger() {
-        // Versioning
-        this._app.setGlobalPrefix('/api/v1');
-        this._app.enableVersioning({
-            type: VersioningType.URI,
-        });
-
         // Swagger config
         const swaggerConfig = new DocumentBuilder()
             .setTitle(this._config.title || 'Application')
@@ -139,28 +145,20 @@ export class RestApplication extends BaseApplication {
 
     /**
      * Initialize global exception filters
-     * (by default, `ValidationExceptionFilter` and `UserExceptionFilter` are used).
+     *
+     * (by default, `ValidationExceptionFilter` and `UserExceptionFilter` are used.
+     * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added).
      * @protected
      */
     protected initFilters() {
+        if (this._config.sentry) {
+            this._app.useGlobalFilters(new SentryExceptionFilter(this._config.sentry.exposeSentryErrorResponse));
+        }
         // Validation
         this._app.useGlobalFilters(new ValidationExceptionFilter());
         this._app.useGlobalFilters(new UserExceptionFilter());
     }
 
-    /**
-     * Initializes Sentry for error tracking and logging.
-     * If the environment variable `APP_SENTRY_DSN` is set, the filter `SentryExceptionFilter` is added.
-     *
-     * Sentry also automatically configures `process.on('uncaughtException')` and `process.on('unhandledRejection')` to log and handle these events,
-     * only on `uncaughtException` the process will be exited, but on `unhandledRejection` it will continue to work.
-     * @protected
-     */
-    protected initSentry() {
-        if (process.env.APP_SENTRY_DSN) {
-            this._app.useGlobalFilters(new SentryExceptionFilter());
-        }
-    }
 
     /**
      * Initialization of global interceptors (default is `SchemaSerializer`).
@@ -192,21 +190,29 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Creates a NestJS application instance using `NestFactory.create`.
+     * @protected
+     */
+    protected async createApp() {
+        this._app = await NestFactory.create(this._moduleClass, {
+            logger: this._config.loggerLevels,
+        });
+    }
+
+    /**
      * Initializes the project.
      * Applies all `init*` methods, and also creates an application instance using `NestFactory.create`.
      */
     public async init() {
         await super.init();
 
-        this._app = await NestFactory.create(this._moduleClass, {
-            logger: ['error', 'warn'],
-        });
+        await this.createApp();
 
+        this.initRouting();
         this.initSwagger();
         this.initCors();
         this.initPipes();
         this.initFilters();
-        this.initSentry();
         this.initInterceptors();
         this.initSettings();
         this.initGraceful();
@@ -220,10 +226,15 @@ export class RestApplication extends BaseApplication {
 
         // Start application
         const port = parseInt(process.env.PORT, 10);
-        await this._app.listen(
-            port,
-            () => console.log(`Server started http://localhost:${port}`), // eslint-disable-line no-console
-        );
+
+        // eslint-disable-line no-console
+        const onStartCallback = () => console.log(`Server started http://localhost:${port}`);
+        const appListenArguments = this._config.isListenLocalhost
+            ? [port, 'localhost', onStartCallback]
+            : [port, onStartCallback];
+
+        // @ts-ignore
+        return this._app.listen(...appListenArguments);
     }
 
     /**

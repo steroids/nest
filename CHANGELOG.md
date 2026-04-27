@@ -1,5 +1,49 @@
 # Steroids Nest Changelog
 
+## [4.2.1](https://github.com/steroids/nest/compare/4.2.0...4.2.1) (2026-04-08)
+
+### Fixes
+- Параметр logger для метода NestFactory.create вынесен в конфиг как loggerLevels ([#241](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/241))
+- Инициализация свойства RestApplication._app вынесена в метод createApp ([#241](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/241))
+
+## [4.2.0](https://github.com/steroids/nest/compare/4.1.0...4.2.0) (2026-04-02)
+
+[Migration guide](docs/MigrationGuide.md#420-2026-04-02)
+
+### Features
+
+- Переход с библиотеки `@ntegral/nestjs-sentry` на `@sentry/nestjs`
+- Добавлена проверка сложности пароля в `PasswordField` ([#223](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/223))
+- Добавлен параметр `isListenLocalhost` в `RestApplication` для прослушивания только localhost'а, env-переменная для него - `APP_LISTEN_LOCALHOST` ([#215](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/215))
+
+### Fixes
+- Фикс поведения UpdateTimeField (дубль подписки на BEFORE_INSERT заменен на BEFORE_UPDATE)
+
+## [4.1.0](https://github.com/steroids/nest/compare/4.0.4...4.1.0) (2026-02-13)
+## [4.0.4](https://github.com/steroids/nest/compare/4.0.3...4.0.4) (2026-02-09)
+
+### Fixes
+- Команда cli entity:generate теперь не пересоздает файлы сущностей если они уже есть в проекте
+- Исправлены импорты в шаблонах используемых в команде cli entity:generate
+
+### Features
+
+- Добавлен флаг onlyReadService для команды cli entity:generate, при применении которого создается ReadService без лишних сущностей для CrudService
+
+## [4.0.3](https://github.com/steroids/nest/compare/4.0.2...4.0.3) (2026-01-20)
+
+### Features
+
+- Добавлена проверка есть ли не примененные миграции при старте команды migrate:generate ([#171](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/171))
+- В пайплайн выгрузки добавлен запуск тестов ([#197](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/197))
+- Добавлена CLI команда ```migrate:generate-permissions``` для генерации миграций по добавлению новых пермишенов ([#156](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/156))
+- Из текста ошибок, возвращаемых клиенту, по-умолчанию убрано подробное описание. Старое поведение включается по переменной окружение SENTRY_EXPOSE_ERROR_RESPONSE ([#129](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/129))
+- Для ComputableField добавлен параметр swaggerType ([#201](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/201))
+
+### Fixes
+- Тесты в ModelTest.test приведены в актуальное состояние ([#197](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/197))
+- Исправлена валидация чисел в DecimalField ([#204](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/204))
+
 ## [4.0.2](https://github.com/steroids/nest/compare/4.0.1...4.0.2) (2026-01-20)
 
 ### Fixes
@@ -16,11 +60,16 @@
 
 ## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
 
-[Migration guide](docs/MigrationGuide.md#400-2025-01-19)
+[Migration guide](docs/MigrationGuide.md#400-2026-01-19)
 
 ### Features
 
 - NestJS и связанные с ним зависимости обновлены до 10 версии и перенесены в peerDependencies
+
+## [3.2.8](https://github.com/steroids/nest/compare/3.2.7...3.2.8) (2026-01-14)
+
+### Fixes
+- Исправлена валидация чисел в DecimalField
 
 ## [3.2.7](https://github.com/steroids/nest/compare/3.2.6...3.2.7) (2025-12-25)
 
@@ -92,7 +141,7 @@
 
 ## [3.0.3](https://github.com/steroids/nest/compare/3.0.2...3.0.3) (2025-02-28)
 
-[Migration guide](docs/MigrationGuide.md#303-2024-02-28)
+[Migration guide](docs/MigrationGuide.md#303-2025-02-28)
 
 ### Bugfixes
 
@@ -113,7 +162,7 @@
 
 ## [3.0.0](https://github.com/steroids/nest/compare/2.2.1...3.0.0) (2025-02-18)
 
-[Migration guide](docs/MigrationGuide.md#300-2024-02-18)
+[Migration guide](docs/MigrationGuide.md#300-2025-02-18)
 
 ### Features
 
