@@ -2,6 +2,7 @@ import {NestFactory, Reflector} from '@nestjs/core';
 import {json, urlencoded} from 'body-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {INestApplication, VersioningType} from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -151,7 +152,7 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected initFilters() {
-        if (this._config.sentry) {
+        if (Sentry.getClient()) {
             this._app.useGlobalFilters(new SentryExceptionFilter(this._config.sentry.exposeSentryErrorResponse));
         }
         // Validation

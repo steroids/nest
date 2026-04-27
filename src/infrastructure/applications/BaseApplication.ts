@@ -59,7 +59,7 @@ export abstract class BaseApplication {
     protected initSentry(): void {
         const config = ModuleHelper.getConfig<IAppModuleConfig>(AppModule);
 
-        if (!config.sentry) {
+        if (!config.sentry?.dsn) {
             return;
         }
 
