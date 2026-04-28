@@ -1,5 +1,5 @@
 import {trim as _trim} from 'lodash';
-import {randomBytes} from 'crypto';
+import {createHash} from 'crypto';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
@@ -8,7 +8,7 @@ export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export const DEFAULT_ALIAS = 'model';
 
-const ALIAS_RANDOM_BYTES = 8;
+const ALIAS_HASH_LENGTH = 16;
 
 export interface ISearchQueryConfig<TModel> {
     useShortAliases?: boolean,
@@ -64,9 +64,6 @@ export default class SearchQuery<TModel> {
     /**
      * Short aliases primary usage is to avoid DB's alias length restriction. It's disabled by default.
      *
-     * Note: with isShort=true there is a negligibly small chance of two different relation paths
-     * receiving the same alias within one query.
-     *
      * @param {string} relationPath
      * @example model.firstRelation.secondRelation
      *
@@ -77,11 +74,14 @@ export default class SearchQuery<TModel> {
 
         if (!isShort) {
             return relationsArray.join('_');
-        } else {
-            return relationsArray.length === 1
-                ? relationsArray[0]
-                : randomBytes(ALIAS_RANDOM_BYTES).toString('hex');
         }
+
+        return relationsArray.length === 1
+            ? relationsArray[0]
+            : createHash('sha256')
+                .update(relationPath)
+                .digest('hex')
+                .slice(0, ALIAS_HASH_LENGTH);
     }
 
     select(value: string | string[]) {
