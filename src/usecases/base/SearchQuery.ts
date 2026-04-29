@@ -1,4 +1,5 @@
 import {trim as _trim} from 'lodash';
+import {createHash} from 'crypto';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
@@ -6,6 +7,8 @@ import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTy
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export const DEFAULT_ALIAS = 'model';
+
+const ALIAS_HASH_LENGTH = 16;
 
 export interface ISearchQueryConfig<TModel> {
     useShortAliases?: boolean,
@@ -71,24 +74,14 @@ export default class SearchQuery<TModel> {
 
         if (!isShort) {
             return relationsArray.join('_');
-        } else {
-            // first letter + the uppercase letters + relation index in path + relation length
-            // model.firstRelation.secondRelation -> m0_fr113_sr214
-            return relationsArray.map((relation, index) => {
-                // root alias shouldn't change
-                if (index === 0) {
-                    return relation;
-                }
-
-                return relation[0]
-                    + relation.split('')
-                        .filter(letter => /\w/.test(letter) && letter === letter.toUpperCase())
-                        .map(letter => letter.toLowerCase())
-                        .join('')
-                    + String(index)
-                    + relation.length;
-            }).join('_');
         }
+
+        return relationsArray.length === 1
+            ? relationsArray[0]
+            : createHash('sha256')
+                .update(relationPath)
+                .digest('hex')
+                .slice(0, ALIAS_HASH_LENGTH);
     }
 
     select(value: string | string[]) {
