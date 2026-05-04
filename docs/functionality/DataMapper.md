@@ -39,6 +39,33 @@ const dto = DataMapper.create(Dto1, {
 console.log(dto); // Dto1 { id: 1, dto2: Dto2 { name: 'some string' } }
 ```
 
+Если у поля указана опция `isArray`, а во входных данных передано одиночное значение,
+DataMapper приведет его к массиву:
+
+```ts
+class TagDto {
+    @StringField()
+    name: string;
+}
+
+class Dto {
+    @RelationField({
+        type: 'ManyToMany',
+        isArray: true,
+        relationClass: () => TagDto,
+    })
+    tags: TagDto[];
+}
+
+const dto = DataMapper.create(Dto, {
+    tags: {
+        name: 'important',
+    },
+});
+
+console.log(dto.tags); // [TagDto { name: 'important' }]
+```
+
 При создании объекта DataMapper высчитывает значения в ComputableField полях:
 
 ```ts

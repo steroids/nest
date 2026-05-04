@@ -152,6 +152,8 @@ export class UserService extends CrudService<UserModel, UserSearchDto> {
 [Внутренние методы](Crud.md#3-внутренние-методы) сохранения и удаления могут быть переопределены.
 
 Преобразование входных данных в модель выполняется с помощью [DataMapper](DataMapper.md).
+При обновлении существующей модели `CrudService.save` перед валидацией загружает предыдущее состояние модели вместе со связями,
+которые переданы в DTO. Это работает и для DTO-классов со steroids fields, и для обычных объектов.
 
 ---
 
@@ -209,25 +211,31 @@ export class DeliveryClaimService extends CrudService<DeliveryClaimModel, Delive
         super();
     }
 
-    async saveInternal(prevModel: DeliveryClaimModel | null, nextModel: DeliveryClaimModel, context?: ContextDto) {
+    async saveInternal(
+        prevModel: DeliveryClaimModel | null,
+        nextModel: DeliveryClaimModel,
+        diffModel: DeliveryClaimModel,
+        context?: ContextDto,
+    ) {
         const statusChanged = prevModel?.status !== nextModel.status;
 
-        await this.repository.save(nextModel);
+        const savedModel = await this.repository.save(diffModel);
 
         if (!prevModel || statusChanged) {
             this.eventEmitterService.emit(
                 DeliveryClaimStatusChangeEventDto.eventName,
                 DataMapper.create(DeliveryClaimStatusChangeEventDto, {
-                    claimId: nextModel.id,
-                    claimExternalId: nextModel.externalId,
-                    orderId: nextModel.orderId,
+                    claimId: savedModel.id,
+                    claimExternalId: savedModel.externalId,
+                    orderId: savedModel.orderId,
                     oldStatus: prevModel?.status,
-                    newStatus: nextModel.status,
-                    provider: nextModel.provider,
+                    newStatus: savedModel.status,
+                    provider: savedModel.provider,
                 }),
             );
         }
+
+        return savedModel;
     }
 }
 ```
-

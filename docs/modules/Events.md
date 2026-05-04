@@ -104,17 +104,24 @@ export class OrderService extends CrudService<OrderModel, OrderSearchDto, OrderS
         super();
     }
 
-    async saveInternal(prevModel: OrderModel | null, nextModel: OrderModel, context?: ContextDto) {
-        await this.repository.save(nextModel);
+    async saveInternal(
+        prevModel: OrderModel | null,
+        nextModel: OrderModel,
+        diffModel: OrderModel,
+        context?: ContextDto,
+    ) {
+        const savedModel = await this.repository.save(diffModel);
 
         if (!prevModel) {
             this.eventEmitterService.emit(
                 OrderCreatedEventDto.eventName,
                 DataMapper.create(OrderCreatedEventDto, {
-                    orderId: nextModel.id,
+                    orderId: savedModel.id,
                 }),
             );
         }
+
+        return savedModel;
     }
 }
 ```
@@ -144,4 +151,3 @@ export class OrderEventsSubscriber {
     }
 }
 ```
-
