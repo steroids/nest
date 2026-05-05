@@ -8,7 +8,7 @@ import {IType} from '../../usecases/interfaces/IType';
 export class CreateDtoPipe implements PipeTransform<any> {
     constructor(private readonly itemMetatype?: IType) {}
 
-    async transform(value: unknown, metadata: ArgumentMetadata): Promise<any> {
+    async transform(value: unknown, metadata: ArgumentMetadata): Promise<unknown> {
         const metatype = this.itemMetatype || metadata.metatype;
 
         // pipe не знает тип элементов массива.
