@@ -16,7 +16,7 @@ export function CreateTimeField(options: ICreateTimeFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'CreateTimeField',
             appType: 'createTime',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_FROM_DB),
         Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_TO_DB),

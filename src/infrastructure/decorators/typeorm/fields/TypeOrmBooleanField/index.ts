@@ -3,7 +3,7 @@ import {IBaseFieldOptions} from '../../../fields/BaseField';
 
 export default (options: IBaseFieldOptions) => [
     Column({
-        type: options.dbType || 'boolean',
+        type: 'boolean',
         default: options.defaultValue ?? false,
         nullable: options.nullable ?? false,
     }),

@@ -12,7 +12,6 @@ import {
     EnumField,
     FileField, GeometryField,
     HtmlField,
-    IAllFieldOptions,
     ImageField,
     IntegerField,
     JSONBField,
@@ -27,6 +26,7 @@ import {
     UidField,
     UpdateTimeField,
 } from '../fields';
+import type {IFieldOptions} from '../fields/BaseField';
 import typeOrmBooleanField from './fields/TypeOrmBooleanField';
 import typeOrmCoordinateField from './fields/TypeOrmCoordinateField';
 import typeOrmCreateTimeField from './fields/TypeOrmCreateTimeField';
@@ -54,7 +54,9 @@ import typeOrmUidField from './fields/TypeOrmUidField';
 import typeOrmUpdateTimeField from './fields/TypeOrmUpdateTimeField';
 import typeOrmGeometryField from './fields/TypeOrmGeometryField';
 
-const fieldTypeOrmMap: {[key in DecoratorFieldName]?: (options: IAllFieldOptions) => Array<(target: any, fieldName: string) => void>} = {
+type TypeOrmFieldDecorator = (options: IFieldOptions) => Array<(target: any, fieldName: string) => void>;
+
+const fieldTypeOrmMap: {[key in DecoratorFieldName]?: TypeOrmFieldDecorator} = {
     [BooleanField.name]: typeOrmBooleanField,
     [CoordinateField.name]: typeOrmCoordinateField,
     [CreateTimeField.name]: typeOrmCreateTimeField,
@@ -83,7 +85,7 @@ const fieldTypeOrmMap: {[key in DecoratorFieldName]?: (options: IAllFieldOptions
     [GeometryField.name]: typeOrmGeometryField,
 };
 
-export function typeOrmDecoratorFactory(decoratorName: DecoratorFieldName, options: IAllFieldOptions):
+export function typeOrmDecoratorFactory(decoratorName: DecoratorFieldName, options: IFieldOptions):
     Array<(target: any, fieldName: string) => void> {
     const fieldDecorator = fieldTypeOrmMap[decoratorName];
     if (!fieldDecorator) {

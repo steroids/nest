@@ -19,7 +19,7 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'IntegerField',
             appType: 'integer',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         options.nullable && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
         Transform(({value}) => {
