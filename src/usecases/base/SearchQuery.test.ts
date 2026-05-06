@@ -113,5 +113,17 @@ describe('SearchQuery', () => {
                 '"model_relation"."age"': 'desc',
             });
         });
+
+        it('should resolve object field paths with their directions', () => {
+            searchQuery.orderBy({
+                name: 'asc',
+                'relation.age': 'desc',
+            });
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model"."name"': 'asc',
+                '"model_relation"."age"': 'desc',
+            });
+        });
     });
 });
