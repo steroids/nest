@@ -1,49 +1,116 @@
 import {describe, beforeEach, it, expect} from '@jest/globals';
-import SearchQuery, {ISearchQueryOrder} from './SearchQuery';
+import SearchQuery from './SearchQuery';
 
 describe('SearchQuery', () => {
     let searchQuery: SearchQuery<any>;
-    let normalizeOrderByValue: (orderValue: string | ISearchQueryOrder, direction: 'asc' | 'desc') => ISearchQueryOrder;
 
     beforeEach(() => {
         searchQuery = new SearchQuery();
         searchQuery.alias('model');
-        // eslint-disable-next-line
-        normalizeOrderByValue = searchQuery['normalizeOrderByValue'].bind(searchQuery);
     });
 
-    describe('normalizeOrderByValue', () => {
-        it('should normalized orderValue', () => {
-            const orderValue: ISearchQueryOrder = {
-                name: 'asc',
-                'model.email': 'desc',
-                'model.relation.age': 'asc',
-                'model_relation.city': 'desc',
-                'model.relation1.relation2.address': 'asc',
-                'model_relation1_relation2.country': 'desc',
-                'model_relation1_relation2.relation3.field': 'asc',
-                '"model"."createdTime"': 'asc',
-                'model."updatedTime"': 'desc',
-                '"model".deleteTime': 'desc',
-                model_name: 'asc',
-                model_relation_name: 'asc',
-            };
+    describe('orderBy', () => {
+        it('should resolve field name', () => {
+            searchQuery.orderBy('name');
 
-            const result = normalizeOrderByValue(orderValue, 'asc');
-
-            expect(result).toEqual({
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model"."name"': 'asc',
-                '"model"."email"': 'desc',
+            });
+        });
+
+        it('should resolve root alias field path', () => {
+            searchQuery.orderBy('model.email');
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model"."email"': 'asc',
+            });
+        });
+
+        it('should resolve root alias relation field path', () => {
+            searchQuery.orderBy('model.relation.age');
+
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model_relation"."age"': 'asc',
-                '"model_relation"."city"': 'desc',
+            });
+        });
+
+        it('should resolve relation alias field path', () => {
+            searchQuery.orderBy('model_relation.city');
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model_relation"."city"': 'asc',
+            });
+        });
+
+        it('should resolve nested root alias relation field path', () => {
+            searchQuery.orderBy('model.relation1.relation2.address');
+
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model_relation1_relation2"."address"': 'asc',
-                '"model_relation1_relation2"."country"': 'desc',
+            });
+        });
+
+        it('should resolve nested relation alias field path', () => {
+            searchQuery.orderBy('model_relation1_relation2.country');
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model_relation1_relation2"."country"': 'asc',
+            });
+        });
+
+        it('should resolve relation alias with nested relation field path', () => {
+            searchQuery.orderBy('model_relation1_relation2.relation3.field');
+
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model_model_relation1_relation2_relation3"."field"': 'asc',
+            });
+        });
+
+        it('should resolve quoted root alias field path', () => {
+            searchQuery.orderBy('"model"."createdTime"');
+
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model"."createdTime"': 'asc',
-                '"model"."updatedTime"': 'desc',
-                '"model"."deleteTime"': 'desc',
+            });
+        });
+
+        it('should resolve partially quoted root alias field path', () => {
+            searchQuery.orderBy('model."updatedTime"');
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model"."updatedTime"': 'asc',
+            });
+        });
+
+        it('should resolve quoted root alias with unquoted field path', () => {
+            searchQuery.orderBy('"model".deleteTime');
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model"."deleteTime"': 'asc',
+            });
+        });
+
+        it('should resolve root alias field', () => {
+            searchQuery.orderBy('model_name');
+
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model_name"': 'asc',
+            });
+        });
+
+        it('should resolve relation alias field', () => {
+            searchQuery.orderBy('model_relation_name');
+
+            expect(searchQuery.getOrderBy()).toEqual({
                 '"model_relation_name"': 'asc',
+            });
+        });
+
+        it('should use provided direction for a string field path', () => {
+            searchQuery.orderBy('relation.age', 'desc');
+
+            expect(searchQuery.getOrderBy()).toEqual({
+                '"model_relation"."age"': 'desc',
             });
         });
     });
