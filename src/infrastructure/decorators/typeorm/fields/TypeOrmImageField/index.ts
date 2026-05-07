@@ -1,5 +1,5 @@
 import {Column} from '@steroidsjs/typeorm';
-import {IFileField} from '../../../fields/ImageField';
+import {IFileField} from '../../../fields/FileField';
 
 export default (options: IFileField) => [
     Column({

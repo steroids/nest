@@ -3,6 +3,10 @@ import {IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-valida
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
 
+export const IS_DECIMAL_DEFAULT_MESSAGE = 'Должно быть числом';
+export const buildMinDecimalDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
+export const buildMaxDecimalDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
+
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
     precision?: number,
     scale?: number,
@@ -59,15 +63,15 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
         IsDecimal({
             decimal_digits: '0,' + (options.scale ?? DEFAULT_DECIMAL_SCALE),
         }, {
-            message: options.isDecimalConstraintMessage || 'Должно быть числом',
+            message: options.isDecimalConstraintMessage || IS_DECIMAL_DEFAULT_MESSAGE,
         }),
         typeof options.min === 'number' && StringMin(options.min, {
             each: options.isArray,
-            message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
+            message: options.minDecimalConstraintMessage || buildMinDecimalDefaultMessage(options.min),
         }),
         typeof options.max === 'number' && StringMax(options.max, {
             each: options.isArray,
-            message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
+            message: options.maxDecimalConstraintMessage || buildMaxDecimalDefaultMessage(options.max),
         }),
     ].filter(Boolean));
 }

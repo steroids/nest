@@ -4,6 +4,8 @@ import {ApiProperty} from '@nestjs/swagger';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 
+export const IS_ENUM_DEFAULT_MESSAGE = 'Выберите одно из значений';
+
 export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum: object | string[] | any,
     enumName?: string;
@@ -65,7 +67,7 @@ export function EnumField(options: IEnumFieldOptions) {
             getValidatorEnum(options.enum),
             {
                 each: options.isArray,
-                message: options.isEnumConstraintMessage || 'Выберите одно из значений',
+                message: options.isEnumConstraintMessage || IS_ENUM_DEFAULT_MESSAGE,
             },
         ),
     ].filter(Boolean));

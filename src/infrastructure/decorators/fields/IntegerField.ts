@@ -4,6 +4,10 @@ import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
+export const IS_INT_DEFAULT_MESSAGE = 'Должно быть числом';
+export const buildMinIntDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
+export const buildMaxIntDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
+
 export interface IIntegerFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
     isIntConstraintMessage?: string,
@@ -29,16 +33,16 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             return !isEmpty(value) ? _toInteger(value) : null;
         }),
         IsInt({
-            message: options.isIntConstraintMessage || 'Должно быть числом',
+            message: options.isIntConstraintMessage || IS_INT_DEFAULT_MESSAGE,
             each: options.isArray,
         }),
         typeof options.min === 'number' && Min(options.min, {
             each: options.isArray,
-            message: `Должно быть не меньше ${options.min}` || options.minIntConstraintMessage,
+            message: options.minIntConstraintMessage || buildMinIntDefaultMessage(options.min),
         }),
         typeof options.max === 'number' && Max(options.max, {
             each: options.isArray,
-            message: `Должно быть не больше ${options.max}` || options.maxIntConstraintMessage,
+            message: options.maxIntConstraintMessage || buildMaxIntDefaultMessage(options.max),
         }),
     ].filter(Boolean));
 }

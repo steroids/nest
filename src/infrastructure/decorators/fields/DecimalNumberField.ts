@@ -1,7 +1,12 @@
 import {applyDecorators} from '@nestjs/common';
 import {Max, Min, ValidateIf, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
 
-import {IDecimalFieldOptions} from './DecimalField';
+import {
+    IDecimalFieldOptions,
+    IS_DECIMAL_DEFAULT_MESSAGE,
+    buildMinDecimalDefaultMessage,
+    buildMaxDecimalDefaultMessage,
+} from './DecimalField';
 import {BaseField} from './BaseField';
 import {TRANSFORM_TYPE_FROM_DB, Transform} from '../Transform';
 import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
@@ -46,15 +51,15 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
         Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsDecimalNumber(options, {
-            message: options.isDecimalConstraintMessage || 'Должно быть числом',
+            message: options.isDecimalConstraintMessage || IS_DECIMAL_DEFAULT_MESSAGE,
         }),
         typeof options.min === 'number' && Min(options.min, {
             each: options.isArray,
-            message: options.minDecimalConstraintMessage || `Должно быть не меньше ${options.min}`,
+            message: options.minDecimalConstraintMessage || buildMinDecimalDefaultMessage(options.min),
         }),
         typeof options.max === 'number' && Max(options.max, {
             each: options.isArray,
-            message: options.maxDecimalConstraintMessage || `Должно быть не больше ${options.max}`,
+            message: options.maxDecimalConstraintMessage || buildMaxDecimalDefaultMessage(options.max),
         }),
     ].filter(Boolean));
 }

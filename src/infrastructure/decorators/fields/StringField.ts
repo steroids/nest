@@ -14,6 +14,11 @@ export interface IStringFieldOptions extends IBaseFieldOptions {
 
 const STRING_FIELD_DEFAULT_MAX_LENGTH = 250;
 
+export const IS_STRING_DEFAULT_MESSAGE = 'Должна быть строка';
+export const MATCHES_DEFAULT_MESSAGE = 'Не корректный формат строки';
+export const buildMinLengthDefaultMessage = (min: number) => `Длина строки должна быть не менее ${min}`;
+export const buildMaxLengthDefaultMessage = (max: number) => `Длина строки должна быть не более ${max}`;
+
 export function StringField(options: IStringFieldOptions = {}) {
     return applyDecorators(...[
         BaseField(options, {
@@ -23,21 +28,22 @@ export function StringField(options: IStringFieldOptions = {}) {
         }),
         IsString({
             each: options.isArray,
-            message: options.isStringConstraintMessage || 'Должна быть строка',
+            message: options.isStringConstraintMessage || IS_STRING_DEFAULT_MESSAGE,
         }),
         options.regexp && Matches(
             options.regexp,
             {
-                message: options.regexpErrorMessage || 'Не корректный формат строки',
+                message: options.regexpErrorMessage || MATCHES_DEFAULT_MESSAGE,
             },
         ),
         !options.required && IsOptional(), // TODO check nullable and required
         typeof options.min === 'number' && MinLength(options.min, {
-            message: options.minConstraintMessage,
+            message: options.minConstraintMessage || buildMinLengthDefaultMessage(options.min),
             each: options.isArray,
         }),
         typeof options.max === 'number' && MaxLength(_toInteger(options.max) || STRING_FIELD_DEFAULT_MAX_LENGTH, {
-            message: options.maxConstraintMessage,
+            message: options.maxConstraintMessage
+                || buildMaxLengthDefaultMessage(_toInteger(options.max) || STRING_FIELD_DEFAULT_MAX_LENGTH),
             each: options.isArray,
         }),
     ].filter(Boolean));

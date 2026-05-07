@@ -2,6 +2,8 @@ import {applyDecorators} from '@nestjs/common';
 import {IsStrongPassword} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
+export const IS_STRONG_PASSWORD_DEFAULT_MESSAGE = 'Ненадёжный пароль';
+
 export interface IPasswordFieldOptions extends IBaseFieldOptions {
     minLength?: number,
     minLowercase?: number,
@@ -19,7 +21,7 @@ export function PasswordField(options: IPasswordFieldOptions = {}) {
         minUppercase: 1,
         minNumbers: 1,
         minSymbols: 0,
-        isStrongPasswordConstraintMessage: 'Ненадёжный пароль',
+        isStrongPasswordConstraintMessage: IS_STRONG_PASSWORD_DEFAULT_MESSAGE,
         ...options,
     };
 
