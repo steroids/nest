@@ -6,7 +6,8 @@
     "watch": "nps watch",
     "build": "nps build",
     "test": "nps test",
-    "test-unit": "jest --config jest.unit.config.ts"
+    "test-unit": "jest --config jest.unit.config.ts",
+    "postinstall": "jest --clearCache"
   },
   "description": "",
   "main": "index.js",
