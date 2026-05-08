@@ -1,11 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {
-    IntegerField,
-    IIntegerFieldOptions,
-    IS_INT_DEFAULT_MESSAGE,
-    buildMinIntDefaultMessage,
-    buildMaxIntDefaultMessage,
-} from './IntegerField';
+import {IntegerField, IIntegerFieldOptions} from './IntegerField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('IntegerField decorator', () => {
@@ -17,7 +11,7 @@ describe('IntegerField decorator', () => {
 
     describe('IsInt constraint', () => {
         it.each([
-            [{} as IIntegerFieldOptions, IS_INT_DEFAULT_MESSAGE],
+            [{} as IIntegerFieldOptions, 'Должно быть числом'],
             [{isIntConstraintMessage: 'Только целые'}, 'Только целые'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(IntegerField(options));
@@ -28,7 +22,7 @@ describe('IntegerField decorator', () => {
 
     describe('Min constraint', () => {
         it.each([
-            [{min: 5} as IIntegerFieldOptions, buildMinIntDefaultMessage(5)],
+            [{min: 5} as IIntegerFieldOptions, 'Должно быть не меньше 5'],
             [{min: 5, minIntConstraintMessage: 'Слишком мало'}, 'Слишком мало'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(IntegerField(options));
@@ -39,7 +33,7 @@ describe('IntegerField decorator', () => {
 
     describe('Max constraint', () => {
         it.each([
-            [{max: 10} as IIntegerFieldOptions, buildMaxIntDefaultMessage(10)],
+            [{max: 10} as IIntegerFieldOptions, 'Должно быть не больше 10'],
             [{max: 10, maxIntConstraintMessage: 'Слишком много'}, 'Слишком много'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(IntegerField(options));

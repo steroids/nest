@@ -1,6 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
 import {CoordinateField, ICoordinateFieldOptions} from './CoordinateField';
-import {IS_STRING_DEFAULT_MESSAGE} from './StringField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('CoordinateField decorator', () => {
@@ -12,7 +11,7 @@ describe('CoordinateField decorator', () => {
         });
 
         it.each([
-            [{} as ICoordinateFieldOptions, IS_STRING_DEFAULT_MESSAGE],
+            [{} as ICoordinateFieldOptions, 'Должна быть строка'],
             [{isStringConstraintMessage: 'Не строка'}, 'Не строка'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(CoordinateField(options));

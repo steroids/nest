@@ -2,7 +2,7 @@ import {applyDecorators} from '@nestjs/common';
 import {IsEmail, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export const IS_EMAIL_DEFAULT_MESSAGE = 'Некорректный email адрес';
+const IS_EMAIL_DEFAULT_MESSAGE = 'Некорректный email адрес';
 
 export interface IEmailFieldOptions extends IBaseFieldOptions {
     unique?: boolean,

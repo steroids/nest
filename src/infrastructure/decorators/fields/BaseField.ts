@@ -86,7 +86,7 @@ export interface IBaseFieldOptions {
     isNotEmptyConstraintMessage?: string,
 }
 
-export const IS_NOT_EMPTY_DEFAULT_MESSAGE = 'Обязательно для заполнения';
+const IS_NOT_EMPTY_DEFAULT_MESSAGE = 'Обязательно для заполнения';
 
 export interface IRelationData {
     relationName: string,

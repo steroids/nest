@@ -3,7 +3,7 @@ import {IsBoolean, IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
-export const IS_BOOLEAN_DEFAULT_MESSAGE = 'Должен быть булевом';
+const IS_BOOLEAN_DEFAULT_MESSAGE = 'Должен быть булевом';
 
 export interface IBooleanFieldOptions extends IBaseFieldOptions {
     isBooleanConstraintMessage?: string,

@@ -2,7 +2,7 @@ import {applyDecorators} from '@nestjs/common';
 import {IsStrongPassword} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export const IS_STRONG_PASSWORD_DEFAULT_MESSAGE = 'Ненадёжный пароль';
+const IS_STRONG_PASSWORD_DEFAULT_MESSAGE = 'Ненадёжный пароль';
 
 export interface IPasswordFieldOptions extends IBaseFieldOptions {
     minLength?: number,

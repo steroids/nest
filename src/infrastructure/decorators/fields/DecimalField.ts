@@ -3,9 +3,9 @@ import {IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-valida
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
 
-export const IS_DECIMAL_DEFAULT_MESSAGE = 'Должно быть числом';
-export const buildMinDecimalDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
-export const buildMaxDecimalDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
+const IS_DECIMAL_DEFAULT_MESSAGE = 'Должно быть числом';
+const buildMinDecimalDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
+const buildMaxDecimalDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
 
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
     precision?: number,

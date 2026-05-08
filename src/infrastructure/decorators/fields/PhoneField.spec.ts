@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {PhoneField, IPhoneFieldOptions, IS_PHONE_NUMBER_DEFAULT_MESSAGE} from './PhoneField';
+import {PhoneField, IPhoneFieldOptions} from './PhoneField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('PhoneField decorator', () => {
@@ -11,7 +11,7 @@ describe('PhoneField decorator', () => {
         });
 
         it.each([
-            [{} as IPhoneFieldOptions, IS_PHONE_NUMBER_DEFAULT_MESSAGE],
+            [{} as IPhoneFieldOptions, 'Некорректный номер телефона'],
             [{constraintMessage: 'Не телефон'}, 'Не телефон'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(PhoneField(options));

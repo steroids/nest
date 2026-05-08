@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {TimeField, ITimeFieldOptions, IS_MILITARY_TIME_DEFAULT_MESSAGE} from './TimeField';
+import {TimeField, ITimeFieldOptions} from './TimeField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('TimeField decorator', () => {
@@ -11,8 +11,8 @@ describe('TimeField decorator', () => {
         });
 
         it.each([
-            [{} as ITimeFieldOptions, IS_MILITARY_TIME_DEFAULT_MESSAGE],
-            [{isMilitaryTimeConstraintMessage: 'Не время'}, 'Не время'],
+            [{} as ITimeFieldOptions, 'Время необходимо ввести в формате часы:минуты, например 07:32'],
+            [{isHhMmTimeConstraintMessage: 'Не время'}, 'Не время'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(TimeField(options));
             const errors = await validateValue(Dto, '25:99');

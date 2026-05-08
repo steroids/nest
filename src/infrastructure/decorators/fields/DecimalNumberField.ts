@@ -1,19 +1,24 @@
 import {applyDecorators} from '@nestjs/common';
 import {Max, Min, ValidateIf, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
-
-import {
-    IDecimalFieldOptions,
-    IS_DECIMAL_DEFAULT_MESSAGE,
-    buildMinDecimalDefaultMessage,
-    buildMaxDecimalDefaultMessage,
-} from './DecimalField';
-import {BaseField} from './BaseField';
+import {BaseField, IBaseFieldOptions} from './BaseField';
 import {TRANSFORM_TYPE_FROM_DB, Transform} from '../Transform';
 import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
 
+export interface IDecimalNumberFieldOptions extends IBaseFieldOptions {
+    precision?: number,
+    scale?: number,
+    isDecimalConstraintMessage?: string,
+    minDecimalConstraintMessage?: string,
+    maxDecimalConstraintMessage?: string,
+}
+
 export const IS_DECIMAL_NUMBER = 'isDecimalNumber';
 
-export function isDecimalNumber(value: unknown, options?: IDecimalFieldOptions): boolean {
+const IS_DECIMAL_NUMBER_DEFAULT_MESSAGE = 'Должно быть числом';
+const buildMinDecimalDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
+const buildMaxDecimalDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
+
+export function isDecimalNumber(value: unknown, options?: IDecimalNumberFieldOptions): boolean {
     if (typeof value !== 'number') { return false; }
 
     return isDecimal(value.toString(), {
@@ -22,7 +27,7 @@ export function isDecimalNumber(value: unknown, options?: IDecimalFieldOptions):
 }
 
 export function IsDecimalNumber(
-    options?: IDecimalFieldOptions,
+    options?: IDecimalNumberFieldOptions,
     validationOptions?: ValidationOptions,
 ): PropertyDecorator {
     return ValidateBy(
@@ -41,7 +46,7 @@ export function IsDecimalNumber(
     );
 }
 
-export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
+export function DecimalNumberField(options: IDecimalNumberFieldOptions = {}) {
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'DecimalNumberField',
@@ -51,7 +56,7 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
         Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsDecimalNumber(options, {
-            message: options.isDecimalConstraintMessage || IS_DECIMAL_DEFAULT_MESSAGE,
+            message: options.isDecimalConstraintMessage || IS_DECIMAL_NUMBER_DEFAULT_MESSAGE,
         }),
         typeof options.min === 'number' && Min(options.min, {
             each: options.isArray,

@@ -31,15 +31,17 @@ export const normalizeFunctionDate = (value, args?: ValidationArguments) => {
     return normalizeDate(value);
 };
 
-export const IS_ISO_8601_DEFAULT_MESSAGE = 'Некорректный формат даты';
-export const MIN_DATE_DEFAULT_MESSAGE_PREFIX = 'Выбрана дата раньше минимально допустимой';
-export const MAX_DATE_DEFAULT_MESSAGE_PREFIX = 'Выбрана дата позже максимально допустимой';
+const IS_ISO_8601_DEFAULT_MESSAGE = 'Некорректный формат даты';
+const MIN_DATE_DEFAULT_MESSAGE_PREFIX = 'Выбрана дата раньше минимально допустимой';
+const MAX_DATE_DEFAULT_MESSAGE_PREFIX = 'Выбрана дата позже максимально допустимой';
+
+type DateConstraintMessage = string | ((args: ValidationArguments) => string);
 
 export interface IDateFieldOptions extends IBaseFieldOptions {
     minDate?: string | Date | Function,
     maxDate?: string | Date | Function,
-    minDateConstraintMessage?: string,
-    maxDateConstraintMessage?: string,
+    minDateConstraintMessage?: DateConstraintMessage,
+    maxDateConstraintMessage?: DateConstraintMessage,
     isISO8601ConstraintMessage?: string,
 }
 

@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {EmailField, IEmailFieldOptions, IS_EMAIL_DEFAULT_MESSAGE} from './EmailField';
+import {EmailField, IEmailFieldOptions} from './EmailField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('EmailField decorator', () => {
@@ -11,7 +11,7 @@ describe('EmailField decorator', () => {
         });
 
         it.each([
-            [{} as IEmailFieldOptions, IS_EMAIL_DEFAULT_MESSAGE],
+            [{} as IEmailFieldOptions, 'Некорректный email адрес'],
             [{isEmailConstraintMessage: 'Не email'}, 'Не email'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(EmailField(options));

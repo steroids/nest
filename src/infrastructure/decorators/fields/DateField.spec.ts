@@ -1,11 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {
-    DateField,
-    IDateFieldOptions,
-    IS_ISO_8601_DEFAULT_MESSAGE,
-    MIN_DATE_DEFAULT_MESSAGE_PREFIX,
-    MAX_DATE_DEFAULT_MESSAGE_PREFIX,
-} from './DateField';
+import {DateField, IDateFieldOptions} from './DateField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('DateField decorator', () => {
@@ -17,7 +11,7 @@ describe('DateField decorator', () => {
 
     describe('IsISO8601 constraint', () => {
         it.each([
-            [{} as IDateFieldOptions, IS_ISO_8601_DEFAULT_MESSAGE],
+            [{} as IDateFieldOptions, 'Некорректный формат даты'],
             [{isISO8601ConstraintMessage: 'Не формат даты'}, 'Не формат даты'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(DateField(options));
@@ -28,8 +22,15 @@ describe('DateField decorator', () => {
 
     describe('MinDate constraint', () => {
         it.each([
-            [{minDate: '2024-01-01'} as IDateFieldOptions, MIN_DATE_DEFAULT_MESSAGE_PREFIX],
+            [{minDate: '2024-01-01'} as IDateFieldOptions, 'Выбрана дата раньше минимально допустимой'],
             [{minDate: '2024-01-01', minDateConstraintMessage: 'Слишком ранняя дата'}, 'Слишком ранняя дата'],
+            [
+                {
+                    minDate: '2024-01-01',
+                    minDateConstraintMessage: (args) => `Раньше ${args.constraints[0]} нельзя`,
+                } as IDateFieldOptions,
+                'Раньше 2024-01-01 нельзя',
+            ],
         ])('reports message %#', async (options, expectedSubstring) => {
             const Dto = buildDto(DateField(options));
             const errors = await validateValue(Dto, '2023-01-01');
@@ -39,8 +40,15 @@ describe('DateField decorator', () => {
 
     describe('MaxDate constraint', () => {
         it.each([
-            [{maxDate: '2024-12-31'} as IDateFieldOptions, MAX_DATE_DEFAULT_MESSAGE_PREFIX],
+            [{maxDate: '2024-12-31'} as IDateFieldOptions, 'Выбрана дата позже максимально допустимой'],
             [{maxDate: '2024-12-31', maxDateConstraintMessage: 'Слишком поздняя дата'}, 'Слишком поздняя дата'],
+            [
+                {
+                    maxDate: '2024-12-31',
+                    maxDateConstraintMessage: (args) => `Позже ${args.constraints[0]} нельзя`,
+                } as IDateFieldOptions,
+                'Позже 2024-12-31 нельзя',
+            ],
         ])('reports message %#', async (options, expectedSubstring) => {
             const Dto = buildDto(DateField(options));
             const errors = await validateValue(Dto, '2025-06-01');

@@ -1,13 +1,14 @@
 import {applyDecorators} from '@nestjs/common';
 import {IsString, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
-import {IS_STRING_DEFAULT_MESSAGE} from './StringField';
 
 export interface ICoordinateFieldOptions extends IBaseFieldOptions {
     precision?: number,
     scale?: number,
     isStringConstraintMessage?: string,
 }
+
+const IS_STRING_DEFAULT_MESSAGE = 'Должна быть строка';
 
 export function CoordinateField(options: ICoordinateFieldOptions = {}) {
     return applyDecorators(

@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {BaseField, IBaseFieldOptions, IS_NOT_EMPTY_DEFAULT_MESSAGE} from '../BaseField';
+import {BaseField, IBaseFieldOptions} from '../BaseField';
 import {buildDto, validateValue} from './BaseField.helpers';
 
 const buildBaseFieldDecorator = (options: IBaseFieldOptions) => BaseField(options, {
@@ -23,7 +23,7 @@ describe('BaseField decorator', () => {
         });
 
         it.each([
-            [{required: true} as IBaseFieldOptions, IS_NOT_EMPTY_DEFAULT_MESSAGE],
+            [{required: true} as IBaseFieldOptions, 'Обязательно для заполнения'],
             [{required: true, isNotEmptyConstraintMessage: 'Заполните'}, 'Заполните'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(buildBaseFieldDecorator(options));

@@ -1,6 +1,6 @@
 import {describe, it, expect} from '@jest/globals';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
-import {EnumField, IEnumFieldOptions, IS_ENUM_DEFAULT_MESSAGE} from './EnumField';
+import {EnumField, IEnumFieldOptions} from './EnumField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
@@ -29,7 +29,7 @@ describe('EnumField decorator', () => {
         });
 
         it.each([
-            [{enum: fixtureColors} as IEnumFieldOptions, IS_ENUM_DEFAULT_MESSAGE],
+            [{enum: fixtureColors} as IEnumFieldOptions, 'Выберите одно из значений'],
             [{enum: fixtureColors, isEnumConstraintMessage: 'Недопустимое значение'}, 'Недопустимое значение'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(EnumField(options));

@@ -2,10 +2,10 @@ import {applyDecorators} from '@nestjs/common';
 import {IsArray, IsInt, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export const SINGLE_FILE_DEFAULT_MESSAGE = 'Необходимо загрузить файл';
-export const MULTIPLE_FILES_DEFAULT_MESSAGE = 'Необходимо загрузить файлы';
-export const SINGLE_IMAGE_DEFAULT_MESSAGE = 'Необходимо загрузить изображение';
-export const MULTIPLE_IMAGES_DEFAULT_MESSAGE = 'Необходимо загрузить изображения';
+const SINGLE_FILE_DEFAULT_MESSAGE = 'Необходимо загрузить файл';
+const MULTIPLE_FILES_DEFAULT_MESSAGE = 'Необходимо загрузить файлы';
+const SINGLE_IMAGE_DEFAULT_MESSAGE = 'Необходимо загрузить изображение';
+const MULTIPLE_IMAGES_DEFAULT_MESSAGE = 'Необходимо загрузить изображения';
 
 export interface IFileField extends IBaseFieldOptions {
     multiple?: boolean,

@@ -1,6 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
 import {TextField, ITextFieldOptions} from './TextField';
-import {buildMaxLengthDefaultMessage, buildMinLengthDefaultMessage, IS_STRING_DEFAULT_MESSAGE} from './StringField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('TextField decorator', () => {
@@ -12,7 +11,7 @@ describe('TextField decorator', () => {
 
     describe('IsString constraint', () => {
         it.each([
-            [{} as ITextFieldOptions, IS_STRING_DEFAULT_MESSAGE],
+            [{} as ITextFieldOptions, 'Должна быть строка'],
             [{isStringConstraintMessage: 'Не строка'}, 'Не строка'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(TextField(options));
@@ -23,7 +22,7 @@ describe('TextField decorator', () => {
 
     describe('MinLength constraint', () => {
         it.each([
-            [{min: 3} as ITextFieldOptions, buildMinLengthDefaultMessage(3)],
+            [{min: 3} as ITextFieldOptions, 'Длина строки должна быть не менее 3'],
             [{min: 3, minConstraintMessage: 'Слишком коротко'}, 'Слишком коротко'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(TextField(options));
@@ -34,7 +33,7 @@ describe('TextField decorator', () => {
 
     describe('MaxLength constraint', () => {
         it.each([
-            [{max: 5} as ITextFieldOptions, buildMaxLengthDefaultMessage(5)],
+            [{max: 5} as ITextFieldOptions, 'Длина строки должна быть не более 5'],
             [{max: 5, maxConstraintMessage: 'Слишком длинно'}, 'Слишком длинно'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(TextField(options));

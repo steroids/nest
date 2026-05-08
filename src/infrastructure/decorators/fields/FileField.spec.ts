@@ -1,12 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {
-    FileField,
-    IFileField,
-    SINGLE_FILE_DEFAULT_MESSAGE,
-    SINGLE_IMAGE_DEFAULT_MESSAGE,
-    MULTIPLE_FILES_DEFAULT_MESSAGE,
-    MULTIPLE_IMAGES_DEFAULT_MESSAGE,
-} from './FileField';
+import {FileField, IFileField} from './FileField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('FileField decorator', () => {
@@ -18,8 +11,8 @@ describe('FileField decorator', () => {
         });
 
         it.each([
-            [{} as IFileField, SINGLE_FILE_DEFAULT_MESSAGE],
-            [{isImage: true}, SINGLE_IMAGE_DEFAULT_MESSAGE],
+            [{} as IFileField, 'Необходимо загрузить файл'],
+            [{isImage: true}, 'Необходимо загрузить изображение'],
             [{isFileConstraintMessage: 'Загрузите файл'}, 'Загрузите файл'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(FileField(options));
@@ -36,8 +29,8 @@ describe('FileField decorator', () => {
         });
 
         it.each([
-            [{multiple: true} as IFileField, MULTIPLE_FILES_DEFAULT_MESSAGE],
-            [{multiple: true, isImage: true}, MULTIPLE_IMAGES_DEFAULT_MESSAGE],
+            [{multiple: true} as IFileField, 'Необходимо загрузить файлы'],
+            [{multiple: true, isImage: true}, 'Необходимо загрузить изображения'],
             [{multiple: true, isFileConstraintMessage: 'Загрузите файлы'}, 'Загрузите файлы'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(FileField(options));

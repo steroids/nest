@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {PasswordField, IPasswordFieldOptions, IS_STRONG_PASSWORD_DEFAULT_MESSAGE} from './PasswordField';
+import {PasswordField, IPasswordFieldOptions} from './PasswordField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('PasswordField decorator', () => {
@@ -11,7 +11,7 @@ describe('PasswordField decorator', () => {
         });
 
         it.each([
-            [{} as IPasswordFieldOptions, IS_STRONG_PASSWORD_DEFAULT_MESSAGE],
+            [{} as IPasswordFieldOptions, 'Ненадёжный пароль'],
             [{isStrongPasswordConstraintMessage: 'Слабый пароль'}, 'Слабый пароль'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(PasswordField(options));

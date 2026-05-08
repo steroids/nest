@@ -3,7 +3,7 @@ import {IsPhoneNumber, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
-export const IS_PHONE_NUMBER_DEFAULT_MESSAGE = 'Некорректный номер телефона';
+const IS_PHONE_NUMBER_DEFAULT_MESSAGE = 'Некорректный номер телефона';
 
 export interface IPhoneFieldOptions extends IBaseFieldOptions {
     unique?: boolean,

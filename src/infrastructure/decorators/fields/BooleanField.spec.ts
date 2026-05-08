@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {BooleanField, IBooleanFieldOptions, IS_BOOLEAN_DEFAULT_MESSAGE} from './BooleanField';
+import {BooleanField, IBooleanFieldOptions} from './BooleanField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('BooleanField decorator', () => {
@@ -11,7 +11,7 @@ describe('BooleanField decorator', () => {
         });
 
         it.each([
-            [{} as IBooleanFieldOptions, IS_BOOLEAN_DEFAULT_MESSAGE],
+            [{} as IBooleanFieldOptions, 'Должен быть булевом'],
             [{isBooleanConstraintMessage: 'Не булево'}, 'Не булево'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(BooleanField(options));

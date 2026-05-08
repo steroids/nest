@@ -1,12 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {
-    StringField,
-    IStringFieldOptions,
-    IS_STRING_DEFAULT_MESSAGE,
-    MATCHES_DEFAULT_MESSAGE,
-    buildMinLengthDefaultMessage,
-    buildMaxLengthDefaultMessage,
-} from './StringField';
+import {StringField, IStringFieldOptions} from './StringField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('StringField decorator', () => {
@@ -18,7 +11,7 @@ describe('StringField decorator', () => {
 
     describe('IsString constraint', () => {
         it.each([
-            [{required: true} as IStringFieldOptions, IS_STRING_DEFAULT_MESSAGE],
+            [{required: true} as IStringFieldOptions, 'Должна быть строка'],
             [{required: true, isStringConstraintMessage: 'Не строка'}, 'Не строка'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(StringField(options));
@@ -29,7 +22,7 @@ describe('StringField decorator', () => {
 
     describe('Matches constraint', () => {
         it.each([
-            [{regexp: /^[a-z]+$/} as IStringFieldOptions, MATCHES_DEFAULT_MESSAGE],
+            [{regexp: /^[a-z]+$/} as IStringFieldOptions, 'Не корректный формат строки'],
             [{regexp: /^[a-z]+$/, regexpErrorMessage: 'Только строчные'}, 'Только строчные'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(StringField(options));
@@ -40,7 +33,7 @@ describe('StringField decorator', () => {
 
     describe('MinLength constraint', () => {
         it.each([
-            [{min: 3, required: true} as IStringFieldOptions, buildMinLengthDefaultMessage(3)],
+            [{min: 3, required: true} as IStringFieldOptions, 'Длина строки должна быть не менее 3'],
             [{min: 3, required: true, minConstraintMessage: 'Слишком коротко'}, 'Слишком коротко'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(StringField(options));
@@ -51,7 +44,7 @@ describe('StringField decorator', () => {
 
     describe('MaxLength constraint', () => {
         it.each([
-            [{max: 5, required: true} as IStringFieldOptions, buildMaxLengthDefaultMessage(5)],
+            [{max: 5, required: true} as IStringFieldOptions, 'Длина строки должна быть не более 5'],
             [{max: 5, required: true, maxConstraintMessage: 'Слишком длинно'}, 'Слишком длинно'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(StringField(options));

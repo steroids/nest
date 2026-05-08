@@ -1,5 +1,12 @@
 import {applyDecorators} from '@nestjs/common';
-import {getFileFieldDecorators, IFileField} from './FileField';
+import {IBaseFieldOptions} from './BaseField';
+import {getFileFieldDecorators} from './FileField';
+
+export interface IFileField extends IBaseFieldOptions {
+    multiple?: boolean,
+    isImage?: boolean,
+    isFileConstraintMessage?: string,
+}
 
 export function ImageField(options: IFileField = {}) {
     return applyDecorators(

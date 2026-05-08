@@ -4,9 +4,9 @@ import {IsInt, Max, Min, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
-export const IS_INT_DEFAULT_MESSAGE = 'Должно быть числом';
-export const buildMinIntDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
-export const buildMaxIntDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
+const IS_INT_DEFAULT_MESSAGE = 'Должно быть числом';
+const buildMinIntDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
+const buildMaxIntDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
 
 export interface IIntegerFieldOptions extends IBaseFieldOptions {
     unique?: boolean,

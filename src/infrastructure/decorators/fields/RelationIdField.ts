@@ -5,7 +5,7 @@ import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from '
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {getTableFromModel} from '../../base/ModelTableStorage';
 
-export const ARRAY_NOT_EMPTY_DEFAULT_MESSAGE = 'Не должно быть пустым';
+const ARRAY_NOT_EMPTY_DEFAULT_MESSAGE = 'Не должно быть пустым';
 
 export interface IRelationIdFieldOptions extends IBaseFieldOptions {
     relationName?: string,

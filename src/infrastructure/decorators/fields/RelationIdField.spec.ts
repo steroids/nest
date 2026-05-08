@@ -1,5 +1,5 @@
 import {describe, it, expect} from '@jest/globals';
-import {RelationIdField, IRelationIdFieldOptions, ARRAY_NOT_EMPTY_DEFAULT_MESSAGE} from './RelationIdField';
+import {RelationIdField, IRelationIdFieldOptions} from './RelationIdField';
 import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 describe('RelationIdField decorator', () => {
@@ -11,7 +11,7 @@ describe('RelationIdField decorator', () => {
         });
 
         it.each([
-            [{isArray: true, nullable: false} as IRelationIdFieldOptions, ARRAY_NOT_EMPTY_DEFAULT_MESSAGE],
+            [{isArray: true, nullable: false} as IRelationIdFieldOptions, 'Не должно быть пустым'],
             [
                 {isArray: true, nullable: false, isFieldValidConstraintMessage: 'Список не должен быть пустым'},
                 'Список не должен быть пустым',
