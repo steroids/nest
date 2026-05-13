@@ -1,5 +1,7 @@
 # Steroids Nest Migration Guide
 
+## [Unreleased](../CHANGELOG.md#Unreleased) (2026-^^-^^)
+
 ### Добавление `RestApplication.initCookieParser`
 
 Если в проекте был переопределен метод `RestApplication.init`, 
