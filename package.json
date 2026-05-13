@@ -1,12 +1,13 @@
 {
   "name": "@steroidsjs/nest",
-  "version": "4.1.1",
+  "version": "4.3.0",
   "scripts": {
     "script": "nps",
     "watch": "nps watch",
     "build": "nps build",
     "test": "nps test",
-    "test-unit": "jest --config jest.unit.config.ts"
+    "test-unit": "jest --config jest.unit.config.ts",
+    "postinstall": "jest --clearCache"
   },
   "description": "",
   "main": "index.js",
@@ -60,6 +61,7 @@
     "@steroidsjs/typeorm": "^0.3.23",
     "@types/cookie-parser": "^1.4.10",
     "@types/jest": "^29.4.0",
+    "@types/lodash": "^4.17.23",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",

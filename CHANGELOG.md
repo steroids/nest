@@ -1,6 +1,34 @@
 # Steroids Nest Changelog
 
-[Migration guide](docs/MigrationGuide.md#)
+## [4.3.0](https://github.com/steroids/nest/compare/4.2.1...4.3.0) (2026-05-04)
+
+### Features
+- В `CrudService.save` при обновлении модели теперь подгружаются релейшены и для saveDto, которые не являются экземпляром класса со steroids fields ([#225](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/225))
+- `DataMapper` теперь приводит одиночное значение к массиву для полей с опцией `isArray` ([#248](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/248))
+
+### Fixes
+- Исправлена настройка глобального префикса REST-приложения при включенном URI versioning ([#234](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/234))
+- Sentry инициализируется только при наличии DSN, а `SentryExceptionFilter` подключается только при наличии клиента Sentry ([#254](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/254))
+- Короткие алиасы `SearchQuery` теперь формируются через хеш пути связи, что предотвращает коллизии ([#228](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/2228))
+
+### Deprecated
+- `UserException` и `UserExceptionFilter` помечены как deprecated ([#233](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/233))
+
+### Removed
+- Удалена CLI-команда `migrate:generate-permissions` и вспомогательная логика генерации миграций по permissions ([#247](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/247))
+
+### CI
+- Добавлена GitHub Actions проверка заголовков pull request на соответствие conventional commits ([#178](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/178))
+
+## [4.2.1](https://github.com/steroids/nest/compare/4.2.0...4.2.1) (2026-04-08)
+
+### Fixes
+- Параметр logger для метода NestFactory.create вынесен в конфиг как loggerLevels ([#241](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/241))
+- Инициализация свойства RestApplication._app вынесена в метод createApp ([#241](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/241))
+
+## [4.2.0](https://github.com/steroids/nest/compare/4.1.0...4.2.0) (2026-04-02)
+
+[Migration guide](docs/MigrationGuide.md#420-2026-04-02)
 
 ### Features
 
@@ -10,7 +38,10 @@
 - Добавлена проверка сложности пароля в `PasswordField` ([#223](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/223))
 - Добавлен параметр `isListenLocalhost` в `RestApplication` для прослушивания только localhost'а, env-переменная для него - `APP_LISTEN_LOCALHOST` ([#215](https://gitlab.kozhindev.com/steroids/steroids-nest/-/issues/215))
 
-## [4.1.0](https://github.com/steroids/nest/compare/4.0.2...4.1.0) (2026-02-13)
+### Fixes
+- Фикс поведения UpdateTimeField (дубль подписки на BEFORE_INSERT заменен на BEFORE_UPDATE)
+
+## [4.1.0](https://github.com/steroids/nest/compare/4.0.4...4.1.0) (2026-02-13)
 ## [4.0.4](https://github.com/steroids/nest/compare/4.0.3...4.0.4) (2026-02-09)
 
 ### Fixes
@@ -51,7 +82,7 @@
 
 ## [4.0.0](https://github.com/steroids/nest/compare/3.2.7...4.0.0) (2026-01-19)
 
-[Migration guide](docs/MigrationGuide.md#400-2025-01-19)
+[Migration guide](docs/MigrationGuide.md#400-2026-01-19)
 
 ### Features
 
@@ -132,7 +163,7 @@
 
 ## [3.0.3](https://github.com/steroids/nest/compare/3.0.2...3.0.3) (2025-02-28)
 
-[Migration guide](docs/MigrationGuide.md#303-2024-02-28)
+[Migration guide](docs/MigrationGuide.md#303-2025-02-28)
 
 ### Bugfixes
 
@@ -153,7 +184,7 @@
 
 ## [3.0.0](https://github.com/steroids/nest/compare/2.2.1...3.0.0) (2025-02-18)
 
-[Migration guide](docs/MigrationGuide.md#300-2024-02-18)
+[Migration guide](docs/MigrationGuide.md#300-2025-02-18)
 
 ### Features
 

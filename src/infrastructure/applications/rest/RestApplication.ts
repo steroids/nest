@@ -3,6 +3,7 @@ import {json, urlencoded} from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {INestApplication, VersioningType} from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
@@ -83,17 +84,23 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Set global prefix with versioning
+     * @protected
+     */
+    protected initRouting(): void {
+        this._app.setGlobalPrefix('/api');
+        this._app.enableVersioning({
+            type: VersioningType.URI,
+            defaultVersion: '1',
+        });
+    }
+
+    /**
      * Initialize Swagger to generate API documentation.
      * Documentation will be available at the `/api/docs` endpoint.
      * @protected
      */
     protected initSwagger() {
-        // Versioning
-        this._app.setGlobalPrefix('/api/v1');
-        this._app.enableVersioning({
-            type: VersioningType.URI,
-        });
-
         // Swagger config
         const swaggerConfig = new DocumentBuilder()
             .setTitle(this._config.title || 'Application')
@@ -146,7 +153,7 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected initFilters() {
-        if (this._config.sentry) {
+        if (Sentry.getClient()) {
             this._app.useGlobalFilters(new SentryExceptionFilter(this._config.sentry.exposeSentryErrorResponse));
         }
         // Validation
@@ -185,6 +192,16 @@ export class RestApplication extends BaseApplication {
     }
 
     /**
+     * Creates a NestJS application instance using `NestFactory.create`.
+     * @protected
+     */
+    protected async createApp() {
+        this._app = await NestFactory.create(this._moduleClass, {
+            logger: this._config.loggerLevels,
+        });
+    }
+
+    /**
      * Init cookie-parser for comfortable working with cookie.
      * @protected
      */
@@ -199,10 +216,9 @@ export class RestApplication extends BaseApplication {
     public async init() {
         await super.init();
 
-        this._app = await NestFactory.create(this._moduleClass, {
-            logger: ['error', 'warn'],
-        });
+        await this.createApp();
 
+        this.initRouting();
         this.initSwagger();
         this.initCors();
         this.initCookieParser();

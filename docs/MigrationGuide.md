@@ -6,6 +6,57 @@
 то в нём после создания приложения нужно вызвать метод `super.initCookieParser`.
 Для подписи кук можно передать в конфиг приложения поле `cookieSecret`.
 
+## [4.3.0](../CHANGELOG.md#430-2026-05-04) (2026-05-04)
+
+### Настройка роутинга в RestApplication
+
+В базовом `RestApplication` настройка глобального префикса и URI versioning вынесена из `initSwagger` в отдельный метод `initRouting`.
+Если в проекте используется стандартный `RestApplication` без переопределения `init`, дополнительных действий не требуется.
+
+Если в проекте переопределен метод `init`, нужно вызвать `initRouting` после создания NestJS-приложения и до инициализации Swagger:
+
+```ts
+public async init() {
+    await super.init();
+
+    await this.createApp();
+
+    this.initRouting();
+    this.initSwagger();
+    this.initCors();
+    this.initPipes();
+    this.initFilters();
+    this.initInterceptors();
+    this.initSettings();
+    this.initGraceful();
+}
+```
+
+Если в проекте переопределен `initSwagger` и внутри него вручную вызывается `setGlobalPrefix('/api/v1')` или `enableVersioning`, эту настройку нужно перенести в `initRouting` или удалить дубль. Базовое поведение теперь задает глобальный префикс `/api` и `defaultVersion: '1'`, что сохраняет адреса вида `/api/v1/...`.
+
+### Sentry
+
+Sentry теперь инициализируется только если в конфиге задан `sentry.dsn`, а `SentryExceptionFilter` подключается только при наличии клиента Sentry.
+Если проект использует стандартный REST-конфиг и переменную окружения `APP_SENTRY_DSN`, дополнительных действий не требуется.
+
+Если в проекте переопределен конфиг приложения, нужно убедиться, что при включенной интеграции передается DSN:
+
+```ts
+sentry: {
+    dsn: process.env.APP_SENTRY_DSN,
+    environment: process.env.APP_ENVIRONMENT,
+}
+```
+
+Если Sentry не используется, можно не передавать `sentry` в конфиг или оставить `APP_SENTRY_DSN` пустым.
+
+### UserException
+
+`UserException` и `UserExceptionFilter` помечены как deprecated.
+Обновление не требует срочной замены, но в новом коде рекомендуется использовать стандартные HTTP-исключения NestJS или проектные исключения с собственными фильтрами.
+
+## [4.2.0](../CHANGELOG.md#420-2026-04-02) (2026-04-02)
+
 ### Переход на @sentry/nestjs
 
 Чтобы перейти с `@ntegral/nestjs-sentry` на `@sentry/nestjs` нужно:
@@ -75,7 +126,7 @@ import * as Sentry from '@sentry/node'
 Если в проекте используется CacheModule из ```@nestjs/common```, необходимо заменить его на реализацию из отдельного пакета
 ```@nestjs/cache-manager```
 
-## [3.2.0](../CHANGELOG.md#320-2025-02-28) (2025-05-12)
+## [3.2.0](../CHANGELOG.md#320-2025-05-12) (2025-05-12)
 
 ### Вынос инфраструктурной логики ORM из *Fields декораторов
 
@@ -140,7 +191,7 @@ async saveInternal(manager: ISaveManager, nextModel: TModel) {
 }
 ```
 
-## [3.0.0](../CHANGELOG.md#300-2024-02-18) (2025-02-18)
+## [3.0.0](../CHANGELOG.md#300-2025-02-18) (2025-02-18)
 
 ### diffModel в CrudService
 

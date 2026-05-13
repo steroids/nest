@@ -106,9 +106,9 @@ export class RestApplication extends BaseRestApplication {
         initializeTransactionalContext({
             storageDriver: StorageDriver.AUTO,
         });
-        //...
+
+        await super.init();
     }
-    //...
 }
 ```
 
@@ -143,4 +143,3 @@ export class OrderUpdatePricesUseCase {
 
 Также уровень изоляции можно настроить для каждого вызова метода `execute`,
 передав вторым параметром объект с полем `isolationLevel`, указывающим нужное значение.
-

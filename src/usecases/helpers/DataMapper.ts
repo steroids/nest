@@ -96,17 +96,21 @@ export class DataMapper {
             }
 
             if (_has(values, sourceName)) {
+                const value = options?.isArray && values[sourceName] != null && !Array.isArray(values[sourceName])
+                    ? [values[sourceName]]
+                    : values[sourceName];
+
                 if (options?.appType === 'relation') {
-                    if (options.isArray && Array.isArray(values[sourceName])) {
-                        object[name] = values[sourceName]
+                    if (options.isArray && Array.isArray(value)) {
+                        object[name] = value
                             .map(item => DataMapper.create(options.relationClass(), item, transformType));
-                    } else if (_isObject(values[sourceName])) {
-                        object[name] = DataMapper.create(options.relationClass(), values[sourceName], transformType);
+                    } else if (_isObject(value)) {
+                        object[name] = DataMapper.create(options.relationClass(), value, transformType);
                     } else {
-                        object[name] = values[sourceName];
+                        object[name] = value;
                     }
                 } else {
-                    object[name] = values[sourceName];
+                    object[name] = value;
                 }
             }
 
