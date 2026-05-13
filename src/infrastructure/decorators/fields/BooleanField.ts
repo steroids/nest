@@ -3,11 +3,17 @@ import {IsBoolean, IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
+const IS_BOOLEAN_DEFAULT_MESSAGE = 'Должен быть булевом';
+
+export interface IBooleanFieldOptions extends IBaseFieldOptions {
+    isBooleanConstraintMessage?: string,
+}
+
 const TRUE_VALUES = [true, 1, 'true', '1', 'y', 'yes', 'д', 'да'];
 
 export const normalizeBoolean = (value) => TRUE_VALUES.includes(value);
 
-export function BooleanField(options: IBaseFieldOptions = {}) {
+export function BooleanField(options: IBooleanFieldOptions = {}) {
     return applyDecorators(
         BaseField(options, {
             decoratorName: 'BooleanField',
@@ -21,7 +27,7 @@ export function BooleanField(options: IBaseFieldOptions = {}) {
             return normalizeBoolean(value);
         }),
         IsBoolean({
-            message: 'Должен быть булевом',
+            message: options.isBooleanConstraintMessage || IS_BOOLEAN_DEFAULT_MESSAGE,
         }),
         IsOptional(),
     );

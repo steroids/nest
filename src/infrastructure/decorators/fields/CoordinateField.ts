@@ -5,7 +5,10 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 export interface ICoordinateFieldOptions extends IBaseFieldOptions {
     precision?: number,
     scale?: number,
+    isStringConstraintMessage?: string,
 }
+
+const IS_STRING_DEFAULT_MESSAGE = 'Должна быть строка';
 
 export function CoordinateField(options: ICoordinateFieldOptions = {}) {
     return applyDecorators(
@@ -16,7 +19,9 @@ export function CoordinateField(options: ICoordinateFieldOptions = {}) {
                 jsType: 'number',
             }),
             options.nullable && ValidateIf((object, value) => value !== null),
-            IsString(),
-        ].filter(Boolean)
+            IsString({
+                message: options.isStringConstraintMessage || IS_STRING_DEFAULT_MESSAGE,
+            }),
+        ].filter(Boolean),
     );
 }

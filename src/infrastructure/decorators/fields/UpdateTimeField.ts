@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsOptional, IsString} from 'class-validator';
+import {IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {normalizeDateTime} from './DateTimeField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
@@ -22,6 +22,5 @@ export function UpdateTimeField(options: IUpdateTimeFieldOptions = {}) {
         Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_FROM_DB),
         Transform(() => normalizeDateTime(new Date(), false), TRANSFORM_TYPE_TO_DB),
         IsOptional(),
-        IsString(),
     );
 }

@@ -5,6 +5,7 @@ import {getFileFieldDecorators} from './FileField';
 export interface IFileField extends IBaseFieldOptions {
     multiple?: boolean,
     isImage?: boolean,
+    isFileConstraintMessage?: string,
 }
 
 export function ImageField(options: IFileField = {}) {
