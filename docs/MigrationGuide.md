@@ -1,5 +1,13 @@
 # Steroids Nest Migration Guide
 
+## [Unreleased](../CHANGELOG.md#Unreleased) (2026-^^-^^)
+
+### Добавление `RestApplication.initCookieParser`
+
+Если в проекте был переопределен метод `RestApplication.init`, 
+то в нём после создания приложения нужно вызвать метод `super.initCookieParser`.
+Для подписи кук можно передать в конфиг приложения поле `cookieSecret`.
+
 ## [4.3.0](../CHANGELOG.md#430-2026-05-04) (2026-05-04)
 
 ### Настройка роутинга в RestApplication
