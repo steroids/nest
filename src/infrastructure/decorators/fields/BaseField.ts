@@ -6,8 +6,8 @@ import {
     STEROIDS_META_FIELD_INTERNAL_OPTIONS,
     STEROIDS_META_FIELD_OPTIONS,
     STEROIDS_META_KEYS,
-} from '../FieldMetadata';
-import type {IFieldInternalOptions, IFieldOptions} from '../FieldMetadata';
+} from './helpers/InternalFieldMetadataHelpers';
+import type {IFieldInternalOptions, IFieldOptions} from './helpers/InternalFieldMetadataHelpers';
 
 export interface IBaseFieldOptions {
     /**
@@ -67,6 +67,18 @@ const ColumnMetaDecorator = (options: IFieldOptions, internalOptions: IFieldInte
     Reflect.defineMetadata(STEROIDS_META_KEYS, fieldNames, object);
 };
 
+/**
+ * Base decorator used by concrete Field decorators.
+ *
+ * @param options Public field options passed by the user or prepared by a concrete Field decorator.
+ * They describe user-facing field behavior and are stored in `STEROIDS_META_FIELD_OPTIONS`.
+ * Examples: `label`, `example`, `required`, `nullable`, `isArray`, `transform`, `noColumn`.
+ *
+ * @param internalOptions Internal service options set by concrete Field decorators.
+ * They are not part of the public Field API and are stored separately in
+ * `STEROIDS_META_FIELD_INTERNAL_OPTIONS`.
+ * Examples: `appType`, `decoratorName`, `swaggerType`.
+ */
 export function BaseField(options: IBaseFieldOptions = {}, internalOptions: IFieldInternalOptions = {}) {
     return applyDecorators(
         ...[
@@ -104,4 +116,4 @@ export {
     getMetaRelations,
     getRelationsByFilter,
     isMetaClass,
-} from '../FieldMetadata';
+} from './helpers/InternalFieldMetadataHelpers';

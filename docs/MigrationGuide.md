@@ -34,7 +34,7 @@ STEROIDS_META_FIELD -> STEROIDS_META_FIELD_OPTIONS
 STEROIDS_META_FIELD_DECORATOR -> STEROIDS_META_FIELD_INTERNAL_OPTIONS
 ```
 
-Старые helper-экспорты из `BaseField` сохранены для обратной совместимости, но новая реализация находится в `src/infrastructure/decorators/FieldMetadata.ts`.
+Старые helper-экспорты из `BaseField` сохранены для обратной совместимости, но новая реализация находится в `src/infrastructure/decorators/fields/helpers/InternalFieldMetadataHelpers.ts`.
 
 ## [4.3.0](../CHANGELOG.md#430-2026-05-04) (2026-05-04)
 

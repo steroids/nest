@@ -1,7 +1,7 @@
 import {isString} from 'class-validator';
 import type {ApiPropertyOptions} from '@nestjs/swagger';
-import type {IAllFieldOptions} from './fields';
-import type {IBaseFieldOptions} from './fields/BaseField';
+import type {IAllFieldOptions} from '../index';
+import type {IBaseFieldOptions} from '../BaseField';
 
 export const STEROIDS_META_FIELD_OPTIONS = 'steroids_meta_field_options';
 export const STEROIDS_META_FIELD_INTERNAL_OPTIONS = 'steroids_meta_field_internal_options';
@@ -129,7 +129,7 @@ export const getFieldDecoratorName = (targetClass, fieldName: string): string | 
 
 export const getFieldDecorator = (targetClass, fieldName: string): (...args: any) => PropertyDecorator => {
     const decoratorName: string = getFieldDecoratorName(targetClass, fieldName);
-    const decorator = require('./fields')[decoratorName];
+    const decorator = require('../index')[decoratorName];
     if (!decorator) {
         throw new Error(`Not found Field decorator ${decoratorName}, property: ${fieldName}`);
     }

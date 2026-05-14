@@ -23,7 +23,7 @@
 - `getFieldAppType(MetaClass, fieldName)` возвращает steroids-тип поля.
 - `getFieldDecoratorName(MetaClass, fieldName)` возвращает имя Field-декоратора.
 
-Новая реализация этих helper-функций находится в `src/infrastructure/decorators/FieldMetadata.ts`. Экспорты из `BaseField` сохранены для совместимости.
+Новая реализация этих helper-функций находится в `src/infrastructure/decorators/fields/helpers/InternalFieldMetadataHelpers.ts`. Экспорты из `BaseField` сохранены для совместимости.
 
 ## Список декораторов
 

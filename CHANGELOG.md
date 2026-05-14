@@ -10,7 +10,7 @@
 
 ### Changed
 - Упорядочены options и metadata Field-декораторов: пользовательские options отделены от внутренних `appType`, `decoratorName` и `swaggerType`.
-- Хелперы для чтения metadata Field-декораторов вынесены в `FieldMetadata`.
+- Служебные хелперы для чтения metadata Field-декораторов вынесены в `fields/helpers/InternalFieldMetadataHelpers`.
 - `RelationField` теперь сам определяет `isArray` по типу связи.
 
 ### Removed
