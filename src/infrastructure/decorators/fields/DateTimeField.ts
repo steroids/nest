@@ -25,7 +25,7 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
             BaseField(options, {
                 decoratorName: 'DateTimeField',
                 appType: 'dateTime',
-                jsType: 'string',
+                swaggerType: 'string',
             }),
             // options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             // IsDateString({

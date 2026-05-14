@@ -1,12 +1,40 @@
 # Steroids Nest Migration Guide
 
-## [Unreleased](../CHANGELOG.md#Unreleased) (2026-^^-^^)
+## Unreleased
 
 ### Добавление `RestApplication.initCookieParser`
 
 Если в проекте был переопределен метод `RestApplication.init`, 
 то в нём после создания приложения нужно вызвать метод `super.initCookieParser`.
 Для подписи кук можно передать в конфиг приложения поле `cookieSecret`.
+
+### Обновление Field-декораторов
+
+Публичные options Field-декораторов очищены от служебных параметров. При обновлении проекта нужно проверить места, где перечисленные ниже параметры Field-декораторов задавались вручную или где проектный код напрямую читал steroids metadata.
+
+`jsType` больше не поддерживается. Для большинства полей ничего передавать вместо него не нужно: OpenAPI-тип задаётся самим декоратором. Если тип действительно зависит от проекта, используйте `swaggerType`, но только в декораторах, где он остался публичным: `ComputableField`, `JSONBField` и `GeometryField`.
+
+`dbType` больше не передаётся через Field-декораторы. Типы колонок остаются на уровне TypeORM-декораторов. Если проект переопределял `dbType` в Field options, такую настройку нужно перенести в TypeORM-слой или отдельный проектный декоратор.
+
+`plainName` и `hint` удалены как неиспользуемые параметры. Их нужно просто убрать из options.
+
+`RelationField` больше не принимает `isArray`. Массивность теперь определяется из типа связи: `ManyToMany` и `OneToMany` считаются массивами, `OneToOne` и `ManyToOne` - одиночными связями. Для `RelationIdField` поведение не меняется: если поле id связи хранит массив значений, `isArray: true` по-прежнему нужно передать явно.
+
+Если проектный код читает metadata напрямую, нужно учитывать новое разделение:
+
+- `getFieldOptions(MetaClass, fieldName)` возвращает пользовательские options поля.
+- `getFieldInternalOptions(MetaClass, fieldName)` возвращает служебные options: `appType`, `decoratorName`, `swaggerType`.
+- `getFieldAppType(MetaClass, fieldName)` возвращает `appType`.
+- `getFieldDecoratorName(MetaClass, fieldName)` сохраняет прежнее поведение, но читает имя декоратора из internal options.
+
+Если использовались metadata-константы, нужно заменить старые ключи:
+
+```text
+STEROIDS_META_FIELD -> STEROIDS_META_FIELD_OPTIONS
+STEROIDS_META_FIELD_DECORATOR -> STEROIDS_META_FIELD_INTERNAL_OPTIONS
+```
+
+Старые helper-экспорты из `BaseField` сохранены для обратной совместимости, но новая реализация находится в `src/infrastructure/decorators/fields/helpers/InternalFieldMetadataHelpers.ts`.
 
 ## [4.3.0](../CHANGELOG.md#430-2026-05-04) (2026-05-04)
 

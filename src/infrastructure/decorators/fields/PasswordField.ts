@@ -27,7 +27,7 @@ export function PasswordField(options: IPasswordFieldOptions = {}) {
         BaseField(finalOptions, {
             decoratorName: 'PasswordField',
             appType: 'password',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         IsStrongPassword({
             minLength: finalOptions.minLength,

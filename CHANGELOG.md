@@ -2,11 +2,20 @@
 
 ## Unreleased
 
-[Migration guide](docs/MigrationGuide.md#unreleased-2026--)
+[Migration guide](docs/MigrationGuide.md#unreleased)
 
 ### Features
 - Добавлена middleware `cookie-parser`, для удобной работы с куками (инициализируется в методе `RestApplication.initCookieParser`)
 - Добавлено поле `IRestAppModuleConfig.cookieSecret` для возможности подписи кук
+
+### Changed
+- Упорядочены options и metadata Field-декораторов: пользовательские options отделены от внутренних `appType`, `decoratorName` и `swaggerType`.
+- Служебные хелперы для чтения metadata Field-декораторов вынесены в `fields/helpers/InternalFieldMetadataHelpers`.
+- `RelationField` теперь сам определяет `isArray` по типу связи.
+
+### Removed
+- Из публичных options Field-декораторов удалены `jsType`, `dbType`, `plainName` и `hint`.
+- Публичный `swaggerType` оставлен только в `ComputableField`, `JSONBField` и `GeometryField`.
 
 ## [4.3.0](https://github.com/steroids/nest/compare/4.2.1...4.3.0) (2026-05-04)
 

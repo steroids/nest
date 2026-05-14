@@ -53,7 +53,7 @@ export function EnumField(options: IEnumFieldOptions) {
         BaseField(options, {
             decoratorName: 'EnumField',
             appType: 'enum',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         ApiProperty({
             enum: getOpenApiEnum(options.enum),

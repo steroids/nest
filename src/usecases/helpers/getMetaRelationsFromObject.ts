@@ -1,4 +1,4 @@
-import {getFieldOptions, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
+import {getFieldAppType, getFieldOptions, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IType} from '../interfaces/IType';
 
 const joinRelationPath = (parentPath: string, fieldName: string): string => parentPath
@@ -31,17 +31,18 @@ export const getMetaRelationsFromObject = (obj: Record<string, any>, ModelClass:
     ) => {
         Object.entries(currentObject).forEach(([fieldName, value]) => {
             const options = getFieldOptions(RelationMetaClass, fieldName);
+            const appType = getFieldAppType(RelationMetaClass, fieldName);
 
             if (!options) {
                 return;
             }
 
-            if (options.appType === 'relationId' && options.relationName) {
+            if (appType === 'relationId' && options.relationName) {
                 relationNames.add(joinRelationPath(parentPath, fieldName));
                 return;
             }
 
-            if (options.appType !== 'relation') {
+            if (appType !== 'relation') {
                 return;
             }
 

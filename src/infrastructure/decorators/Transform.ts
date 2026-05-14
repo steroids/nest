@@ -1,4 +1,4 @@
-import {IAllFieldOptions} from './fields';
+import type {IFieldOptions} from './fields/BaseField';
 
 export const STEROIDS_META_TRANSFORM_PREFIX = 'steroids_meta_transform_';
 
@@ -6,7 +6,7 @@ export interface ITransformCallbackEvent {
     value: any,
     item: any,
     key: string,
-    options: IAllFieldOptions,
+    options: IFieldOptions,
     transformType: ITransformType,
     object: any,
 }
