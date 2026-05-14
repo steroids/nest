@@ -1,12 +1,43 @@
 # Steroids Nest Migration Guide
 
-## Unreleased
+## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)
 
 ### Добавление `RestApplication.initCookieParser`
 
 Если в проекте был переопределен метод `RestApplication.init`, 
-то в нём после создания приложения нужно вызвать метод `super.initCookieParser`.
+то в нём после создания приложения нужно вызвать метод `this.initCookieParser`.
 Для подписи кук можно передать в конфиг приложения поле `cookieSecret`.
+
+### Массивы DTO в `CreateDtoPipe`
+
+Глобальный `CreateDtoPipe` по-прежнему создает DTO для одиночных `body`, `query` и параметров контроллера. Для массива DTO теперь нужно подключить локальный pipe и явно передать тип элемента массива:
+
+```ts
+import {Body, Post} from '@nestjs/common';
+import {CreateDtoPipe} from '@steroidsjs/nest/infrastructure/pipes/CreateDtoPipe';
+
+@Post('batch')
+createMany(
+    @Body(new CreateDtoPipe(StoreSaveDto))
+    dtos: StoreSaveDto[],
+) {
+    return this.service.createMany(dtos);
+}
+```
+
+Без `itemMetatype` глобальный pipe пропускает массив как есть, потому что runtime-тип параметра для `StoreSaveDto[]` в NestJS равен `Array`.
+
+### Изменение `DateTimeField.skipSeconds`
+
+`DateTimeField` теперь по умолчанию нормализует дату и время в формат `yyyy-MM-dd HH:mm:ss`.
+Если проект рассчитывал на прежнее поведение с обрезанием секунд, нужно явно передать `skipSeconds: true`:
+
+```ts
+@DateTimeField({
+    skipSeconds: true,
+})
+plannedAt: string;
+```
 
 ### Обновление Field-декораторов
 

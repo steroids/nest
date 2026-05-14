@@ -1,21 +1,29 @@
 # Steroids Nest Changelog
 
-## Unreleased
+## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
-[Migration guide](docs/MigrationGuide.md#unreleased)
+[Migration guide](docs/MigrationGuide.md#440-2026-05-14)
 
 ### Features
 - Добавлена middleware `cookie-parser`, для удобной работы с куками (инициализируется в методе `RestApplication.initCookieParser`)
 - Добавлено поле `IRestAppModuleConfig.cookieSecret` для возможности подписи кук
+- `CreateDtoPipe` теперь принимает `itemMetatype` и умеет создавать DTO для элементов массива при локальном подключении pipe ([#180](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/180))
 
 ### Changed
+- `DateTimeField` теперь по умолчанию сохраняет секунды при нормализации даты и времени. Для старого поведения нужно передать `skipSeconds: true`.
 - Упорядочены options и metadata Field-декораторов: пользовательские options отделены от внутренних `appType`, `decoratorName` и `swaggerType`.
 - Служебные хелперы для чтения metadata Field-декораторов вынесены в `fields/helpers/InternalFieldMetadataHelpers`.
 - `RelationField` теперь сам определяет `isArray` по типу связи.
 
+### Fixes
+- `SearchQuery.orderBy` и `addOrderBy` теперь нормализуют поля сортировки, корректно обрабатывают alias, relation paths и поля, уже обернутые в двойные кавычки ([#210](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/210))
+
 ### Removed
 - Из публичных options Field-декораторов удалены `jsType`, `dbType`, `plainName` и `hint`.
 - Публичный `swaggerType` оставлен только в `ComputableField`, `JSONBField` и `GeometryField`.
+
+### Chores
+- Добавлен `postinstall`-скрипт для очистки Jest cache после установки зависимостей.
 
 ## [4.3.0](https://github.com/steroids/nest/compare/4.2.1...4.3.0) (2026-05-04)
 
