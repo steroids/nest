@@ -83,6 +83,38 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
         return result;
     }
 
+    async searchByQuery(dto: TSearchDto, searchQuery: SearchQuery<TModel>): Promise<SearchResultDto<TModel>>
+    async searchByQuery<TSchema>(
+        dto: TSearchDto,
+        searchQuery: SearchQuery<TModel>,
+        schemaClass?: IType<TSchema>,
+    ): Promise<SearchResultDto<TSchema>>
+
+    /**
+     * Search models with provided search query
+     * @param dto
+     * @param searchQuery
+     * @param schemaClass
+     */
+    async searchByQuery<TSchema>(
+        dto: TSearchDto,
+        searchQuery: SearchQuery<TModel>,
+        schemaClass: IType<TSchema> = null,
+    ): Promise<SearchResultDto<TModel | TSchema>> {
+        await this.validate(dto);
+
+        const result = await this.repository.search<TSchema>(
+            dto,
+            searchQuery,
+        );
+
+        if (schemaClass) {
+            result.items = result.items.map((model: TModel) => this.modelToSchema<TSchema>(model, schemaClass));
+        }
+
+        return result;
+    }
+
     /**
      * Для переопределения в проекте в рамках сервиса конкретной сущности, чтобы не переписывать search метод
      * @param searchQuery
