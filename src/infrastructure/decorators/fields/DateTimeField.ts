@@ -5,7 +5,7 @@ import {format, parseISO} from 'date-fns';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 
-export const normalizeDateTime = (value, skipSeconds = true) => value
+export const normalizeDateTime = (value, skipSeconds = false) => value
     ? format(
         typeof value === 'string'
             ? parseISO(value)
@@ -25,7 +25,7 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
             BaseField(options, {
                 decoratorName: 'DateTimeField',
                 appType: 'dateTime',
-                jsType: 'string',
+                swaggerType: 'string',
             }),
             // options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             // IsDateString({

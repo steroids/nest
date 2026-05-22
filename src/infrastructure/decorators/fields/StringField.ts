@@ -26,7 +26,7 @@ export function StringField(options: IStringFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'StringField',
             appType: 'string',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         IsString({
             each: options.isArray,

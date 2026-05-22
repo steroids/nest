@@ -51,7 +51,7 @@ export function DecimalNumberField(options: IDecimalNumberFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'DecimalNumberField',
             appType: 'decimal',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),

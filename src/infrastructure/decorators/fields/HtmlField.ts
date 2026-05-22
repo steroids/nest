@@ -6,7 +6,7 @@ export function HtmlField(options: IBaseFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'HtmlField',
             appType: 'html',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
     );
 }

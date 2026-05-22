@@ -3,7 +3,17 @@ import {createHash} from 'crypto';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
+import {wrapInDoubleQuotes} from '../utils/wrapInDoubleQuotes';
 
+/**
+ * Order keys can be:
+ * - a field name, for example `name`
+ * - a root alias field path, for example `model.name`
+ * - a relation field path, for example `author.name` or `author.profile.name`
+ * - an already resolved relation alias path, for example `model_author.name`
+ *
+ * Field path parts can already be wrapped in double quotes.
+ */
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export const DEFAULT_ALIAS = 'model';
@@ -265,15 +275,53 @@ export default class SearchQuery<TModel> {
         return this._condition;
     }
 
+    private resolveOrderByFieldPath(fieldPath: string): string {
+        const pathToField = fieldPath.split('.');
+        const field = pathToField.pop();
+
+        if (pathToField[0] && wrapInDoubleQuotes(pathToField[0]) === wrapInDoubleQuotes(this._alias)) {
+            pathToField.shift();
+        }
+
+        if (!pathToField.length) {
+            if (field.split('_')[0] === this._alias) {
+                return wrapInDoubleQuotes(field);
+            }
+            return `${wrapInDoubleQuotes(this._alias)}.${wrapInDoubleQuotes(field)}`;
+        }
+
+        if (pathToField.length === 1 && pathToField[0].split('_')[0] === this._alias) {
+            return `${wrapInDoubleQuotes(pathToField[0])}.${wrapInDoubleQuotes(field)}`;
+        }
+
+        return `${wrapInDoubleQuotes(this.getRelationAlias(pathToField.join('.')))}.${wrapInDoubleQuotes(field)}`;
+    }
+
+    private resolveOrderByFieldPaths(
+        orderValue: string | ISearchQueryOrder,
+        direction: 'asc' | 'desc',
+    ): ISearchQueryOrder {
+        if (typeof orderValue === 'string') {
+            return {
+                [this.resolveOrderByFieldPath(orderValue)]: direction,
+            };
+        }
+
+        return Object.entries(orderValue).reduce((acc, [key, value]) => ({
+            ...acc,
+            [this.resolveOrderByFieldPath(key)]: value,
+        }), {});
+    }
+
     orderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
-        this._orders = typeof value === 'string' ? {[value]: direction} : value;
+        this._orders = this.resolveOrderByFieldPaths(value, direction);
         return this;
     }
 
     addOrderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
         this._orders = {
             ...this._orders,
-            ...(typeof value === 'string' ? {[value]: direction} : value),
+            ...this.resolveOrderByFieldPaths(value, direction),
         };
         return this;
     }

@@ -18,7 +18,7 @@ export function getFileFieldDecorators(options: IFileField) {
         BaseField(options, {
             decoratorName: 'FileField',
             appType: 'file',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         options.nullable && ValidateIf((object, value) => value),
         options.multiple

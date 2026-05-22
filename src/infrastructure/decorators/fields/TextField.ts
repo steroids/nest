@@ -20,7 +20,7 @@ export function TextField(options: ITextFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'TextField',
             appType: 'text',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         IsString({
             each: options.isArray,

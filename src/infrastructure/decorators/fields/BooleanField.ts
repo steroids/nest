@@ -18,7 +18,7 @@ export function BooleanField(options: IBooleanFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'BooleanField',
             appType: 'boolean',
-            jsType: 'boolean',
+            swaggerType: 'boolean',
         }),
         Transform(({value}) => {
             if (Array.isArray(value)) {

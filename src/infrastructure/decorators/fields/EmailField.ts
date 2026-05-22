@@ -18,7 +18,7 @@ export function EmailField(options: IEmailFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'EmailField',
             appType: 'email',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsEmail({
