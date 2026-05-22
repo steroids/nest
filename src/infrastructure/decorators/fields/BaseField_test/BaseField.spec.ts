@@ -5,7 +5,6 @@ import {buildDto, validateValue} from './BaseField.helpers';
 const buildBaseFieldDecorator = (options: IBaseFieldOptions) => BaseField(options, {
     decoratorName: 'TestField',
     appType: 'string',
-    jsType: 'string',
 });
 
 describe('BaseField decorator', () => {
