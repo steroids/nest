@@ -83,5 +83,4 @@ export class MigrateCommand {
     async generate() {
         await generate(this.dataSource);
     }
-
 }

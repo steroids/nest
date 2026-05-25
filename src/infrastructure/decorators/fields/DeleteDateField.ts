@@ -8,7 +8,7 @@ export function DeleteDateField(options: IBaseFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'DeleteDateField',
             appType: 'date',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_FROM_DB),
         Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_TO_DB),

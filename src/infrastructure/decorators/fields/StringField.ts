@@ -1,6 +1,6 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {IsString, MaxLength, MinLength} from 'class-validator';
+import {IsString, MaxLength, MinLength, Matches} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IStringFieldOptions extends IBaseFieldOptions {
@@ -8,6 +8,8 @@ export interface IStringFieldOptions extends IBaseFieldOptions {
     isStringConstraintMessage?: string,
     minConstraintMessage?: string,
     maxConstraintMessage?: string,
+    regexp?: RegExp,
+    regexpErrorMessage?: string,
 }
 
 const STRING_FIELD_DEFAULT_MAX_LENGTH = 250;
@@ -17,12 +19,18 @@ export function StringField(options: IStringFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'StringField',
             appType: 'string',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         IsString({
             each: options.isArray,
             message: options.isStringConstraintMessage || 'Должна быть строка',
         }),
+        options.regexp && Matches(
+            options.regexp,
+            {
+                message: options.regexpErrorMessage || 'Не корректный формат строки',
+            },
+        ),
         typeof options.min === 'number' && MinLength(options.min, {
             message: options.minConstraintMessage,
             each: options.isArray,

@@ -1,6 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
 import {IsDecimal, ValidateBy, ValidationOptions} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
+import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
 
 export interface IDecimalFieldOptions extends IBaseFieldOptions {
     precision?: number,
@@ -52,10 +53,10 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'DecimalField',
             appType: 'decimal',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         IsDecimal({
-            decimal_digits: String(options.scale || 2),
+            decimal_digits: '0,' + (options.scale ?? DEFAULT_DECIMAL_SCALE),
         }, {
             message: options.isDecimalConstraintMessage || 'Должно быть числом',
         }),

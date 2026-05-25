@@ -17,7 +17,7 @@ export function UpdateTimeField(options: IUpdateTimeFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'UpdateTimeField',
             appType: 'updateTime',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         Transform(({value}) => normalizeDateTime(value, false), TRANSFORM_TYPE_FROM_DB),
         Transform(() => normalizeDateTime(new Date(), false), TRANSFORM_TYPE_TO_DB),

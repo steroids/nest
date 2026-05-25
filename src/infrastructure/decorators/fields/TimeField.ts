@@ -8,7 +8,7 @@ export function TimeField(options: IBaseFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'TimeField',
                 appType: 'time',
-                jsType: 'string',
+                swaggerType: 'string',
             }),
             IsMilitaryTime({
                 message: 'Время необходимо ввести в формате часы:минуты, например 07:32',

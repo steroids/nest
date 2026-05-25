@@ -18,7 +18,7 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'IntegerField',
             appType: 'integer',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         Transform(({value}) => {
             if (Array.isArray(value)) {

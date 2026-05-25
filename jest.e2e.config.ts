@@ -7,6 +7,6 @@ const config: Config.InitialOptions = {
         'dist',
         // ignore usecases tests - it's for unit tests
         'usecases',
-    ]
+    ],
 };
 export default config;

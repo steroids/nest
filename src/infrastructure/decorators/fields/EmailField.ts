@@ -15,7 +15,7 @@ export function EmailField(options: IEmailFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'EmailField',
             appType: 'email',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         IsEmail({
             allow_display_name: true,

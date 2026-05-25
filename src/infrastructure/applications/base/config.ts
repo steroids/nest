@@ -1,6 +1,6 @@
 import {TypeOrmModule, TypeOrmModuleOptions} from '@steroidsjs/nest-typeorm';
 import {PostgresConnectionOptions} from '@steroidsjs/typeorm/driver/postgres/PostgresConnectionOptions';
-import {SentryModule} from '@ntegral/nestjs-sentry';
+import {SentryModule} from '@sentry/nestjs/setup';
 import {EventEmitterModule} from '@nestjs/event-emitter';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {AppModule} from '../AppModule';
@@ -13,6 +13,7 @@ export default {
         name: 'app',
         title: 'Application',
         version: '1.0',
+        loggerLevels: ['error', 'warn'],
         database: {
             type: 'postgres',
             host: process.env.APP_DATABASE_HOST,
@@ -32,10 +33,7 @@ export default {
                 ...config.database,
                 entities: ModuleHelper.getEntities(),
             } as TypeOrmModuleOptions),
-            config.sentry && SentryModule.forRoot({
-                dsn: config.sentry.dsn,
-                environment: config.sentry.environment || process.env.APP_ENVIRONMENT,
-            }),
+            config.sentry && SentryModule.forRoot(),
             EventEmitterModule.forRoot(),
         ].filter(Boolean),
     }),

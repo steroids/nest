@@ -5,7 +5,8 @@ import {BaseField, IBaseFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
-    enum?: object | string[] | any,
+    enum: object | string[] | any,
+    enumName?: string;
     isEnumConstraintMessage?: string,
 }
 
@@ -22,7 +23,7 @@ function getOpenApiEnum(enumEntity: string[] | object | BaseEnumClass): string[]
         return (enumEntity as BaseEnumClass).getKeys();
     }
 
-    return Object.keys(enumEntity);
+    return Object.values(enumEntity);
 }
 
 function getValidatorEnum(enumEntity: string[] | object | any): Record<string, string> {
@@ -47,15 +48,17 @@ function getValidatorEnum(enumEntity: string[] | object | any): Record<string, s
     return enumEntity;
 }
 
-export function EnumField(options: IEnumFieldOptions = {}) {
+export function EnumField(options: IEnumFieldOptions) {
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'EnumField',
             appType: 'enum',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
         ApiProperty({
             enum: getOpenApiEnum(options.enum),
+            enumName: options.enumName,
+            isArray: options.isArray,
         }),
         IsEnum(
             getValidatorEnum(options.enum),

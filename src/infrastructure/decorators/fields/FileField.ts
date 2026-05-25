@@ -12,7 +12,7 @@ export function getFileFieldDecorators(options: IFileField) {
         BaseField(options, {
             decoratorName: 'FileField',
             appType: 'file',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         options.multiple
             ? IsArray({

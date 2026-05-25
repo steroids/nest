@@ -4,6 +4,7 @@ import {Max, Min, ValidateBy, ValidationOptions, buildMessage, isDecimal} from '
 import {IDecimalFieldOptions} from './DecimalField';
 import {BaseField} from './BaseField';
 import {TRANSFORM_TYPE_FROM_DB, Transform} from '../Transform';
+import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
 
 export const IS_DECIMAL_NUMBER = 'isDecimalNumber';
 
@@ -11,7 +12,7 @@ export function isDecimalNumber(value: unknown, options?: IDecimalFieldOptions):
     if (typeof value !== 'number') { return false; }
 
     return isDecimal(value.toString(), {
-        decimal_digits: '0,' + (options.scale ?? ''),
+        decimal_digits: '0,' + (options.scale ?? DEFAULT_DECIMAL_SCALE),
     });
 }
 
@@ -40,7 +41,7 @@ export function DecimalNumberField(options: IDecimalFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'DecimalNumberField',
             appType: 'decimal',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
         Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
         IsDecimalNumber(options, {

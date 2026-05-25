@@ -2,6 +2,7 @@ import {ExceptionFilter, Catch, ArgumentsHost, HttpStatus} from '@nestjs/common'
 import {Response} from 'express';
 import {UserException} from "../../usecases/exceptions/";
 
+/** @deprecated */
 @Catch(UserException)
 export class UserExceptionFilter implements ExceptionFilter {
     catch(exception: UserException, host: ArgumentsHost) {

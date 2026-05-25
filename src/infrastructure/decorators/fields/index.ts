@@ -20,7 +20,7 @@ import {DecimalNumberField} from './DecimalNumberField';
 import {DeleteDateField} from './DeleteDateField';
 import {HtmlField} from './HtmlField';
 import {ImageField} from './ImageField';
-import {PasswordField} from './PasswordField';
+import {IPasswordFieldOptions, PasswordField} from './PasswordField';
 import {PrimaryKeyField} from './PrimaryKeyField';
 import {TextField} from './TextField';
 import {TimeField} from './TimeField';
@@ -59,7 +59,7 @@ export {GeometryField} from './GeometryField';
 export type IAllFieldOptions = ICreateTimeFieldOptions & IDateTimeFieldColumnOptions & IDecimalFieldOptions
     & IEnumFieldOptions & IExtendFieldOptions & IFileField & IRelationFieldOptions & IRelationIdFieldOptions
     & IUpdateTimeFieldOptions & IEmailFieldOptions & IPhoneFieldOptions & IStringFieldOptions & IIntegerFieldOptions
-    & IDateFieldOptions & IComputableFieldOptions & IJSONBFieldOptions & IGeometryFieldOptions;
+    & IDateFieldOptions & IComputableFieldOptions & IJSONBFieldOptions & IGeometryFieldOptions & IPasswordFieldOptions;
 
 const DecoratorField = {
     BooleanField,

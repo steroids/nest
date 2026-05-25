@@ -58,7 +58,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'RelationIdField',
                 appType: 'relationId',
-                jsType: 'number',
+                swaggerType: 'number',
             }),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
