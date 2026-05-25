@@ -1,4 +1,4 @@
-import {isString} from 'class-validator';
+import {ArrayNotEmpty, IsArray, IsDefined, IsOptional, isString, NotEquals, ValidateIf} from 'class-validator';
 import type {ApiPropertyOptions} from '@nestjs/swagger';
 import type {IAllFieldOptions} from '../index';
 import type {IBaseFieldOptions} from '../BaseField';
@@ -136,3 +136,29 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
 
     return decorator;
 };
+
+export const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions) => [
+    // Отключаем валидацию для null, не пропускаем undefined
+    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined, {
+        message: 'Обязательно для заполнения',
+    })],
+    // Не пропускаем null и undefined
+    required && !nullable && IsDefined({
+        message: 'Обязательно для заполнения',
+    }),
+    // Отключаем валидацию для null и undefined
+    !required && nullable && IsOptional(),
+    // Отключаем валидацию для undefined, не пропускаем null
+    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null, {
+        message: 'Не может иметь null значение',
+    })],
+].flat().filter(Boolean);
+
+export const getArrayValidators = (options: IBaseFieldOptions) => [
+    options.isArray && IsArray({
+        message: options.isArrayConstraintMessage || 'Значение должно быть массивом',
+    }),
+    options.arrayNotEmpty && ArrayNotEmpty({
+        message: options.arrayNotEmptyConstraintMessage || 'Значение должно быть непустым массивом',
+    }),
+].filter(Boolean);

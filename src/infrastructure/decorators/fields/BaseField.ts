@@ -1,8 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
-import {IsArray, IsDefined, IsOptional, NotEquals, ValidateIf} from 'class-validator';
 import {ITransformCallback, Transform} from '../Transform';
 import {
+    getArrayValidators,
+    getRequiredNullableValidators,
     STEROIDS_META_FIELD_INTERNAL_OPTIONS,
     STEROIDS_META_FIELD_OPTIONS,
     STEROIDS_META_KEYS,
@@ -36,6 +37,12 @@ export interface IBaseFieldOptions {
      */
     isArray?: boolean,
     /**
+     * Custom constraint message for `isArray`
+     */
+    isArrayConstraintMessage?: string,
+    arrayNotEmpty?: boolean,
+    arrayNotEmptyConstraintMessage?: string,
+    /**
      * Minimum value
      */
     min?: number,
@@ -56,23 +63,6 @@ export interface IBaseFieldOptions {
      */
     noColumn?: boolean,
 }
-
-const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions) => [
-    // Отключаем валидацию для null, не пропускаем undefined
-    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined, {
-        message: 'Обязательно для заполнения',
-    })],
-    // Не пропускаем null и undefined
-    required && !nullable && IsDefined({
-        message: 'Обязательно для заполнения',
-    }),
-    // Отключаем валидацию для null и undefined
-    !required && nullable && IsOptional(),
-    // Отключаем валидацию для undefined, не пропускаем null
-    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null, {
-        message: 'Не может иметь null значение',
-    })],
-].flat().filter(Boolean);
 
 const ColumnMetaDecorator = (options: IFieldOptions, internalOptions: IFieldInternalOptions) => (object, propertyName) => {
     //проверить getOwnMetadata
@@ -110,7 +100,7 @@ export function BaseField(options: IBaseFieldOptions = {}, internalOptions: IFie
             }),
             options.transform && Transform(options.transform),
             ...getRequiredNullableValidators(options),
-            options.isArray && IsArray(),
+            ...getArrayValidators(options),
         ].filter(Boolean),
     );
 }
