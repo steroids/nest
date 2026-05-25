@@ -40,7 +40,13 @@ export interface IBaseFieldOptions {
      * Custom constraint message for `isArray`
      */
     isArrayConstraintMessage?: string,
+    /**
+     * Flag indicating whether an array field must not be empty
+     */
     arrayNotEmpty?: boolean,
+    /**
+     * Custom constraint message for `arrayNotEmpty`
+     */
     arrayNotEmptyConstraintMessage?: string,
     /**
      * Minimum value

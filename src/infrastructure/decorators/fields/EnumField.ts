@@ -58,7 +58,6 @@ export function EnumField(options: IEnumFieldOptions) {
         ApiProperty({
             enum: getOpenApiEnum(options.enum),
             enumName: options.enumName,
-            isArray: options.isArray,
         }),
         IsEnum(
             getValidatorEnum(options.enum),

@@ -1,5 +1,17 @@
 # Steroids Nest Changelog
 
+## [Unreleased](https://github.com/steroids/nest/compare/4.4.0...HEAD)
+
+[Migration guide](docs/MigrationGuide.md#unreleased)
+
+### Changed
+- Обработка `required`, `nullable` и `isArray` для Field-декораторов централизована в `BaseField`: Swagger metadata и базовые валидаторы теперь формируются единообразно для всех полей.
+- `ApiProperty.required` теперь заполняется из `options.required`, а `ApiProperty.nullable` - из `options.nullable`.
+- Из конкретных Field-декораторов удалены дублирующие `ValidateIf`, `IsOptional` и array-валидаторы, которые отвечали за общую nullable/required/isArray-логику.
+
+### Features
+- В Field options добавлены `isArrayConstraintMessage`, `arrayNotEmpty` и `arrayNotEmptyConstraintMessage` для настройки общей валидации массивов.
+
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)
