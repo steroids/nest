@@ -29,6 +29,7 @@
 - Обязательные поля: добавить `required: true`, если поле должно быть обязательным в валидации и OpenAPI.
 - Массивы, которые не должны быть пустыми: добавить `arrayNotEmpty: true`.
 - `RelationIdField` с `isArray: true` и `nullable: false`: добавить `arrayNotEmpty: true`, если пустой массив должен быть запрещен.
+- `FileField` и `ImageField`: заменить `multiple: true` на `isArray: true`.
 
 ## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)
 

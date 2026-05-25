@@ -8,9 +8,13 @@
 - Обработка `required`, `nullable` и `isArray` для Field-декораторов централизована в `BaseField`: Swagger metadata и базовые валидаторы теперь формируются единообразно для всех полей.
 - `ApiProperty.required` теперь заполняется из `options.required`, а `ApiProperty.nullable` - из `options.nullable`.
 - Из конкретных Field-декораторов удалены дублирующие `ValidateIf`, `IsOptional` и array-валидаторы, которые отвечали за общую nullable/required/isArray-логику.
+- `FileField` и `ImageField` теперь используют общую опцию `isArray` вместо отдельной опции `multiple`.
 
 ### Features
 - В Field options добавлены `isArrayConstraintMessage`, `arrayNotEmpty` и `arrayNotEmptyConstraintMessage` для настройки общей валидации массивов.
+
+### Removed
+- Удалена опция `multiple` из `FileField` и `ImageField`.
 
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 

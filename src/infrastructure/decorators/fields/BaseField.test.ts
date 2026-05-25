@@ -1,10 +1,11 @@
 import {describe, expect, it} from '@jest/globals';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
-import {IntegerField, RelationField, RelationIdField, StringField} from './index';
+import {FileField, IntegerField, RelationField, RelationIdField, StringField} from './index';
 import {ValidationHelper} from '../../../usecases/helpers/ValidationHelper';
 import {ValidationException} from '../../../usecases/exceptions';
 import {IErrorsCompositeObject} from '../../../usecases/interfaces/IErrorsCompositeObject';
 import {DataMapper} from '../../../usecases/helpers/DataMapper';
+import {getFieldOptions} from './BaseField';
 
 class ApiPropertiesDto {
     @StringField({
@@ -70,6 +71,13 @@ class RelationOptionsDto {
         nullable: true,
     })
     nullableRelation?: RelationTargetDto | null;
+}
+
+class FileOptionsDto {
+    @FileField({
+        isArray: true,
+    })
+    fileIds?: number[];
 }
 
 const getApiPropertyMeta = (TargetClass, propertyName: string) => Reflect.getMetadata(
@@ -164,5 +172,18 @@ describe('BaseField decorator', () => {
         expect((await getValidationErrors(DataMapper.create(RelationOptionsDto, {
             nullableRelation: null,
         }))) || {}).not.toHaveProperty('nullableRelation');
+    });
+
+    it('passes file fields through base array options', async () => {
+        const fileIdsApiPropertyMeta = getApiPropertyMeta(FileOptionsDto, 'fileIds');
+        const fileIdsOptions = getFieldOptions(FileOptionsDto, 'fileIds');
+        const dtoWithScalarFileValue = DataMapper.create(FileOptionsDto, {
+            fileIds: 1,
+        } as any) as FileOptionsDto;
+
+        expect(fileIdsApiPropertyMeta.isArray).toBe(true);
+        expect(fileIdsOptions.isArray).toBe(true);
+        expect(dtoWithScalarFileValue.fileIds).toEqual([1]);
+        expect((await getValidationErrors(dtoWithScalarFileValue)) || {}).not.toHaveProperty('fileIds');
     });
 });

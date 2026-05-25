@@ -1,26 +1,27 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsArray, IsInt} from 'class-validator';
+import {IsInt} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IFileField extends IBaseFieldOptions {
-    multiple?: boolean,
     isImage?: boolean,
 }
 
 export function getFileFieldDecorators(options: IFileField) {
+    const finalOptions: IBaseFieldOptions = {
+        ...options,
+        isArrayConstraintMessage: options.isArrayConstraintMessage
+            || (options.isArray && (options.isImage ? 'Необходимо загрузить изображения' : 'Необходимо загрузить файлы')),
+    };
+
     return [
-        BaseField(options, {
+        BaseField(finalOptions, {
             decoratorName: 'FileField',
             appType: 'file',
             swaggerType: 'number',
         }),
-        options.multiple
-            ? IsArray({
-                message: options.isImage ? 'Необходимо загрузить изображения' : 'Необходимо загрузить файлы',
-            })
-            : IsInt({
-                message: options.isImage ? 'Необходимо загрузить изображение' : 'Необходимо загрузить файл',
-            }),
+        !finalOptions.isArray && IsInt({
+            message: options.isImage ? 'Необходимо загрузить изображение' : 'Необходимо загрузить файл',
+        }),
     ].filter(Boolean);
 }
 
