@@ -168,10 +168,24 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param transactionHandler
      * @deprecated Use save() method
      */
-    async update(id: number, model: TModel, transactionHandler?: TransactionHandler<TModel>): Promise<TModel> {
+    async update(
+        id: number,
+        model: DeepPartial<TModel>,
+        transactionHandler?: TransactionHandler<TModel | DeepPartial<TModel>>,
+    ): Promise<DeepPartial<TModel>> {
         model[this.primaryKey] = id;
         return this.save(model, transactionHandler);
     }
+
+    async save(
+        model: TModel,
+        transactionHandler?: TransactionHandler<TModel | DeepPartial<TModel>>,
+    ): Promise<TModel>
+
+    async save(
+        model: DeepPartial<TModel>,
+        transactionHandler?: TransactionHandler<TModel | DeepPartial<TModel>>,
+    ): Promise<DeepPartial<TModel>>
 
     /**
      * Create or update item
@@ -179,17 +193,20 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      * @param transactionHandler
      */
     async save(
-        model: TModel,
-        transactionHandler?: TransactionHandler<TModel>,
-    ): Promise<TModel> {
-        const saver = async (manager: EntityManager, nextModel: TModel): Promise<TModel> => {
+        model: TModel | DeepPartial<TModel>,
+        transactionHandler?: TransactionHandler<TModel | DeepPartial<TModel>>,
+    ): Promise<TModel | DeepPartial<TModel>> {
+        const saver = async (
+            manager: EntityManager,
+            nextModel: TModel | DeepPartial<TModel>,
+        ): Promise<TModel | DeepPartial<TModel>> => {
             const entity = this.modelToEntity(nextModel);
             const newEntity = await manager.save(entity);
             return this.entityToModel(newEntity);
         };
 
         if (transactionHandler) {
-            return this.dbRepository.manager.transaction<TModel>(
+            return this.dbRepository.manager.transaction<TModel | DeepPartial<TModel>>(
                 async (manager) => transactionHandler(
                     async () => this.saveInternal(
                         {save: (nextModel) => saver(manager, nextModel)},
@@ -197,20 +214,29 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
                     ),
                 ),
             );
-        } else {
-            return this.saveInternal(
-                {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
-                model,
-            );
         }
+        return this.saveInternal(
+            {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
+            model,
+        );
     }
+
+    async saveInternal(manager: ISaveManager<TModel>, nextModel: TModel): Promise<TModel>
+
+    async saveInternal(
+        manager: ISaveManager<TModel>,
+        nextModel: DeepPartial<TModel>,
+    ): Promise<DeepPartial<TModel>>
 
     /**
      * Internal save method for overwrite in project
      * @param manager
      * @param nextModel
      */
-    async saveInternal(manager: ISaveManager<TModel>, nextModel: TModel): Promise<TModel> {
+    async saveInternal(
+        manager: ISaveManager<TModel>,
+        nextModel: TModel | DeepPartial<TModel>,
+    ): Promise<TModel | DeepPartial<TModel>> {
         return manager.save(nextModel);
     }
 
