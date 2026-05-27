@@ -1,5 +1,12 @@
 # Steroids Nest Changelog
 
+## Unreleased
+
+[Migration guide](docs/MigrationGuide.md#Unreleased)
+
+### Features
+- Добавлена типизация для методов `SearchQuery`: IDE подсказывает поля модели и dot-path до глубины равной 5 ([#134](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/134)).
+
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)

@@ -10,19 +10,14 @@ import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 import SearchQuery from '../../../usecases/base/SearchQuery';
 import {getMetaPrimaryKey} from '../../decorators/fields/BaseField';
 import {ObjectToArray} from '../../../usecases/helpers/ObjectToArray';
+import type {ICondition} from '../../../usecases/interfaces/searchQuery/ISearchQueryWhere';
 
-export type IConditionOperatorSingle = '=' | '>' | '>=' | '=>' | '<' | '<=' | '=<' | 'like' | 'ilike' | 'between'
-    | 'in' | 'and' | '&&' | 'or' | '||' | 'not =' | 'not >' | 'not >=' | 'not =>' | 'not <' | 'not <=' | 'not =<'
-    | 'not like' | 'not ilike' | 'not between' | 'not in' | 'not and' | 'not &&' | 'not or' | 'not ||' | '@>'
-    | 'not @>' | '<@' | 'not <@' | 'overlap' | 'not overlap';
-export type IConditionOperatorAndOr = 'and' | '&&' | 'or' | '||' | 'not and' | 'not &&' | 'not or' | 'not ||';
-export type IConditionOperatorSubquery = 'some' | 'every' | 'none';
-export type ICondition = Record<string, unknown>
-    | [IConditionOperatorAndOr, ...any[]]
-    | ['filter', ICondition]
-    | [IConditionOperatorSingle, string, ...any[]]
-    | [IConditionOperatorSubquery, string | string[], ICondition]
-    | ICondition[];
+export type {
+    ICondition,
+    IConditionOperatorAndOr,
+    IConditionOperatorSingle,
+    IConditionOperatorSubquery,
+} from '../../../usecases/interfaces/searchQuery/ISearchQueryWhere';
 
 const emptyCondition = {};
 const isEmpty = value => value === null || typeof value === 'undefined' || value === emptyCondition || value === '';
