@@ -1,6 +1,6 @@
 import {has as _has} from 'lodash';
 import {isObject as _isObject} from 'lodash';
-import {getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
+import {getFieldAppType, getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {DeepPartial} from '@steroidsjs/typeorm';
@@ -89,6 +89,7 @@ export class DataMapper {
 
         keys.forEach(name => {
             const options = getFieldOptions(MetaClass, name);
+            const appType = getFieldAppType(MetaClass, name);
             const sourceName = options?.sourceFieldName || name;
 
             if (!options && isMetaClass(MetaClass)) {
@@ -96,17 +97,21 @@ export class DataMapper {
             }
 
             if (_has(values, sourceName)) {
-                if (options?.appType === 'relation') {
-                    if (options.isArray && Array.isArray(values[sourceName])) {
-                        object[name] = values[sourceName]
+                const value = options?.isArray && values[sourceName] != null && !Array.isArray(values[sourceName])
+                    ? [values[sourceName]]
+                    : values[sourceName];
+
+                if (appType === 'relation') {
+                    if (options.isArray && Array.isArray(value)) {
+                        object[name] = value
                             .map(item => DataMapper.create(options.relationClass(), item, transformType));
-                    } else if (_isObject(values[sourceName])) {
-                        object[name] = DataMapper.create(options.relationClass(), values[sourceName], transformType);
+                    } else if (_isObject(value)) {
+                        object[name] = DataMapper.create(options.relationClass(), value, transformType);
                     } else {
-                        object[name] = values[sourceName];
+                        object[name] = value;
                     }
                 } else {
-                    object[name] = values[sourceName];
+                    object[name] = value;
                 }
             }
 
@@ -139,10 +144,11 @@ export class DataMapper {
                 attributes: fieldNames.map(fieldName => {
                     const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, fieldName);
                     const options = getFieldOptions(type, fieldName);
+                    const appType = getFieldAppType(type, fieldName);
 
                     const fieldData = {
                         attribute: fieldName,
-                        type: options.appType || 'string',
+                        type: appType || 'string',
                         label: options.label || apiMeta.description,
                         required: apiMeta.required,
                         ...(options.enum

@@ -10,7 +10,7 @@ export function UidField(options: IBaseFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'UidField',
             appType: 'uid',
-            jsType: 'string',
+            swaggerType: 'string',
         }),
     );
 }

@@ -10,7 +10,7 @@ export function PrimaryKeyField(options: IBaseFieldOptions = {}) {
         BaseField(options, {
             decoratorName: 'PrimaryKeyField',
             appType: 'primaryKey',
-            jsType: 'number',
+            swaggerType: 'number',
         }),
     );
 }

@@ -26,7 +26,7 @@ export function PhoneField(options: IPhoneFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'PhoneField',
                 appType: 'phone',
-                jsType: 'string',
+                swaggerType: 'string',
             }),
             options.nullable && ValidateIf((object, value) => value),
             Transform(({value}) => normalizePhone(value)),

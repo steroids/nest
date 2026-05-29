@@ -3,6 +3,8 @@ import {INestApplicationContext} from "@nestjs/common";
 import {CommandModule, CommandService} from 'nestjs-command';
 import {BaseApplication} from '../BaseApplication';
 import {AppModule} from '../AppModule';
+import {ModuleHelper} from '../../helpers/ModuleHelper';
+import {IConsoleAppModuleConfig} from './IConsoleAppModuleConfig';
 
 /**
  * CLI application configuration class.
@@ -20,6 +22,12 @@ export class ConsoleApplication extends BaseApplication {
      * @protected
      */
     protected _moduleClass: any;
+
+    /**
+     * Application configuration defined by the `IConsoleAppModuleConfig` interface.
+     * @protected
+     */
+    protected _config: IConsoleAppModuleConfig;
 
     constructor(moduleClass = AppModule) {
         super();
@@ -40,6 +48,24 @@ export class ConsoleApplication extends BaseApplication {
     }
 
     /**
+     * Override `initConfig` method from base class to initialize application configuration.
+     * @protected
+     */
+    protected initConfig() {
+        this._config = ModuleHelper.getConfig<IConsoleAppModuleConfig>(this._moduleClass);
+    }
+
+    /**
+     * Creates a NestJS application context using `NestFactory.createApplicationContext`.
+     * @protected
+     */
+    protected async createApp() {
+        this._app = await NestFactory.createApplicationContext(this._moduleClass, {
+            logger: this._config.loggerLevels,
+        });
+    }
+
+    /**
      * Launches an application.
      * Executes a command passed from the terminal,
      * while creating an application context only for the duration of the command execution.
@@ -47,9 +73,7 @@ export class ConsoleApplication extends BaseApplication {
     public async start() {
         await this.init();
 
-        this._app = await NestFactory.createApplicationContext(this._moduleClass, {
-            logger: ['warn', 'error'], // only errors
-        });
+        await this.createApp();
 
         try {
             await this._app.select(CommandModule).get(CommandService).exec();

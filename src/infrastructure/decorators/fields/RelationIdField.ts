@@ -61,7 +61,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'RelationIdField',
                 appType: 'relationId',
-                jsType: 'number',
+                swaggerType: 'number',
             }),
             options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
             options.isArray && !options.nullable && ArrayNotEmpty({message: arrayNotEmptyMessage}),

@@ -42,7 +42,7 @@ export function DateField(options: IDateFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'DateField',
                 appType: 'date',
-                jsType: 'string',
+                swaggerType: 'string',
             }),
             Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_FROM_DB),
             Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_TO_DB),
