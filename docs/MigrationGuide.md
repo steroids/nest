@@ -1,5 +1,36 @@
 # Steroids Nest Migration Guide
 
+## Unreleased
+
+### Типизация `SearchQuery`
+
+`SearchQuery` получил типизированные аргументы для `select`, `excludeSelect`, `with`, `where` и `orderBy`-методов. Runtime-поведение не менялось: старые строковые пути, alias вида `model.timeFrom` и вручную собранные условия продолжают поддерживаться.
+
+Чтобы получить подсказки, `SearchQuery` должен знать тип модели. Обычно это происходит автоматически при вызове `createQuery()` из типизированного `CrudService`/`ReadService`.
+Если `SearchQuery` создаётся вручную, передайте generic:
+
+Что стоит проверить в проекте:
+
+- В `orderBy` лучше использовать путь без корневого alias, например `orderBy('timeFrom')`. Варианты вроде `orderBy('model.timeFrom')` оставлены валидными для совместимости.
+- В `with` подсказки строятся по relation-like полям: объект или массив объектов с полем `id`, а также поля с суффиксом `Id`/`Ids`. JSON-поля без `id` не попадают в подсказки `with`, но произвольная строка всё ещё принимается для обратной совместимости.
+- Dot-path подсказки ограничены глубиной 5. Более глубокие пути можно передать строкой вручную, но они не будут частью строгих подсказок.
+- Условия, которые собираются через `map` и spread. TypeScript может вывести обычный массив вместо tuple-условия. В таком случае вынесите результат в переменную с явным типом:
+
+```ts
+import type {ISearchQueryWhere} from '@steroidsjs/nest/usecases/base/SearchQuery';
+
+const timeConditions: ISearchQueryWhere<ShiftModel>[] = dto.items.map((item) => [
+    'and',
+    ['<', 'timeFrom', item.timeTo],
+    ['>', 'timeTo', item.timeFrom],
+]);
+
+await this.shiftService.createQuery()
+    .where(['=', 'courierId', dto.courierId])
+    .andWhere(['or', ...timeConditions])
+    .many();
+```
+
 ## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)
 
 ### Добавление `RestApplication.initCookieParser`
