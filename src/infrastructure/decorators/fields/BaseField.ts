@@ -1,8 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
-import {IsNotEmpty} from 'class-validator';
 import {ITransformCallback, Transform} from '../Transform';
 import {
+    getArrayValidators,
+    getRequiredNullableValidators,
     STEROIDS_META_FIELD_INTERNAL_OPTIONS,
     STEROIDS_META_FIELD_OPTIONS,
     STEROIDS_META_KEYS,
@@ -35,6 +36,18 @@ export interface IBaseFieldOptions {
      * Flag indicating whether the field is an array
      */
     isArray?: boolean,
+    /**
+     * Custom constraint message for `isArray`
+     */
+    isArrayConstraintMessage?: string,
+    /**
+     * Flag indicating whether an array field must not be empty
+     */
+    arrayNotEmpty?: boolean,
+    /**
+     * Custom constraint message for `arrayNotEmpty`
+     */
+    arrayNotEmptyConstraintMessage?: string,
     /**
      * Minimum value
      */
@@ -87,13 +100,13 @@ export function BaseField(options: IBaseFieldOptions = {}, internalOptions: IFie
                 type: internalOptions.swaggerType,
                 description: options.label || undefined,
                 example: options.example || undefined,
-                required: options.nullable === false,
+                required: options.required,
                 isArray: options.isArray,
+                nullable: options.nullable,
             }),
             options.transform && Transform(options.transform),
-            options.required && IsNotEmpty({
-                message: 'Обязательно для заполнения',
-            }),
+            ...getRequiredNullableValidators(options),
+            ...getArrayValidators(options),
         ].filter(Boolean),
     );
 }

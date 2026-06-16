@@ -1,5 +1,36 @@
 # Steroids Nest Migration Guide
 
+## [Unreleased](../CHANGELOG.md#unreleased)
+
+### Обработка `required`, `nullable` и `isArray` в Field-декораторах
+
+Базовая обработка `required`, `nullable` и `isArray` перенесена в `BaseField`.
+
+Логика `required` и `nullable`:
+- `nullable` отвечает за возможность передать `null` в OpenAPI и валидации.
+- `required` отвечает за обязательность поля в OpenAPI и валидации.
+
+| Options                                                  | Поведение                                              |
+|----------------------------------------------------------|--------------------------------------------------------|
+| `required: true, nullable: true`                         | `undefined` не проходит валидацию, `null` допускается  |
+| `required: true, nullable: false`                        | `undefined` и `null` не проходят валидацию             |
+| `required: false, nullable: true`                        | `undefined` и `null` пропускаются                      |
+| `required: false, nullable: false` или options не заданы | `undefined` пропускается, `null` не проходит валидацию |
+
+
+Теперь для всех полей `isArray: true` включает проверку, что значение является массивом.
+Сообщение ошибки для этой проверки задается через `isArrayConstraintMessage`.
+
+Если массив не должен быть пустым, укажите `arrayNotEmpty: true`.
+Сообщение ошибки для этой проверки задается через `arrayNotEmptyConstraintMessage`.
+
+Что нужно проверить в проекте:
+- Поля, которые должны принимать `null`: добавить `nullable: true`, если эта опция не была указана явно.
+- Обязательные поля: добавить `required: true`, если поле должно быть обязательным в валидации и OpenAPI.
+- Массивы, которые не должны быть пустыми: добавить `arrayNotEmpty: true`.
+- `IntegerField` с `isArray: true` и `RelationIdField`, где `nullable: true` раньше допускал пустой массив `[]`: проверить, нужно ли теперь явно разрешать пустой массив или запретить его через `arrayNotEmpty: true`.
+- `FileField` и `ImageField`: заменить `multiple: true` на `isArray: true`.
+
 ## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)
 
 ### Добавление `RestApplication.initCookieParser`

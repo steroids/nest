@@ -131,7 +131,6 @@ export function RelationField(options: IRelationFieldOptions) {
                 swaggerType: options.relationClass(),
             }),
             //options.type === 'ManyToOne' && JoinColumn(),
-            ValidateIf((object, value) => !!value),
             ValidateNested({each: true}),
             Type(options.relationClass),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),

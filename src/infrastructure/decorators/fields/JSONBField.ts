@@ -1,6 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiPropertyOptions} from '@nestjs/swagger';
-import {IsOptional} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 export interface IJSONBFieldOptions extends IBaseFieldOptions {
@@ -15,6 +14,5 @@ export function JSONBField(options: IJSONBFieldOptions = {}) {
             appType: 'object',
             swaggerType: options.swaggerType ?? 'string',
         }),
-        !options.required && IsOptional(),
     ].filter(Boolean));
 }

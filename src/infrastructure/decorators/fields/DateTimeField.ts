@@ -1,5 +1,4 @@
 import {applyDecorators} from '@nestjs/common';
-//import {IsDateString, ValidateIf} from 'class-validator';
 import {Type} from 'class-transformer';
 import {format, parseISO} from 'date-fns';
 import {BaseField, IBaseFieldOptions} from './BaseField';
@@ -27,7 +26,6 @@ export function DateTimeField(options: IDateTimeFieldColumnOptions = {}) {
                 appType: 'dateTime',
                 swaggerType: 'string',
             }),
-            // options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
             // IsDateString({
             //     message: 'Некорректный формат даты',
             // }),
