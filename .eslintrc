@@ -3,6 +3,10 @@
         "@steroidsjs/eslint-config"
     ],
     "parser": "@typescript-eslint/parser",
+    "rules": {
+      "no-dupe-class-members": "off",
+      "@typescript-eslint/no-dupe-class-members": "error"
+    },
     "env": {
         "node": true
     }

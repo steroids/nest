@@ -1,5 +1,10 @@
 # Steroids Nest Changelog
 
+## Unreleased
+
+### Fixes
+- Уточнена типизация save-методов `CrudRepository`, а `CrudService.saveInternal` теперь возвращает полную модель после частичного сохранения.
+
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)
