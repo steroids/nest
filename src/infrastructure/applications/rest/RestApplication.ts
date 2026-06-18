@@ -161,7 +161,6 @@ export class RestApplication extends BaseApplication {
         this._app.useGlobalFilters(new UserExceptionFilter());
     }
 
-
     /**
      * Initialization of global interceptors (default is `SchemaSerializer`).
      * @protected
@@ -179,16 +178,6 @@ export class RestApplication extends BaseApplication {
     protected initSettings() {
         this._app.use(json({ limit: this._config.requestSizeLimit }));
         this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
-    }
-
-    /**
-     * Enable graceful application shutdown if the `gracefulEnabled` property is enabled in the configuration.
-     * @protected
-     */
-    protected initGraceful() {
-        if (this._config.gracefulEnabled) {
-            this._app.enableShutdownHooks();
-        }
     }
 
     /**
@@ -226,7 +215,6 @@ export class RestApplication extends BaseApplication {
         this.initFilters();
         this.initInterceptors();
         this.initSettings();
-        this.initGraceful();
     }
 
     /**
