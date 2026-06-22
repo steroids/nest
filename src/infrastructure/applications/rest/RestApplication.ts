@@ -239,9 +239,11 @@ export class RestApplication extends BaseApplication {
         const port = parseInt(process.env.PORT, 10);
 
         // eslint-disable-line no-console
-        const onStartCallback = () => console.log(`Server started http://localhost:${port}`);
+        const onStartCallback = () => console.log(
+            `Server started http://${this._config.isListenLocalhost ? '127.0.0.1' : 'localhost'}:${port}`,
+        );
         const appListenArguments = this._config.isListenLocalhost
-            ? [port, 'localhost', onStartCallback]
+            ? [port, '127.0.0.1', onStartCallback]
             : [port, onStartCallback];
 
         // @ts-ignore

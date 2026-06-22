@@ -1,5 +1,10 @@
 # Steroids Nest Changelog
 
+## Unreleased
+
+### Fixes
+- При включенном параметре `isListenLocalhost` теперь используется `127.0.0.1`, а не `localhost`
+
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)
