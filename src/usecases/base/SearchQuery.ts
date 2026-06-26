@@ -277,7 +277,7 @@ export default class SearchQuery<TModel> {
 
     private resolveOrderByFieldPath(fieldPath: string): string {
         const pathToField = fieldPath.split('.');
-        const field = pathToField.pop();
+        const field = _trim(pathToField.pop(), '"');
 
         if (pathToField[0] && wrapInDoubleQuotes(pathToField[0]) === wrapInDoubleQuotes(this._alias)) {
             pathToField.shift();
@@ -285,16 +285,16 @@ export default class SearchQuery<TModel> {
 
         if (!pathToField.length) {
             if (field.split('_')[0] === this._alias) {
-                return wrapInDoubleQuotes(field);
+                return field;
             }
-            return `${wrapInDoubleQuotes(this._alias)}.${wrapInDoubleQuotes(field)}`;
+            return `${this._alias}.${field}`;
         }
 
         if (pathToField.length === 1 && pathToField[0].split('_')[0] === this._alias) {
-            return `${wrapInDoubleQuotes(pathToField[0])}.${wrapInDoubleQuotes(field)}`;
+            return `${pathToField[0]}.${field}`;
         }
 
-        return `${wrapInDoubleQuotes(this.getRelationAlias(pathToField.join('.')))}.${wrapInDoubleQuotes(field)}`;
+        return `${this.getRelationAlias(pathToField.join('.'))}.${field}`;
     }
 
     private resolveOrderByFieldPaths(

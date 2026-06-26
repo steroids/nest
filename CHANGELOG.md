@@ -1,5 +1,10 @@
 # Steroids Nest Changelog
 
+## [Unreleased]
+
+### Fixes
+- `SearchQuery.orderBy` и `addOrderBy` больше не оборачивают alias и поля в двойные кавычки, что исправляло ошибку `""model"" alias was not found` при сортировке с join и paginate.
+
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)
