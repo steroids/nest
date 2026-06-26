@@ -1,6 +1,6 @@
 # Steroids Nest Migration Guide
 
-## Unreleased
+## [4.4.2](../CHANGELOG.md#442-2026-06-26) (2026-06-26)
 
 ### Удаление `GracefulController`
 

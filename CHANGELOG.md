@@ -1,9 +1,20 @@
 # Steroids Nest Changelog
 
-## Unreleased
+## [4.4.2](https://github.com/steroids/nest/compare/4.4.1...4.4.2) (2026-06-26)
+
+[Migration guide](docs/MigrationGuide.md#440-2026-05-14)
 
 ### Fixes
-- При включенном параметре `isListenLocalhost` теперь используется `127.0.0.1`, а не `localhost`
+- При включенном параметре `isListenLocalhost` теперь используется `127.0.0.1`, а не `localhost` ([#269](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/269))
+
+### Removed
+- Удалены `GracefulController` и `GracefulService` ([#271](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/271))
+- УдаленS `RequestExecutionException` и `RequestExecutionExceptionFilter` ([#262](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/262))
+
+## [4.4.1](https://github.com/steroids/nest/compare/4.4.0...4.4.1) (2026-05-27)
+
+### Fixes
+- Удален `postinstall` скрипт по очистке кэша jest, так как он ломал деплой в окружении без jest
 
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
