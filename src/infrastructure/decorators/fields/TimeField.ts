@@ -2,7 +2,13 @@ import {applyDecorators} from '@nestjs/common';
 import {IsMilitaryTime, ValidateIf} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
-export function TimeField(options: IBaseFieldOptions = {}) {
+const isHhMmTime = 'Время необходимо ввести в формате часы:минуты, например 07:32';
+
+export interface ITimeFieldOptions extends IBaseFieldOptions {
+    isHhMmTimeConstraintMessage?: string,
+}
+
+export function TimeField(options: ITimeFieldOptions = {}) {
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -12,7 +18,7 @@ export function TimeField(options: IBaseFieldOptions = {}) {
             }),
             options?.nullable && ValidateIf((object, value) => value !== null),
             IsMilitaryTime({
-                message: 'Время необходимо ввести в формате часы:минуты, например 07:32',
+                message: options.isHhMmTimeConstraintMessage || isHhMmTime,
             }),
         ].filter(Boolean),
     );

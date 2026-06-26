@@ -5,6 +5,8 @@ import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from '
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {getTableFromModel} from '../../base/ModelTableStorage';
 
+const ARRAY_NOT_EMPTY_DEFAULT_MESSAGE = 'Не должно быть пустым';
+
 export interface IRelationIdFieldOptions extends IBaseFieldOptions {
     relationName?: string,
     isFieldValidConstraintMessage?: string,
@@ -54,7 +56,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
         options.nullable = true;
     }
 
-    const arrayNotEmptyMessage = options.isFieldValidConstraintMessage || 'Не должно быть пустым';
+    const arrayNotEmptyMessage = options.isFieldValidConstraintMessage || ARRAY_NOT_EMPTY_DEFAULT_MESSAGE;
 
     return applyDecorators(
         ...[

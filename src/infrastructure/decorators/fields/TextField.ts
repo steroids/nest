@@ -9,7 +9,13 @@ export interface ITextFieldOptions extends IBaseFieldOptions {
     maxConstraintMessage?: string,
 }
 
+const IS_STRING_DEFAULT_MESSAGE = 'Должна быть строка';
+const buildMinLengthDefaultMessage = (min: number) => `Длина строки должна быть не менее ${min}`;
+const buildMaxLengthDefaultMessage = (max: number) => `Длина строки должна быть не более ${max}`;
+
 export function TextField(options: ITextFieldOptions = {}) {
+    const maxLength = _toInteger(options.max);
+
     return applyDecorators(...[
         BaseField(options, {
             decoratorName: 'TextField',
@@ -18,15 +24,15 @@ export function TextField(options: ITextFieldOptions = {}) {
         }),
         IsString({
             each: options.isArray,
-            message: options.isStringConstraintMessage || 'Должна быть строка',
+            message: options.isStringConstraintMessage || IS_STRING_DEFAULT_MESSAGE,
         }),
         !options.required && IsOptional(),
         typeof options.min === 'number' && MinLength(options.min, {
-            message: `Длина строка должна быть не менее ${options.min}` || options.minConstraintMessage,
+            message: options.minConstraintMessage || buildMinLengthDefaultMessage(options.min),
             each: options.isArray,
         }),
-        typeof options.max === 'number' && MaxLength(_toInteger(options.max), {
-            message: `Длина строка должна быть не более ${options.max}` || options.maxConstraintMessage,
+        typeof options.max === 'number' && MaxLength(maxLength, {
+            message: options.maxConstraintMessage || buildMaxLengthDefaultMessage(maxLength),
             each: options.isArray,
         }),
     ].filter(Boolean));

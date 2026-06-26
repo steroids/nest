@@ -4,7 +4,7 @@ import {normalizeDate, normalizeFunctionDate} from '../fields/DateField';
 export function MaxDate(maxDate: string | Date | Function, validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
         registerDecorator({
-            name: 'minDate',
+            name: 'maxDate',
             target: object.constructor,
             propertyName,
             constraints: [maxDate],
