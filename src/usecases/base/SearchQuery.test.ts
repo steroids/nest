@@ -14,7 +14,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('name');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model"."name"': 'asc',
+                'model.name': 'asc',
             });
         });
 
@@ -22,7 +22,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model.email');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model"."email"': 'asc',
+                'model.email': 'asc',
             });
         });
 
@@ -30,7 +30,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model.relation.age');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_relation"."age"': 'asc',
+                'model_relation.age': 'asc',
             });
         });
 
@@ -38,7 +38,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model_relation.city');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_relation"."city"': 'asc',
+                'model_relation.city': 'asc',
             });
         });
 
@@ -46,7 +46,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model.relation1.relation2.address');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_relation1_relation2"."address"': 'asc',
+                'model_relation1_relation2.address': 'asc',
             });
         });
 
@@ -54,7 +54,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model_relation1_relation2.country');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_relation1_relation2"."country"': 'asc',
+                'model_relation1_relation2.country': 'asc',
             });
         });
 
@@ -62,7 +62,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model_relation1_relation2.relation3.field');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_model_relation1_relation2_relation3"."field"': 'asc',
+                'model_model_relation1_relation2_relation3.field': 'asc',
             });
         });
 
@@ -70,7 +70,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('"model"."createdTime"');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model"."createdTime"': 'asc',
+                'model.createdTime': 'asc',
             });
         });
 
@@ -78,7 +78,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model."updatedTime"');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model"."updatedTime"': 'asc',
+                'model.updatedTime': 'asc',
             });
         });
 
@@ -86,7 +86,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('"model".deleteTime');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model"."deleteTime"': 'asc',
+                'model.deleteTime': 'asc',
             });
         });
 
@@ -94,7 +94,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model_name');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_name"': 'asc',
+                'model_name': 'asc',
             });
         });
 
@@ -102,7 +102,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model_relation_name');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_relation_name"': 'asc',
+                'model_relation_name': 'asc',
             });
         });
 
@@ -110,7 +110,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('relation.age', 'desc');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model_relation"."age"': 'desc',
+                'model_relation.age': 'desc',
             });
         });
 
@@ -121,8 +121,8 @@ describe('SearchQuery', () => {
             });
 
             expect(searchQuery.getOrderBy()).toEqual({
-                '"model"."name"': 'asc',
-                '"model_relation"."age"': 'desc',
+                'model.name': 'asc',
+                'model_relation.age': 'desc',
             });
         });
     });
