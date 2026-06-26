@@ -1,5 +1,19 @@
 # Steroids Nest Migration Guide
 
+## Unreleased
+
+### Удаление `GracefulController`
+
+Удалены `GracefulController` и `GracefulService`, а также связанная с ними настройка `gracefulEnabled` в `IRestAppModuleConfig`.
+
+Это ломает обратную совместимость для проектов, которые:
+- использовали встроенный `GET /health`;
+- включали `gracefulEnabled` в конфиге REST-приложения;
+- переопределяли `RestApplication.init()` и вызывали `this.initGraceful()`.
+
+Теперь библиотека больше не добавляет `app.enableShutdownHooks()` автоматически и не предоставляет встроенный `GET /health`.
+Если приложению по-прежнему нужен health-check, его нужно реализовать в проекте самостоятельно.
+
 ## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)
 
 ### Добавление `RestApplication.initCookieParser`

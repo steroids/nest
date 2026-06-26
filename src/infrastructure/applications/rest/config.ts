@@ -1,8 +1,6 @@
 import {APP_FILTER} from '@nestjs/core';
 import baseConfig from '../base/config';
 import {IRestAppModuleConfig} from './IRestAppModuleConfig';
-import {GracefulController} from './graceful/GracefulController';
-import {GracefulService} from './graceful/GracefulService';
 import {ValidationExceptionFilter} from '../../filters/ValidationExceptionFilter';
 import {normalizeBoolean} from '../../decorators/fields/BooleanField';
 
@@ -24,10 +22,6 @@ export default {
                 provide: APP_FILTER,
                 useClass: ValidationExceptionFilter,
             },
-            config.gracefulEnabled && GracefulService,
-        ].filter(Boolean),
-        controllers: [
-            config.gracefulEnabled && GracefulController,
-        ].filter(Boolean),
+        ],
     }),
 };
