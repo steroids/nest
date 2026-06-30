@@ -1,3 +1,4 @@
+import {ApiProperty} from '@nestjs/swagger';
 import {getFieldDecorator, getFieldOptions} from './BaseField';
 import {IAllFieldOptions} from './index';
 import {getValidators, Validator} from '../../../usecases/validators/Validator';
@@ -38,6 +39,12 @@ export function ExtendField(
             getValidators(ModelClass, modelFieldName).forEach(ValidatorClass => {
                 Validator(ValidatorClass)(object, propertyName);
             });
+        }
+
+        if (propertyName !== modelFieldName) {
+            ApiProperty({
+                name: modelFieldName,
+            })(object, propertyName);
         }
     };
 }
