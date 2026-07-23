@@ -1,5 +1,21 @@
 # Steroids Nest Changelog
 
+## Unreleased
+
+[Migration guide](docs/MigrationGuide.md#unreleased)
+
+### Changed
+
+- Форки `@steroidsjs/typeorm` и `@steroidsjs/nest-typeorm` заменены на оригинальные пакеты `typeorm` и `@nestjs/typeorm`.
+- Интеграция с TypeORM переведена с устаревшего API `Connection` на `DataSource`.
+- Импорты TypeORM обновлены в исходном коде, CLI-командах, шаблонах генератора и документации.
+- Миграции теперь создаются напрямую через конструктор класса, так как `getFromContainer` удалён из TypeORM 1.x.
+
+### Fixed
+
+- `glob` и `yargs`, которые ранее устанавливались транзитивно вместе с форками TypeORM, добавлены как явные зависимости.
+- Загрузка миграций переведена с удалённого callback API `glob` на Promise API.
+
 ## [4.4.2](https://github.com/steroids/nest/compare/4.4.1...4.4.2) (2026-06-26)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)

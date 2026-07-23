@@ -1,17 +1,12 @@
-import {QueryRunner} from '@steroidsjs/typeorm/query-runner/QueryRunner';
-import {Table} from '@steroidsjs/typeorm/schema-builder/table/Table';
-import {TableCheck} from '@steroidsjs/typeorm/schema-builder/table/TableCheck';
-import {TableColumn} from '@steroidsjs/typeorm/schema-builder/table/TableColumn';
-import {TableExclusion} from '@steroidsjs/typeorm/schema-builder/table/TableExclusion';
-import {TableForeignKey} from '@steroidsjs/typeorm/schema-builder/table/TableForeignKey';
-import {TableIndex} from '@steroidsjs/typeorm/schema-builder/table/TableIndex';
-import {TableUnique} from '@steroidsjs/typeorm/schema-builder/table/TableUnique';
-import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
-import {Query} from '@steroidsjs/typeorm/driver/Query';
-import {TypeORMError} from '@steroidsjs/typeorm/error/TypeORMError';
-import {MetadataTableType} from '@steroidsjs/typeorm/driver/types/MetadataTableType';
-import {PostgresQueryRunner} from '@steroidsjs/typeorm/driver/postgres/PostgresQueryRunner';
-import {SqlInMemory} from '@steroidsjs/typeorm/driver/SqlInMemory';
+import {
+    QueryRunner, Table, TableCheck, TableColumn, TableExclusion,
+    TableForeignKey, TableIndex, TableUnique, TypeORMError,
+} from 'typeorm';
+import {PostgresQueryRunner} from 'typeorm/driver/postgres/PostgresQueryRunner';
+import {Query} from 'typeorm/driver/Query';
+import {SqlInMemory} from 'typeorm/driver/SqlInMemory';
+import {MetadataTableType} from 'typeorm/driver/types/MetadataTableType';
+import {OrmUtils} from 'typeorm/util/OrmUtils';
 
 export class TableQuery {
     constructor(public tableName: string, public query: Query) {
@@ -102,7 +97,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
                 // new index may be passed without name. In this case we generate index name manually.
                 if (!index.name)
-                    index.name = this.connection.namingStrategy.indexName(table, index.columnNames, index.where);
+                    index.name = this.dataSource.namingStrategy.indexName(table, index.columnNames, index.where);
                 upQueries.push(new TableQuery(table.name, this.createIndexSql(table, index)));
                 downQueries.push(new TableQuery(table.name, this.dropIndexSql(table, index)));
             });
@@ -172,7 +167,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
             const primaryColumns = clonedTable.primaryColumns;
             // if table already have primary key, me must drop it and recreate again
             if (primaryColumns.length > 0) {
-                const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
+                const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
                 const columnNames = primaryColumns.map(column => `"${column.name}"`).join(", ");
                 upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                     DROP CONSTRAINT "${pkName}"`)));
@@ -181,7 +176,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
             }
 
             primaryColumns.push(column);
-            const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
+            const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
             const columnNames = primaryColumns.map(column => `"${column.name}"`).join(", ");
             upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                 ADD CONSTRAINT "${pkName}" PRIMARY KEY (${columnNames})`)));
@@ -199,7 +194,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
         // create unique constraint
         if (column.isUnique) {
             const uniqueConstraint = new TableUnique({
-                name: this.connection.namingStrategy.uniqueConstraintName(table, [column.name]),
+                name: this.dataSource.namingStrategy.uniqueConstraintName(table, [column.name]),
                 columnNames: [column.name]
             });
             clonedTable.uniques.push(uniqueConstraint);
@@ -318,14 +313,14 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
                     // build old primary constraint name
                     const columnNames = primaryColumns.map(column => column.name);
-                    const oldPkName = this.connection.namingStrategy.primaryKeyName(clonedTable, columnNames);
+                    const oldPkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, columnNames);
 
                     // replace old column name with new column name
                     columnNames.splice(columnNames.indexOf(oldColumn.name), 1);
                     columnNames.push(newColumn.name);
 
                     // build new primary constraint name
-                    const newPkName = this.connection.namingStrategy.primaryKeyName(clonedTable, columnNames);
+                    const newPkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, columnNames);
 
                     upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                         RENAME CONSTRAINT "${oldPkName}" TO "${newPkName}"`)));
@@ -352,7 +347,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
                     // build new constraint name
                     unique.columnNames.splice(unique.columnNames.indexOf(oldColumn.name), 1);
                     unique.columnNames.push(newColumn.name);
-                    const newUniqueName = this.connection.namingStrategy.uniqueConstraintName(clonedTable, unique.columnNames);
+                    const newUniqueName = this.dataSource.namingStrategy.uniqueConstraintName(clonedTable, unique.columnNames);
 
                     // build queries
                     upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
@@ -370,7 +365,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
                     index.columnNames.splice(index.columnNames.indexOf(oldColumn.name), 1);
                     index.columnNames.push(newColumn.name);
                     const {schema} = this.driver.parseTableName(table);
-                    const newIndexName = this.connection.namingStrategy.indexName(clonedTable, index.columnNames, index.where);
+                    const newIndexName = this.dataSource.namingStrategy.indexName(clonedTable, index.columnNames, index.where);
 
                     // build queries
                     const up = schema ? `ALTER INDEX "${schema}"."${index.name}" RENAME TO "${newIndexName}"` : `ALTER INDEX "${index.name}" RENAME TO "${newIndexName}"`;
@@ -387,7 +382,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
                     // build new constraint name
                     foreignKey.columnNames.splice(foreignKey.columnNames.indexOf(oldColumn.name), 1);
                     foreignKey.columnNames.push(newColumn.name);
-                    const newForeignKeyName = this.connection.namingStrategy.foreignKeyName(clonedTable, foreignKey.columnNames, this.getTablePath(foreignKey), foreignKey.referencedColumnNames);
+                    const newForeignKeyName = this.dataSource.namingStrategy.foreignKeyName(clonedTable, foreignKey.columnNames, this.getTablePath(foreignKey), foreignKey.referencedColumnNames);
 
                     // build queries
                     upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
@@ -499,7 +494,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
                 // if primary column state changed, we must always drop existed constraint.
                 if (primaryColumns.length > 0) {
-                    const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
+                    const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
                     const columnNames = primaryColumns.map(column => `"${column.name}"`).join(", ");
                     upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                         DROP CONSTRAINT "${pkName}"`)));
@@ -512,7 +507,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
                     // update column in table
                     const column = clonedTable.columns.find(column => column.name === newColumn.name);
                     column!.isPrimary = true;
-                    const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
+                    const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
                     const columnNames = primaryColumns.map(column => `"${column.name}"`).join(", ");
                     upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                         ADD CONSTRAINT "${pkName}" PRIMARY KEY (${columnNames})`)));
@@ -529,7 +524,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
                     // if we have another primary keys, we must recreate constraint.
                     if (primaryColumns.length > 0) {
-                        const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
+                        const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
                         const columnNames = primaryColumns.map(column => `"${column.name}"`).join(", ");
                         upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                             ADD CONSTRAINT "${pkName}" PRIMARY KEY (${columnNames})`)));
@@ -542,7 +537,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
             if (newColumn.isUnique !== oldColumn.isUnique) {
                 if (newColumn.isUnique === true) {
                     const uniqueConstraint = new TableUnique({
-                        name: this.connection.namingStrategy.uniqueConstraintName(table, [newColumn.name]),
+                        name: this.dataSource.namingStrategy.uniqueConstraintName(table, [newColumn.name]),
                         columnNames: [newColumn.name]
                     });
                     clonedTable.uniques.push(uniqueConstraint);
@@ -683,7 +678,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
         // drop primary key constraint
         if (column.isPrimary) {
-            const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, clonedTable.primaryColumns.map(column => column.name));
+            const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, clonedTable.primaryColumns.map(column => column.name));
             const columnNames = clonedTable.primaryColumns.map(primaryColumn => `"${primaryColumn.name}"`).join(", ");
             upQueries.push(new TableQuery(clonedTable.name, new Query(`ALTER TABLE ${this.escapePath(clonedTable)}
                 DROP CONSTRAINT "${pkName}"`)));
@@ -696,7 +691,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
             // if primary key have multiple columns, we must recreate it without dropped column
             if (clonedTable.primaryColumns.length > 0) {
-                const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, clonedTable.primaryColumns.map(column => column.name));
+                const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, clonedTable.primaryColumns.map(column => column.name));
                 const columnNames = clonedTable.primaryColumns.map(primaryColumn => `"${primaryColumn.name}"`).join(", ");
                 upQueries.push(new TableQuery(clonedTable.name, new Query(`ALTER TABLE ${this.escapePath(clonedTable)}
                     ADD CONSTRAINT "${pkName}" PRIMARY KEY (${columnNames})`)));
@@ -788,7 +783,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
         // if table already have primary columns, we must drop them.
         const primaryColumns = clonedTable.primaryColumns;
         if (primaryColumns.length > 0) {
-            const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
+            const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, primaryColumns.map(column => column.name));
             const columnNamesString = primaryColumns.map(column => `"${column.name}"`).join(", ");
             upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
                 DROP CONSTRAINT "${pkName}"`)));
@@ -801,7 +796,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
             .filter(column => columnNames.indexOf(column.name) !== -1)
             .forEach(column => column.isPrimary = true);
 
-        const pkName = this.connection.namingStrategy.primaryKeyName(clonedTable, columnNames);
+        const pkName = this.dataSource.namingStrategy.primaryKeyName(clonedTable, columnNames);
         const columnNamesString = columnNames.map(columnName => `"${columnName}"`).join(", ");
         upQueries.push(new TableQuery(table.name, new Query(`ALTER TABLE ${this.escapePath(table)}
             ADD CONSTRAINT "${pkName}" PRIMARY KEY (${columnNamesString})`)));
@@ -820,7 +815,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
         // new unique constraint may be passed without name. In this case we generate unique name manually.
         if (!uniqueConstraint.name)
-            uniqueConstraint.name = this.connection.namingStrategy.uniqueConstraintName(table, uniqueConstraint.columnNames);
+            uniqueConstraint.name = this.dataSource.namingStrategy.uniqueConstraintName(table, uniqueConstraint.columnNames);
 
         const up = this.createUniqueConstraintSql(table, uniqueConstraint);
         const down = this.dropUniqueConstraintSql(table, uniqueConstraint);
@@ -851,7 +846,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
         // new unique constraint may be passed without name. In this case we generate unique name manually.
         if (!checkConstraint.name)
-            checkConstraint.name = this.connection.namingStrategy.checkConstraintName(table, checkConstraint.expression!);
+            checkConstraint.name = this.dataSource.namingStrategy.checkConstraintName(table, checkConstraint.expression!);
 
         const up = this.createCheckConstraintSql(table, checkConstraint);
         const down = this.dropCheckConstraintSql(table, checkConstraint);
@@ -882,7 +877,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
         // new unique constraint may be passed without name. In this case we generate unique name manually.
         if (!exclusionConstraint.name)
-            exclusionConstraint.name = this.connection.namingStrategy.exclusionConstraintName(table, exclusionConstraint.expression!);
+            exclusionConstraint.name = this.dataSource.namingStrategy.exclusionConstraintName(table, exclusionConstraint.expression!);
 
         const up = this.createExclusionConstraintSql(table, exclusionConstraint);
         const down = this.dropExclusionConstraintSql(table, exclusionConstraint);
@@ -913,7 +908,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
         // new FK may be passed without name. In this case we generate FK name manually.
         if (!foreignKey.name)
-            foreignKey.name = this.connection.namingStrategy.foreignKeyName(table, foreignKey.columnNames, this.getTablePath(foreignKey), foreignKey.referencedColumnNames);
+            foreignKey.name = this.dataSource.namingStrategy.foreignKeyName(table, foreignKey.columnNames, this.getTablePath(foreignKey), foreignKey.referencedColumnNames);
 
         const up = this.createForeignKeySql(table, foreignKey);
         const down = this.dropForeignKeySql(table, foreignKey);
@@ -944,7 +939,7 @@ export class CustomPostgresQueryRunner extends PostgresQueryRunner implements Qu
 
         // new index may be passed without name. In this case we generate index name manually.
         if (!index.name)
-            index.name = this.connection.namingStrategy.indexName(table, index.columnNames, index.where);
+            index.name = this.dataSource.namingStrategy.indexName(table, index.columnNames, index.where);
 
         const up = this.createIndexSql(table, index);
         const down = this.dropIndexSql(table, index);

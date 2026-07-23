@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {NestFactory} from '@nestjs/core';
-import {TypeOrmModule} from '@steroidsjs/nest-typeorm';
-import {PostgresConnectionOptions} from '@steroidsjs/typeorm/driver/postgres/PostgresConnectionOptions';
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSourceOptions';
 import {ValidationExceptionFilter} from '../filters/ValidationExceptionFilter';
 import {CreateDtoPipe} from '../pipes/CreateDtoPipe';
 import {ModuleHelper} from '../helpers/ModuleHelper';
@@ -24,7 +24,7 @@ import {UserExceptionFilter} from "../filters/UserExceptionFilter";
                 synchronize: true,
                 logging: ['schema', 'warn', 'error', 'migration'/*, 'query'/**/],
                 namingStrategy: new DatabaseNamingStrategy(),
-            } as PostgresConnectionOptions),
+            } as PostgresDataSourceOptions),
         }),
         TypeOrmModule.forFeature(ModuleHelper.importDir(__dirname + '/app/tables')),
     ],

@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IEnumFieldOptions} from '../../../fields/EnumField';
 
 export default (options: IEnumFieldOptions) => [

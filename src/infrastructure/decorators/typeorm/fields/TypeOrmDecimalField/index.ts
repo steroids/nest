@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IDecimalFieldOptions} from '../../../fields/DecimalField';
 import {DEFAULT_DECIMAL_SCALE} from '../../../../base/consts';
 

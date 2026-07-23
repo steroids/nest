@@ -1,6 +1,6 @@
 import {camelCase as _camelCase} from 'lodash';
 import {Global, Module as NestModule, ModuleMetadata} from '@nestjs/common';
-import {TypeOrmModule} from '@steroidsjs/nest-typeorm';
+import {TypeOrmModule} from '@nestjs/typeorm';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 import {PermissionsFactory} from '../helpers/PermissionsFactory';
 

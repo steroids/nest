@@ -1,8 +1,7 @@
-import * as glob from "glob";
-import {PlatformTools} from "@steroidsjs/typeorm/platform/PlatformTools";
-import {EntitySchema} from "@steroidsjs/typeorm/entity-schema/EntitySchema";
-import {Logger} from "@steroidsjs/typeorm/logger/Logger";
-import {importOrRequireFile} from "@steroidsjs/typeorm/util/ImportUtils";
+import {glob} from 'glob';
+import {EntitySchema, Logger} from 'typeorm';
+import {PlatformTools} from 'typeorm/platform/PlatformTools';
+import {importOrRequireFile} from 'typeorm/util/ImportUtils';
 
 class MockMigration {
     name: string;
@@ -61,19 +60,9 @@ export async function importClassesFromDirectories(logger: Logger, directories: 
         return allLoaded;
     }
 
-    let allFiles: string[] = [];
-    await Promise.all(directories.map(dir => {
-        return new Promise((resolve, reject) => {
-            glob(PlatformTools.pathNormalize(dir), (err, matches) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    allFiles = allFiles.concat(matches)
-                    resolve(null);
-                }
-            });
-        });
-    }));
+    const allFiles = (await Promise.all(
+        directories.map(dir => glob(PlatformTools.pathNormalize(dir))),
+    )).flat();
 
     if (directories.length > 0 && allFiles.length === 0) {
         logger.log(logLevel, `${classesNotFoundMessage} "${directories}"`);

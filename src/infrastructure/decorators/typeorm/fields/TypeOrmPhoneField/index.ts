@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IPhoneFieldOptions} from '../../../fields/PhoneField';
 
 export default (options: IPhoneFieldOptions) => [

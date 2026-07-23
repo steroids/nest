@@ -16,9 +16,9 @@
 `CrudRepository` реализует интерфейс `ICrudRepository`.
 
 ```typescript
-import {Repository} from '@steroidsjs/typeorm';
+import {Repository} from 'typeorm';
 import {Injectable} from '@nestjs/common';
-import {InjectRepository} from '@steroidsjs/nest-typeorm';
+import {InjectRepository} from '@nestjs/typeorm';
 import {CrudRepository} from '@steroidsjs/nest/infrastructure/repositories/CrudRepository';
 import {UserModel} from '../models/UserModel';
 import {IUserRepository} from '../interfaces/IUserRepository';

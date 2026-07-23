@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IEmailFieldOptions} from '../../../fields/EmailField';
 
 export default (options: IEmailFieldOptions) => [

@@ -1,5 +1,70 @@
 # Steroids Nest Migration Guide
 
+## [Unreleased](../CHANGELOG.md#unreleased)
+
+### Переход с форков TypeORM на оригинальные пакеты
+
+Форки `@steroidsjs/typeorm` и `@steroidsjs/nest-typeorm` больше не используются.
+Их необходимо заменить на оригинальные пакеты `typeorm` и `@nestjs/typeorm`.
+
+Удалите старые зависимости и установите новые:
+
+```shell
+yarn remove @steroidsjs/typeorm @steroidsjs/nest-typeorm
+yarn add typeorm@^1.1.0 @nestjs/typeorm@^11.0.3
+```
+
+Если зависимости редактируются вручную, в `package.json` должны использоваться следующие версии:
+
+```json
+{
+  "dependencies": {
+    "@nestjs/typeorm": "^11.0.3",
+    "typeorm": "^1.1.0"
+  }
+}
+```
+
+Обновите импорты и устаревшие API:
+
+| Было | Стало |
+| --- | --- |
+| `@steroidsjs/typeorm` | `typeorm` |
+| `@steroidsjs/typeorm/...` | `typeorm/...` |
+| `@steroidsjs/nest-typeorm` | `@nestjs/typeorm` |
+| `Connection` | `DataSource` |
+| `PostgresConnectionOptions` | `PostgresDataSourceOptions` |
+| `queryBuilder.connection` | `queryBuilder.dataSource` |
+| `queryRunner.connection` | `queryRunner.dataSource` |
+
+Пример обновления конфигурации:
+
+```ts
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSourceOptions';
+
+const databaseOptions: PostgresDataSourceOptions = {
+    type: 'postgres',
+    host: process.env.APP_DATABASE_HOST,
+    port: parseInt(process.env.APP_DATABASE_PORT, 10),
+    database: process.env.APP_DATABASE_NAME,
+    username: process.env.APP_DATABASE_USERNAME,
+    password: process.env.APP_DATABASE_PASSWORD,
+};
+
+TypeOrmModule.forRoot(databaseOptions);
+```
+
+В TypeORM 1.x удалены `getFromContainer` и связанный с ним глобальный контейнер.
+Миграции создаются непосредственно через конструктор класса, поэтому их конструкторы не должны требовать аргументов:
+
+```ts
+const migration = new MigrationClass();
+```
+
+Если проект переопределяет внутренний `ConnectionMetadataBuilder.buildMigrations`, необходимо также заменить
+`this.connection` на `this.dataSource`.
+
 ## [4.4.2](../CHANGELOG.md#442-2026-06-26) (2026-06-26)
 
 ### Удаление `GracefulController`

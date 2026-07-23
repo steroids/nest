@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {TypeOrmCreateTimeBehaviour} from './TypeOrmCreateTimeBehaviour';
 import {ICreateTimeFieldOptions} from '../../../fields/CreateTimeField';
 

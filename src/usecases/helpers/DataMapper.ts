@@ -3,7 +3,7 @@ import {isObject as _isObject} from 'lodash';
 import {getFieldAppType, getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
-import {DeepPartial} from '@steroidsjs/typeorm';
+import {DeepPartial} from 'typeorm';
 import {
     getTransformCallbacks,
     ITransformType,

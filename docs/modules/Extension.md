@@ -76,8 +76,8 @@ export class NotifierSendLogTable extends NotifierSendLogModel {}
 
 ```typescript
 import {NotifierSendLogRepository as BaseNotifierSendLogRepository} from '@steroidsjs/nest-notifier/infrastructure/repositories/NotifierSendLogRepository';
-import {InjectRepository} from '@steroidsjs/nest-typeorm';
-import {Repository} from '@steroidsjs/typeorm';
+import {InjectRepository} from '@nestjs/typeorm';
+import {Repository} from 'typeorm';
 import {Injectable} from '@nestjs/common';
 import {NotifierSendLogTable} from '../tables/NotifierSendLogTable';
 import {NotifierSendLogModel} from '../../domain/models/NotifierSendLogModel';
