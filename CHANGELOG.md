@@ -1,8 +1,8 @@
 # Steroids Nest Changelog
 
-## Unreleased
+## [5.0.0](https://github.com/steroids/nest/compare/4.4.2...5.0.0) (2026-07-23)
 
-[Migration guide](docs/MigrationGuide.md#unreleased)
+[Migration guide](docs/MigrationGuide.md#500-2026-07-23)
 
 ### Changed
 
@@ -18,7 +18,7 @@
 
 ## [4.4.2](https://github.com/steroids/nest/compare/4.4.1...4.4.2) (2026-06-26)
 
-[Migration guide](docs/MigrationGuide.md#440-2026-05-14)
+[Migration guide](docs/MigrationGuide.md#442-2026-06-26)
 
 ### Fixes
 - При включенном параметре `isListenLocalhost` теперь используется `127.0.0.1`, а не `localhost` ([#269](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/269))

@@ -1,6 +1,6 @@
 # Steroids Nest Migration Guide
 
-## [Unreleased](../CHANGELOG.md#unreleased)
+## [5.0.0](../CHANGELOG.md#500-2026-07-23) (2026-07-23)
 
 ### Переход с форков TypeORM на оригинальные пакеты
 
