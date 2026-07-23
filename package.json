@@ -29,12 +29,15 @@
     "class-transformer": "^0.5.1",
     "cookie-parser": "^1.4.7",
     "date-fns": "^2.29.3",
+    "dotenv": "^17.4.2",
     "express": "^4.18.2",
+    "glob": "^13.0.6",
     "lodash": "^4.17.21",
     "nestjs-command": "^3.1.5",
     "pg": "^8.9.0",
     "pluralize": "^8.0.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "yargs": "^17.7.2"
   },
   "peerDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -43,9 +46,9 @@
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^10.4.19",
     "@nestjs/swagger": "^6.1.4",
-    "@steroidsjs/nest-typeorm": "^10.0.3",
-    "@steroidsjs/typeorm": "^0.3.23",
-    "class-validator": "^0.14.0"
+    "@nestjs/typeorm": "^11.0.3",
+    "class-validator": "^0.14.0",
+    "typeorm": "^1.1.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.4.1",
@@ -55,9 +58,8 @@
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^10.4.19",
     "@nestjs/swagger": "^6.1.4",
+    "@nestjs/typeorm": "^11.0.3",
     "@steroidsjs/eslint-config": "2.1.2",
-    "@steroidsjs/nest-typeorm": "^10.0.3",
-    "@steroidsjs/typeorm": "^0.3.23",
     "@types/cookie-parser": "^1.4.10",
     "@types/jest": "^29.4.0",
     "@types/lodash": "^4.17.23",
@@ -75,6 +77,7 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
+    "typeorm": "^1.1.0",
     "typescript": "^4.9.4"
   }
 }

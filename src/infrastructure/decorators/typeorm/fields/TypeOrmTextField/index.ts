@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {ITextFieldOptions} from '../../../fields/TextField';
 
 export default (options: ITextFieldOptions) => [

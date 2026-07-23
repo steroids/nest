@@ -1,5 +1,5 @@
 import {toInteger as _toInteger} from 'lodash';
-import {DeepPartial} from '@steroidsjs/typeorm';
+import {DeepPartial} from 'typeorm';
 import {DataMapper} from '../helpers/DataMapper';
 import {ISearchInputDto} from '../dtos/SearchInputDto';
 import SearchQuery from '../base/SearchQuery';

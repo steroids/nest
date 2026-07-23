@@ -1,5 +1,4 @@
-import {DeepPartial, EntityManager, Repository} from '@steroidsjs/typeorm';
-import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {DeepPartial, EntityManager, Repository, SelectQueryBuilder} from 'typeorm';
 import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository, TransactionHandler} from '../../usecases/interfaces/ICrudRepository';

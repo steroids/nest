@@ -1,16 +1,13 @@
-import {Table} from '@steroidsjs/typeorm/schema-builder/table/Table';
-import {TableForeignKey} from '@steroidsjs/typeorm/schema-builder/table/TableForeignKey';
-import {EntityMetadata} from '@steroidsjs/typeorm/metadata/EntityMetadata';
-import {View} from '@steroidsjs/typeorm/schema-builder/view/View';
-import {RdbmsSchemaBuilder} from '@steroidsjs/typeorm/schema-builder/RdbmsSchemaBuilder';
+import {RdbmsSchemaBuilder} from 'typeorm/schema-builder/RdbmsSchemaBuilder';
+import {EntityMetadata, Table, TableForeignKey, View} from 'typeorm';
 import {CustomPostgresQueryRunner, TableSqlInMemory} from './CustomPostgresQueryRunner';
 
 export class CustomRdbmsSchemaBuilder extends RdbmsSchemaBuilder {
 
     async log(): Promise<TableSqlInMemory> {
         // Create query runner
-        const queryRunner = new CustomPostgresQueryRunner(this.connection.driver as any, 'master');
-        queryRunner.manager = this.connection.createEntityManager(queryRunner);
+        const queryRunner = new CustomPostgresQueryRunner(this.dataSource.driver as any, 'master');
+        queryRunner.manager = this.dataSource.createEntityManager(queryRunner);
         this.queryRunner = queryRunner;
 
         try {
@@ -23,8 +20,8 @@ export class CustomRdbmsSchemaBuilder extends RdbmsSchemaBuilder {
             await this.executeSchemaSyncOperationsInProperOrder();
 
             // if cache is enabled then perform cache-synchronization as well
-            if (this.connection.queryResultCache) // todo: check this functionality
-                await this.connection.queryResultCache.synchronize(this.queryRunner);
+            if (this.dataSource.queryResultCache) // todo: check this functionality
+                await this.dataSource.queryResultCache.synchronize(this.queryRunner);
 
             return this.queryRunner.getMemorySql() as TableSqlInMemory;
 
@@ -38,12 +35,12 @@ export class CustomRdbmsSchemaBuilder extends RdbmsSchemaBuilder {
     }
 
     private getTablePathCustom(target: EntityMetadata | Table | View | TableForeignKey | string): string {
-        const parsed = this.connection.driver.parseTableName(target);
+        const parsed = this.dataSource.driver.parseTableName(target);
 
-        return this.connection.driver.buildTableName(
+        return this.dataSource.driver.buildTableName(
             parsed.tableName,
-            parsed.schema || this.connection.driver.schema,
-            parsed.database || this.connection.driver.database
+            parsed.schema || this.dataSource.driver.schema,
+            parsed.database || this.dataSource.driver.database
         );
     }
 

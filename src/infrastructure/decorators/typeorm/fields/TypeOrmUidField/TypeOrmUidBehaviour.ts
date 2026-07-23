@@ -1,5 +1,5 @@
-import {getMetadataArgsStorage} from '@steroidsjs/typeorm';
-import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
+import {getMetadataArgsStorage} from 'typeorm';
+import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {v4 as uuidv4} from 'uuid';
 
 export const generateUid = (): string => uuidv4();

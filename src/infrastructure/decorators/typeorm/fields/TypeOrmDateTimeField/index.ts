@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IDateTimeFieldColumnOptions} from '../../../fields/DateTimeField';
 
 export default (options: IDateTimeFieldColumnOptions) => [

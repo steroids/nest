@@ -1,4 +1,4 @@
-import {JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne} from '@steroidsjs/typeorm';
+import {JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne} from 'typeorm';
 import {IRelationFieldManyToManyOptions, IRelationFieldOneToOneOptions} from '../../../fields/RelationField';
 
 export const getRelationDecorator = (relation): any => {

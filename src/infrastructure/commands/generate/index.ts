@@ -1,10 +1,10 @@
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {join, resolve} from 'path';
 import * as fs from 'fs';
-import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
-import {Connection} from '@steroidsjs/typeorm';
+import {CommandUtils} from 'typeorm/commands/CommandUtils';
+import {DataSource} from 'typeorm';
 import {format} from '@sqltools/formatter';
-import * as glob from 'glob';
+import {glob} from 'glob';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 
@@ -29,7 +29,7 @@ export const prettifyQuery = (query: string) => {
 export const getTemplate = (name: string, timestamp: number, upSqls: string[], downSqls: string[]): string => {
     const migrationName = `${name}${timestamp}`;
 
-    return `import {MigrationInterface, QueryRunner} from '@steroidsjs/typeorm';
+    return `import {MigrationInterface, QueryRunner} from 'typeorm';
 
 export class ${migrationName} implements MigrationInterface {
     name = '${migrationName}'
@@ -47,8 +47,8 @@ ${downSqls.join(`
 `;
 };
 
-export const generate = async (connection: Connection) => {
-    const hasPendingMigrations = await connection.showMigrations();
+export const generate = async (dataSource: DataSource) => {
+    const hasPendingMigrations = await dataSource.showMigrations();
 
     if (hasPendingMigrations) {
         console.error('[ERROR!] Unapplied migrations detected. Database schema is out of sync.');
@@ -58,7 +58,7 @@ export const generate = async (connection: Connection) => {
     // Get mapping model name to table name
     const junctionTablesMap = {};
 
-    const classesToTablesMap = connection.entityMetadatas.reduce((obj, entityMeta) => {
+    const classesToTablesMap = dataSource.entityMetadatas.reduce((obj, entityMeta) => {
         obj[entityMeta.targetName] = entityMeta.tableName;
 
         entityMeta.manyToManyRelations.forEach(manyToManyRelation => {
@@ -79,16 +79,8 @@ export const generate = async (connection: Connection) => {
     for (const moduleName of moduleDirs) {
         if (fs.statSync(join(sourceRoot, moduleName)).isDirectory()) {
             const moduleDir = join(sourceRoot, moduleName);
-            const tableFilesPaths = await Promise.resolve(new Promise((resolve, reject) => {
-                glob(moduleDir + '/**/tables/*Table{.ts,.js}', (err, matches) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(matches);
-                    }
-                });
-            }));
-            for (const tableFilePath of (tableFilesPaths as any)) {
+            const tableFilesPaths = await glob(moduleDir + '/**/tables/*Table{.ts,.js}');
+            for (const tableFilePath of tableFilesPaths) {
                 const tableClassName = tableFilePath.split('/').at(-1).replace(/\.ts$/, '');
                 const tableName = classesToTablesMap[tableClassName];
                 tablesInfo[tableName] = {
@@ -110,7 +102,7 @@ export const generate = async (connection: Connection) => {
 
     // Generate migrations, separated by table names
     const migrationsByTables: Record<string, {upQueries: string[], downQueries: string[]}> = {};
-    const sqlInMemory = await (new CustomRdbmsSchemaBuilder(connection)).log();
+    const sqlInMemory = await (new CustomRdbmsSchemaBuilder(dataSource)).log();
 
     for (const item of sqlInMemory.upTableQueries) {
         const tableName = junctionTablesMap[item.tableName] || item.tableName;

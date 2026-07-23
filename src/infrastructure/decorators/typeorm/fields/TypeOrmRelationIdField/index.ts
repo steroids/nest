@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IRelationIdFieldOptions} from '../../../fields/RelationIdField';
 
 export default (options: IRelationIdFieldOptions) => [
