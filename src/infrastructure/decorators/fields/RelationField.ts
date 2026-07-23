@@ -1,19 +1,28 @@
 import {applyDecorators} from '@nestjs/common';
 import {ValidateIf, ValidateNested} from 'class-validator';
 import {Type} from 'class-transformer';
-import {BaseField, getFieldOptions, getMetaFields, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
+import {
+    BaseField,
+    getFieldAppType,
+    getFieldOptions,
+    getMetaFields,
+    getMetaPrimaryKey,
+    IBaseFieldOptions,
+} from './BaseField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {DataMapper} from '../../../usecases/helpers/DataMapper';
 import {getTableFromModel} from '../../base/ModelTableStorage';
 
-export interface IRelationFieldOneToOneOptions extends IBaseFieldOptions {
+type IRelationBaseFieldOptions = Omit<IBaseFieldOptions, 'isArray'>;
+
+export interface IRelationFieldOneToOneOptions extends IRelationBaseFieldOptions {
     type: 'OneToOne',
     isOwningSide: boolean,
     relationClass: () => any,
     inverseSide?: string | ((object: any) => any),
 }
 
-export interface IRelationFieldManyToManyOptions extends IBaseFieldOptions {
+export interface IRelationFieldManyToManyOptions extends IRelationBaseFieldOptions {
     type: 'ManyToMany',
     isOwningSide: boolean,
     relationClass: () => any,
@@ -21,12 +30,12 @@ export interface IRelationFieldManyToManyOptions extends IBaseFieldOptions {
     tableName?: string,
 }
 
-export interface IRelationFieldManyToOneOptions extends IBaseFieldOptions {
+export interface IRelationFieldManyToOneOptions extends IRelationBaseFieldOptions {
     type: 'ManyToOne',
     relationClass: () => any,
 }
 
-export interface IRelationFieldOneToManyOptions extends IBaseFieldOptions {
+export interface IRelationFieldOneToManyOptions extends IRelationBaseFieldOptions {
     type: 'OneToMany',
     relationClass: () => any,
     inverseSide: string | ((object: any) => any),
@@ -41,7 +50,7 @@ export const getMetaRelationIdFieldKey = (relationClass, relationName): string =
     return getMetaFields(relationClass)
         .find(idName => {
             const idOptions = getFieldOptions(relationClass, idName);
-            return idOptions.appType === 'relationId' && idOptions.relationName === relationName;
+            return getFieldAppType(relationClass, idName) === 'relationId' && idOptions.relationName === relationName;
         });
 }
 
@@ -88,7 +97,7 @@ export const relationTransformToDb = ({value, item, key, options, transformType}
 
     const relationIdName = getMetaFields(item.constructor).find(name => {
         const relationOptions = getFieldOptions(item.constructor, name);
-        return relationOptions.appType === 'relationId' && relationOptions.relationName === key;
+        return getFieldAppType(item.constructor, name) === 'relationId' && relationOptions.relationName === key;
     });
 
     if (relationIdName && item[relationIdName]) {
@@ -107,18 +116,19 @@ export const relationTransform = ({value, options, transformType}) => {
 };
 
 export function RelationField(options: IRelationFieldOptions) {
-    if (!options.transform) {
-        options.transform = relationTransform;
-    }
+    const isArray = ['ManyToMany', 'OneToMany'].includes(options.type);
+    const fieldOptions = {
+        ...options,
+        transform: options.transform || relationTransform,
+        isArray,
+    };
 
     return applyDecorators(
         ...[
-            BaseField(options, {
+            BaseField(fieldOptions, {
                 decoratorName: 'RelationField',
                 appType: 'relation',
-                jsType: 'number',
                 swaggerType: options.relationClass(),
-                isArray: ['ManyToMany', 'OneToMany'].includes(options.type),
             }),
             //options.type === 'ManyToOne' && JoinColumn(),
             ValidateIf((object, value) => !!value),

@@ -1,11 +1,24 @@
 import {trim as _trim} from 'lodash';
+import {createHash} from 'crypto';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
 import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
+import {wrapInDoubleQuotes} from '../utils/wrapInDoubleQuotes';
 
+/**
+ * Order keys can be:
+ * - a field name, for example `name`
+ * - a root alias field path, for example `model.name`
+ * - a relation field path, for example `author.name` or `author.profile.name`
+ * - an already resolved relation alias path, for example `model_author.name`
+ *
+ * Field path parts can already be wrapped in double quotes.
+ */
 export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
 
 export const DEFAULT_ALIAS = 'model';
+
+const ALIAS_HASH_LENGTH = 16;
 
 export interface ISearchQueryConfig<TModel> {
     useShortAliases?: boolean,
@@ -71,24 +84,14 @@ export default class SearchQuery<TModel> {
 
         if (!isShort) {
             return relationsArray.join('_');
-        } else {
-            // first letter + the uppercase letters + relation index in path + relation length
-            // model.firstRelation.secondRelation -> m0_fr113_sr214
-            return relationsArray.map((relation, index) => {
-                // root alias shouldn't change
-                if (index === 0) {
-                    return relation;
-                }
-
-                return relation[0]
-                    + relation.split('')
-                        .filter(letter => /\w/.test(letter) && letter === letter.toUpperCase())
-                        .map(letter => letter.toLowerCase())
-                        .join('')
-                    + String(index)
-                    + relation.length;
-            }).join('_');
         }
+
+        return relationsArray.length === 1
+            ? relationsArray[0]
+            : createHash('sha256')
+                .update(relationPath)
+                .digest('hex')
+                .slice(0, ALIAS_HASH_LENGTH);
     }
 
     select(value: string | string[]) {
@@ -272,15 +275,53 @@ export default class SearchQuery<TModel> {
         return this._condition;
     }
 
+    private resolveOrderByFieldPath(fieldPath: string): string {
+        const pathToField = fieldPath.split('.');
+        const field = pathToField.pop();
+
+        if (pathToField[0] && wrapInDoubleQuotes(pathToField[0]) === wrapInDoubleQuotes(this._alias)) {
+            pathToField.shift();
+        }
+
+        if (!pathToField.length) {
+            if (field.split('_')[0] === this._alias) {
+                return wrapInDoubleQuotes(field);
+            }
+            return `${wrapInDoubleQuotes(this._alias)}.${wrapInDoubleQuotes(field)}`;
+        }
+
+        if (pathToField.length === 1 && pathToField[0].split('_')[0] === this._alias) {
+            return `${wrapInDoubleQuotes(pathToField[0])}.${wrapInDoubleQuotes(field)}`;
+        }
+
+        return `${wrapInDoubleQuotes(this.getRelationAlias(pathToField.join('.')))}.${wrapInDoubleQuotes(field)}`;
+    }
+
+    private resolveOrderByFieldPaths(
+        orderValue: string | ISearchQueryOrder,
+        direction: 'asc' | 'desc',
+    ): ISearchQueryOrder {
+        if (typeof orderValue === 'string') {
+            return {
+                [this.resolveOrderByFieldPath(orderValue)]: direction,
+            };
+        }
+
+        return Object.entries(orderValue).reduce((acc, [key, value]) => ({
+            ...acc,
+            [this.resolveOrderByFieldPath(key)]: value,
+        }), {});
+    }
+
     orderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
-        this._orders = typeof value === 'string' ? {[value]: direction} : value;
+        this._orders = this.resolveOrderByFieldPaths(value, direction);
         return this;
     }
 
     addOrderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
         this._orders = {
             ...this._orders,
-            ...(typeof value === 'string' ? {[value]: direction} : value),
+            ...this.resolveOrderByFieldPaths(value, direction),
         };
         return this;
     }

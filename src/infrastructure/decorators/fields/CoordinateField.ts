@@ -13,7 +13,7 @@ export function CoordinateField(options: ICoordinateFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'CoordinateField',
                 appType: 'decimal',
-                jsType: 'number',
+                swaggerType: 'number',
             }),
             options.nullable && ValidateIf((object, value) => value !== null),
             IsString(),

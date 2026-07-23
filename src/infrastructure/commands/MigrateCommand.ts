@@ -2,15 +2,15 @@ import {Command, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
 import {dbml2code} from './dbml/dbml2code';
 import {generate} from './generate';
-import {DataSource, getFromContainer, MigrationInterface} from '@steroidsjs/typeorm';
-import {ConnectionMetadataBuilder} from '@steroidsjs/typeorm/connection/ConnectionMetadataBuilder';
-import {OrmUtils} from '@steroidsjs/typeorm/util/OrmUtils';
+import {DataSource, MigrationInterface} from 'typeorm';
 import {importClassesFromDirectories} from './importClassesFromDirectories';
+import {OrmUtils} from 'typeorm/util/OrmUtils';
+import {ConnectionMetadataBuilder} from 'typeorm/connection/ConnectionMetadataBuilder';
 
 ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
     const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
-    const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.connection.logger, migrationDirectories))];
-    return allMigrationClasses.map(migrationClass => getFromContainer<MigrationInterface>(migrationClass));
+    const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.dataSource.logger, migrationDirectories))];
+    return allMigrationClasses.map(migrationClass => new (migrationClass as new () => MigrationInterface)());
 }
 
 @Injectable()
@@ -83,5 +83,4 @@ export class MigrateCommand {
     async generate() {
         await generate(this.dataSource);
     }
-
 }

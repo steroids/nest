@@ -3,9 +3,8 @@ import {
     ArrayContainedBy,
     ArrayContains, ArrayOverlap,
     Between, Brackets, ILike, In,
-    IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder
-} from '@steroidsjs/typeorm';
-import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+    IsNull, LessThan, LessThanOrEqual, Like, MoreThan, MoreThanOrEqual, Not, QueryBuilder, SelectQueryBuilder
+} from 'typeorm';
 import {QueryAdapterTypeORM} from '../../adapters/QueryAdapterTypeORM';
 import SearchQuery from '../../../usecases/base/SearchQuery';
 import {getMetaPrimaryKey} from '../../decorators/fields/BaseField';
@@ -159,7 +158,7 @@ export class ConditionHelperTypeORM {
                         throw Error(`Unsupport NOT for ${operator} operator.`);
                     }
                     const primaryKey = getMetaPrimaryKey(rootClass);
-                    const subQuery = dbQuery.connection.createQueryBuilder(rootClass, 'model');
+                    const subQuery = dbQuery.dataSource.createQueryBuilder(rootClass, 'model');
                     subQuery.select(`model.${primaryKey}`);
 
                     const subSearchQuery = new SearchQuery();
@@ -172,7 +171,7 @@ export class ConditionHelperTypeORM {
                     subSearchQuery.andWhere(['not =', 'id', null]);
 
                     QueryAdapterTypeORM.prepare(
-                        dbQuery.connection.getRepository(rootClass),
+                        dbQuery.dataSource.getRepository(rootClass),
                         subQuery,
                         subSearchQuery,
                         false,

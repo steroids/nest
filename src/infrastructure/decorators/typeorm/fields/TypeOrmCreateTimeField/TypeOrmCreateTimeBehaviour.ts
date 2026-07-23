@@ -1,5 +1,5 @@
-import {getMetadataArgsStorage} from '@steroidsjs/typeorm';
-import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
+import {getMetadataArgsStorage} from 'typeorm';
+import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {normalizeDateTime} from '../../../fields/DateTimeField';
 
 export const TypeOrmCreateTimeBehaviour = (object, propertyName) => {

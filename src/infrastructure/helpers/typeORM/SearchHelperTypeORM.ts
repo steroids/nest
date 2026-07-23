@@ -1,5 +1,4 @@
-import {DeepPartial, Repository} from '@steroidsjs/typeorm';
-import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {DeepPartial, Repository, SelectQueryBuilder} from 'typeorm';
 import {SearchInputDto} from '../../../usecases/dtos/SearchInputDto';
 import {SearchResultDto} from '../../../usecases/dtos/SearchResultDto';
 import SearchQuery from '../../../usecases/base/SearchQuery';

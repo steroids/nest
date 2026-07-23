@@ -8,7 +8,7 @@ export function TimeField(options: IBaseFieldOptions = {}) {
             BaseField(options, {
                 decoratorName: 'TimeField',
                 appType: 'time',
-                jsType: 'string',
+                swaggerType: 'string',
             }),
             options?.nullable && ValidateIf((object, value) => value !== null),
             IsMilitaryTime({

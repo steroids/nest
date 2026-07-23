@@ -1,9 +1,9 @@
 import {keyBy as _keyBy} from 'lodash';
-import {Repository} from '@steroidsjs/typeorm';
-import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {Repository, SelectQueryBuilder} from 'typeorm';
 import {ConditionHelperTypeORM} from '../helpers/typeORM/ConditionHelperTypeORM';
 import {
     getFieldOptions,
+    getFieldAppType,
     getMetaFields,
     getMetaPrimaryKey,
 } from '../decorators/fields/BaseField';
@@ -258,8 +258,9 @@ export class QueryAdapterTypeORM {
                 const relationName = path.split('.').slice(-1).join('.');
 
                 const options = getFieldOptions(classesMap[parentPath], relationName);
+                const appType = getFieldAppType(classesMap[parentPath], relationName);
                 if (options) {
-                    if (options.appType === 'relation') {
+                    if (appType === 'relation') {
                         classesMap[path] = options.relationClass();
                     }
 

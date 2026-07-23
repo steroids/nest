@@ -20,8 +20,12 @@ export interface IRestAppModuleConfig extends IAppModuleConfig {
         allowHeaders?: string[],
     },
     /**
-     * Flag indicating whether safe application termination is enabled
-     * Enables .enableShutdownHooks() for NestJS app
+     * Is listen on localhost only?
+     * (value from `process.env.APP_LISTEN_LOCALHOST`)
      */
-    gracefulEnabled?: boolean,
+    isListenLocalhost?: boolean,
+    /**
+     * Secret for signing cookies
+     */
+    cookieSecret?: string,
 }

@@ -1,12 +1,11 @@
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {join, resolve} from 'path';
-import * as lodash from 'lodash';
 import * as fs from 'fs';
-import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
-import {Connection} from '@steroidsjs/typeorm';
+import {CommandUtils} from 'typeorm/commands/CommandUtils';
+import {DataSource} from 'typeorm';
 import {format} from '@sqltools/formatter';
+import {glob} from 'glob';
 import {CustomRdbmsSchemaBuilder} from './CustomRdbmsSchemaBuilder';
-import * as glob from "glob";
 import {ModuleHelper} from '../../helpers/ModuleHelper';
 
 const queryParams = (parameters: any[] | undefined): string => {
@@ -15,22 +14,22 @@ const queryParams = (parameters: any[] | undefined): string => {
     }
 
     return `, ${JSON.stringify(parameters)}`;
-}
+};
 
-const prettifyQuery = (query: string) => {
+export const prettifyQuery = (query: string) => {
     const formattedQuery = format(query, {indent: '    '});
     query = '\n' + formattedQuery.replace(/^/gm, '            ') + '\n        ';
     query = query.replace(/`/g, '\\`');
     return query;
-}
+};
 
 /**
  * Gets contents of the migration file.
  */
-const getTemplate = (name: string, timestamp: number, upSqls: string[], downSqls: string[]): string => {
+export const getTemplate = (name: string, timestamp: number, upSqls: string[], downSqls: string[]): string => {
     const migrationName = `${name}${timestamp}`;
 
-    return `import {MigrationInterface, QueryRunner} from '@steroidsjs/typeorm';
+    return `import {MigrationInterface, QueryRunner} from 'typeorm';
 
 export class ${migrationName} implements MigrationInterface {
     name = '${migrationName}'
@@ -46,13 +45,20 @@ ${downSqls.join(`
     }
 }
 `;
-}
+};
 
-export const generate = async (connection: Connection) => {
+export const generate = async (dataSource: DataSource) => {
+    const hasPendingMigrations = await dataSource.showMigrations();
+
+    if (hasPendingMigrations) {
+        console.error('[ERROR!] Unapplied migrations detected. Database schema is out of sync.');
+        return;
+    }
+
     // Get mapping model name to table name
     const junctionTablesMap = {};
 
-    const classesToTablesMap = connection.entityMetadatas.reduce((obj, entityMeta) => {
+    const classesToTablesMap = dataSource.entityMetadatas.reduce((obj, entityMeta) => {
         obj[entityMeta.targetName] = entityMeta.tableName;
 
         entityMeta.manyToManyRelations.forEach(manyToManyRelation => {
@@ -73,17 +79,8 @@ export const generate = async (connection: Connection) => {
     for (const moduleName of moduleDirs) {
         if (fs.statSync(join(sourceRoot, moduleName)).isDirectory()) {
             const moduleDir = join(sourceRoot, moduleName);
-            const tableFilesPaths = await Promise.resolve(new Promise((resolve, reject) => {
-                glob(moduleDir + '/**/tables/*Table{.ts,.js}', (err, matches) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        resolve(matches);
-                    }
-                });
-            }));
-            for (const tableFilePath of (tableFilesPaths as any)) {
+            const tableFilesPaths = await glob(moduleDir + '/**/tables/*Table{.ts,.js}');
+            for (const tableFilePath of tableFilesPaths) {
                 const tableClassName = tableFilePath.split('/').at(-1).replace(/\.ts$/, '');
                 const tableName = classesToTablesMap[tableClassName];
                 tablesInfo[tableName] = {
@@ -105,7 +102,7 @@ export const generate = async (connection: Connection) => {
 
     // Generate migrations, separated by table names
     const migrationsByTables: Record<string, {upQueries: string[], downQueries: string[]}> = {};
-    const sqlInMemory = await (new CustomRdbmsSchemaBuilder(connection)).log();
+    const sqlInMemory = await (new CustomRdbmsSchemaBuilder(dataSource)).log();
 
     for (const item of sqlInMemory.upTableQueries) {
         const tableName = junctionTablesMap[item.tableName] || item.tableName;
@@ -117,13 +114,13 @@ export const generate = async (connection: Connection) => {
             };
         }
         migrationsByTables[tableName].upQueries.push(
-            '        await queryRunner.query(`' + prettifyQuery(item.query.query) + '`' + queryParams(item.query.parameters) + ');'
+            '        await queryRunner.query(`' + prettifyQuery(item.query.query) + '`' + queryParams(item.query.parameters) + ');',
         );
     }
     for (const item of sqlInMemory.downTableQueries) {
         const tableName = junctionTablesMap[item.tableName] || item.tableName;
         migrationsByTables[tableName].downQueries.push(
-            '        await queryRunner.query(`' + prettifyQuery(item.query.query) + '`' + queryParams(item.query.parameters) + ');'
+            '        await queryRunner.query(`' + prettifyQuery(item.query.query) + '`' + queryParams(item.query.parameters) + ');',
         );
     }
 
@@ -144,10 +141,8 @@ export const generate = async (connection: Connection) => {
             const tablePath = tablesInfo[tableName].tablePath;
 
             //Создание файла миграции с созданием таблиц, если такие запросы существуют
-            const tableDeclarationUpQueries =
-                migrationsByTables[tableName].upQueries.filter(query => query.includes('CREATE TABLE'));
-            const tableDeclarationDownQueries =
-                migrationsByTables[tableName].downQueries.filter(query => query.includes('DROP TABLE')).reverse();
+            const tableDeclarationUpQueries = migrationsByTables[tableName].upQueries.filter(query => query.includes('CREATE TABLE'));
+            const tableDeclarationDownQueries = migrationsByTables[tableName].downQueries.filter(query => query.includes('DROP TABLE')).reverse();
 
             if (tableDeclarationUpQueries.length > 0 || tableDeclarationDownQueries.length > 0) {
                 const tableDeclarationFileContent = getTemplate(
@@ -167,10 +162,8 @@ export const generate = async (connection: Connection) => {
             //Создание файла миграции с добавлением в таблицу внешних ключей, если такие запросы существуют
             const nextTimestamp = timestamp + 1;
 
-            const foreignKeysUpQueries =
-                migrationsByTables[tableName].upQueries.filter(query => !query.includes('CREATE TABLE'));
-            const foreignKeysDownQueries =
-                migrationsByTables[tableName].downQueries.filter(query => !query.includes('DROP TABLE')).reverse();
+            const foreignKeysUpQueries = migrationsByTables[tableName].upQueries.filter(query => !query.includes('CREATE TABLE'));
+            const foreignKeysDownQueries = migrationsByTables[tableName].downQueries.filter(query => !query.includes('DROP TABLE')).reverse();
 
             if (foreignKeysUpQueries.length > 0 || foreignKeysDownQueries.length > 0) {
                 const foreignKeysFileContent = getTemplate(
@@ -188,4 +181,4 @@ export const generate = async (connection: Connection) => {
             }
         }
     }
-}
+};

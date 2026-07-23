@@ -1,5 +1,5 @@
-import {EventListenerTypes} from '@steroidsjs/typeorm/metadata/types/EventListenerTypes';
-import {getMetadataArgsStorage} from '@steroidsjs/typeorm';
+import {getMetadataArgsStorage} from 'typeorm';
+import {EventListenerTypes} from 'typeorm/metadata/types/EventListenerTypes';
 import {normalizeDateTime} from '../../../fields/DateTimeField';
 
 export const TypeOrmUpdateTimeBehaviour = (object, propertyName) => {
@@ -11,7 +11,7 @@ export const TypeOrmUpdateTimeBehaviour = (object, propertyName) => {
         };
     }
 
-    [EventListenerTypes.BEFORE_INSERT, EventListenerTypes.BEFORE_INSERT].forEach(type => {
+    [EventListenerTypes.BEFORE_INSERT, EventListenerTypes.BEFORE_UPDATE].forEach(type => {
         getMetadataArgsStorage().entityListeners.push({
             target: object.constructor,
             propertyName: methodName,

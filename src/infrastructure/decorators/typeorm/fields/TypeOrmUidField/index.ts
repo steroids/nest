@@ -1,10 +1,10 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {TypeOrmUidBehaviour} from './TypeOrmUidBehaviour';
 import {IBaseFieldOptions} from '../../../fields/BaseField';
 
 export default (options: IBaseFieldOptions) => [
     Column({
-        type: options.dbType || 'varchar',
+        type: 'varchar',
         length: 36,
         default: null,
         update: false,

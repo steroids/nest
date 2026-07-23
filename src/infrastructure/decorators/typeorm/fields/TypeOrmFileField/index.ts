@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IFileField} from '../../../fields/FileField';
 
 export default (options: IFileField) => [
