@@ -9,8 +9,6 @@ export default {
     config: (): IRestAppModuleConfig => ({
         ...baseConfig.config(),
         sentry: {
-            dsn: process.env.APP_SENTRY_DSN,
-            environment: process.env.APP_ENVIRONMENT,
             exposeSentryErrorResponse: normalizeBoolean(process.env.APP_ENVIRONMENT === 'dev' || process.env.SENTRY_EXPOSE_ERROR_RESPONSE),
         },
         isListenLocalhost: normalizeBoolean(process.env.APP_LISTEN_LOCALHOST),

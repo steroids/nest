@@ -42,14 +42,6 @@ export interface IAppModuleConfig {
     },
     sentry?: {
         /**
-         * DSN Sentry
-         */
-        dsn: string,
-        /**
-         * Application Environment for Sentry
-         */
-        environment: string,
-        /**
          * Show detailed error info in HTTP responses.
          */
         exposeSentryErrorResponse?: boolean
