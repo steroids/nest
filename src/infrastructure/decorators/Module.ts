@@ -4,7 +4,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {ModuleHelper} from '../helpers/ModuleHelper';
 import {PermissionsFactory} from '../helpers/PermissionsFactory';
 
-export interface IModule extends ModuleMetadata {
+export interface IModule {
     name?: string,
     rootTarget?: any,
     global?: boolean,

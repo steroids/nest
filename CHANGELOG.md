@@ -16,6 +16,7 @@
 
 - Удалены прямые runtime-зависимости от `express` и `body-parser`. Версия Express и реализация body parser теперь определяются установленной версией `@nestjs/platform-express`: Express 4 для NestJS 10 и Express 5 для NestJS 11.
 - Удалено использование закрытого импорта `@nestjs/swagger/dist/constants`, который недоступен в Swagger 11 через package exports.
+- `IModule` больше не расширяет `ModuleMetadata`; метаданные NestJS следует возвращать через callback `module`.
 
 ## [5.0.3](https://github.com/steroids/nest/compare/5.0.2...5.0.3) (2026-07-30)
 
