@@ -1,5 +1,31 @@
 # Steroids Nest Migration Guide
 
+## Unreleased
+
+### Инициализация Sentry
+
+Инициализация Sentry больше не выполняется в `BaseApplication`. 
+Создайте отдельный bootstrap-файл в приложении и импортируйте его первой 
+строкой каждого исполняемого файла, например `main.ts` и `cli.ts`.
+
+```ts
+// src/base/infrastructure/sentry/initSentry.ts
+import * as dotenv from 'dotenv';
+import * as Sentry from '@sentry/nestjs';
+
+if (!process.env.APP_ENVIRONMENT) {
+    dotenv.config({quiet: true});
+}
+
+if (!Sentry.isInitialized()) {
+    const {APP_SENTRY_DSN: dsn, APP_ENVIRONMENT: environment} = process.env;
+
+    if (dsn) {
+        Sentry.init({dsn, environment});
+    }
+}
+```
+
 ## [5.0.0](../CHANGELOG.md#500-2026-07-23) (2026-07-23)
 
 ### Переход с форков TypeORM на оригинальные пакеты

@@ -1,5 +1,6 @@
 import {TypeOrmModule, TypeOrmModuleOptions} from '@nestjs/typeorm';
 import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSourceOptions';
+import * as Sentry from '@sentry/nestjs';
 import {SentryModule} from '@sentry/nestjs/setup';
 import {EventEmitterModule} from '@nestjs/event-emitter';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
@@ -33,7 +34,7 @@ export default {
                 ...config.database,
                 entities: ModuleHelper.getEntities(),
             } as TypeOrmModuleOptions),
-            config.sentry && SentryModule.forRoot(),
+            Sentry.isInitialized() && SentryModule.forRoot(),
             EventEmitterModule.forRoot(),
         ].filter(Boolean),
     }),
