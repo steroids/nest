@@ -70,7 +70,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('"model"."createdTime"');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                'model.createdTime': 'asc',
+                'model."createdTime"': 'asc',
             });
         });
 
@@ -78,7 +78,7 @@ describe('SearchQuery', () => {
             searchQuery.orderBy('model."updatedTime"');
 
             expect(searchQuery.getOrderBy()).toEqual({
-                'model.updatedTime': 'asc',
+                'model."updatedTime"': 'asc',
             });
         });
 

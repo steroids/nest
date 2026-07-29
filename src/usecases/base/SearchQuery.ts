@@ -287,7 +287,7 @@ export default class SearchQuery<TModel> {
 
     private resolveOrderByFieldPath(fieldPath: string): string {
         const pathToField = fieldPath.split('.');
-        const field = _trim(pathToField.pop(), '"');
+        const field = pathToField.pop();
 
         if (pathToField[0] && wrapInDoubleQuotes(pathToField[0]) === wrapInDoubleQuotes(this._alias)) {
             pathToField.shift();
