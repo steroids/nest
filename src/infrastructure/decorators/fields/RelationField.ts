@@ -128,7 +128,9 @@ export function RelationField(options: IRelationFieldOptions) {
             BaseField(fieldOptions, {
                 decoratorName: 'RelationField',
                 appType: 'relation',
-                swaggerType: options.relationClass(),
+                swaggerType: function type() {
+                    return options.relationClass();
+                },
             }),
             //options.type === 'ManyToOne' && JoinColumn(),
             ValidateIf((object, value) => !!value),
