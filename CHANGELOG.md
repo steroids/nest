@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [5.0.3](https://github.com/steroids/nest/compare/5.0.2...5.0.3) (2026-07-30)
+
+### Fixed
+
+- `migrate:generate` теперь создаёт миграции для entity из npm-пакетов в локальном модуле проекта, зарегистрированном через `ModuleHelper`, а не внутри соответствующей зависимости в `node_modules`.
+
 ## [5.0.2](https://github.com/steroids/nest/compare/5.0.1...5.0.2) (2026-07-30)
 
 ### Fixed
