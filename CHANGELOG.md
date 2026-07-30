@@ -1,5 +1,11 @@
 # Steroids Nest Changelog
 
+## [5.0.2](https://github.com/steroids/nest/compare/5.0.1...5.0.2) (2026-07-30)
+
+### Fixed
+
+- `RelationField` теперь передаёт тип связи в Swagger через lazy resolver, предотвращая ошибку `A circular dependency has been detected` для двунаправленных связей.
+
 ## [5.0.1](https://github.com/steroids/nest/compare/5.0.0...5.0.1) (2026-07-23)
 
 ### Changed
