@@ -1,5 +1,7 @@
 import {describe, expect, it, jest} from '@jest/globals';
 import {join} from 'path';
+import * as nestCliConfiguration from '@nestjs/cli/lib/utils/load-configuration';
+import {ModuleHelper} from '../../helpers/ModuleHelper';
 import {resolveSchemaObjectFiles} from './EntityFileResolver';
 
 export class EntityWithCustomFileName {
@@ -49,5 +51,52 @@ describe('EntityFileResolver', () => {
         }
 
         expect(getter).not.toHaveBeenCalled();
+    });
+
+    it('uses the local module for an entity exported by an npm package', async () => {
+        const cacheKey = join(
+            process.cwd(),
+            'node_modules',
+            '@example',
+            'package',
+            `${EntityWithCustomFileName.name}.js`,
+        );
+        const loadConfigurationSpy = jest
+            .spyOn(nestCliConfiguration, 'loadConfiguration')
+            .mockResolvedValue({sourceRoot: 'src'} as any);
+        const getEntitiesSpy = jest
+            .spyOn(ModuleHelper, 'getEntities')
+            .mockImplementation((moduleName: string) => moduleName === 'infrastructure'
+                ? [EntityWithCustomFileName]
+                : []);
+
+        try {
+            const files = await resolveSchemaObjectFiles({
+                entityMetadatas: [{
+                    target: EntityWithCustomFileName,
+                    targetName: EntityWithCustomFileName.name,
+                    tableName: 'packaged_entities',
+                }],
+            } as any, {
+                moduleCache: [[cacheKey, {
+                    exports: {[EntityWithCustomFileName.name]: EntityWithCustomFileName},
+                }]],
+            });
+
+            expect(files.packaged_entities).toEqual({
+                className: EntityWithCustomFileName.name,
+                sourcePath: join(
+                    process.cwd(),
+                    'src',
+                    'infrastructure',
+                    'infrastructure',
+                    'tables',
+                    `${EntityWithCustomFileName.name}.ts`,
+                ),
+            });
+        } finally {
+            loadConfigurationSpy.mockRestore();
+            getEntitiesSpy.mockRestore();
+        }
     });
 });

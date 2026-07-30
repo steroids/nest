@@ -1,6 +1,6 @@
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
 import {readdir} from 'fs/promises';
-import {basename, extname, join} from 'path';
+import {basename, extname, join, normalize, sep} from 'path';
 import {glob} from 'glob';
 import {DataSource} from 'typeorm';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
@@ -15,6 +15,24 @@ export type SchemaObjectFile = {
 export type SchemaObjectFiles = Record<string, SchemaObjectFile>;
 
 type ModuleCacheEntry = [string, {exports: unknown} | undefined];
+
+/** Подменяемые данные resolver для изолированной проверки поиска загруженных entity. */
+export type EntityFileResolverOptions = {
+    moduleCache?: ModuleCacheEntry[];
+};
+
+/** Проверяет, что найденный файл принадлежит установленной зависимости. */
+const isDependencyFilePath = (sourcePath: string): boolean => normalize(sourcePath)
+    .split(sep)
+    .includes('node_modules');
+
+/**
+ * Локальная регистрация entity имеет приоритет над её физическим файлом в npm-пакете.
+ */
+const shouldUseLocalFile = (
+    files: SchemaObjectFiles,
+    tableName: string,
+): boolean => !files[tableName] || isDependencyFilePath(files[tableName].sourcePath);
 
 /**
  * Проверяет прямые экспорты модуля, не вызывая getters вроде yargs.argv.
@@ -47,9 +65,11 @@ const findEntityFilePath = (
         || candidates[0];
 };
 
-const resolveFromModuleCache = (dataSource: DataSource): SchemaObjectFiles => {
+const resolveFromModuleCache = (
+    dataSource: DataSource,
+    moduleCache: ModuleCacheEntry[] = Object.entries(require.cache),
+): SchemaObjectFiles => {
     const files: SchemaObjectFiles = {};
-    const moduleCache = Object.entries(require.cache);
 
     for (const metadata of dataSource.entityMetadatas) {
         if (typeof metadata.target === 'function') {
@@ -88,7 +108,7 @@ const resolveFromSteroidsLayout = async (
             for (const sourcePath of tablePaths) {
                 const className = basename(sourcePath).replace(/\.(?:ts|js)$/, '');
                 const tableName = tableNameByClass[className];
-                if (tableName && !files[tableName]) {
+                if (tableName && shouldUseLocalFile(files, tableName)) {
                     files[tableName] = {className, sourcePath};
                 }
             }
@@ -96,7 +116,7 @@ const resolveFromSteroidsLayout = async (
             for (const entity of ModuleHelper.getEntities(moduleName)) {
                 const className = entity.name;
                 const tableName = tableNameByClass[className];
-                if (tableName && !files[tableName]) {
+                if (tableName && shouldUseLocalFile(files, tableName)) {
                     files[tableName] = {
                         className,
                         sourcePath: join(
@@ -116,12 +136,18 @@ const resolveFromSteroidsLayout = async (
 /**
  * Сопоставляет имена объектов схемы с исходными файлами их entity-классов.
  */
-export const resolveSchemaObjectFiles = async (dataSource: DataSource): Promise<SchemaObjectFiles> => {
-    const files = resolveFromModuleCache(dataSource);
-    const hasUnresolvedEntities = dataSource.entityMetadatas.some(metadata => !files[metadata.tableName]);
+export const resolveSchemaObjectFiles = async (
+    dataSource: DataSource,
+    options: EntityFileResolverOptions = {},
+): Promise<SchemaObjectFiles> => {
+    const files = resolveFromModuleCache(dataSource, options.moduleCache);
+    const hasNonLocalEntities = dataSource.entityMetadatas.some(metadata => {
+        const objectFile = files[metadata.tableName];
+        return !objectFile || isDependencyFilePath(objectFile.sourcePath);
+    });
 
-    if (hasUnresolvedEntities) {
-        // Файловый обход нужен только когда require.cache не дал полный результат.
+    if (hasNonLocalEntities) {
+        // Обход также определяет локальный модуль для entity, экспортированных npm-пакетами.
         await resolveFromSteroidsLayout(dataSource, files);
     }
 
