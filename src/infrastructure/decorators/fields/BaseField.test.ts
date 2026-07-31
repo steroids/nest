@@ -47,7 +47,8 @@ class ArrayOptionsDto {
     @RelationIdField({
         isArray: true,
         nullable: false,
-        arrayNotEmpty: true,
+        arrayMinLength: 1,
+        arrayMaxLength: 2,
     })
     requiredRelationIds?: number[];
 }
@@ -150,6 +151,12 @@ describe('BaseField decorator', () => {
         expect((await getValidationErrors(DataMapper.create(ArrayOptionsDto, {
             requiredRelationIds: [1],
         }))) || {}).not.toHaveProperty('requiredRelationIds');
+        expect((await getValidationErrors(DataMapper.create(ArrayOptionsDto, {
+            requiredRelationIds: [1, 2],
+        }))) || {}).not.toHaveProperty('requiredRelationIds');
+        expect(await getValidationErrors(DataMapper.create(ArrayOptionsDto, {
+            requiredRelationIds: [1, 2, 3],
+        }))).toHaveProperty('requiredRelationIds');
     });
 
     it('applies base options to relation fields', async () => {

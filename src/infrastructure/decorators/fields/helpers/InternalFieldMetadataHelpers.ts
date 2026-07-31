@@ -1,4 +1,4 @@
-import {ArrayNotEmpty, IsArray, IsDefined, IsOptional, isString, NotEquals, ValidateIf} from 'class-validator';
+import {ArrayMaxSize, ArrayMinSize, IsArray, IsDefined, IsOptional, isString, NotEquals, ValidateIf} from 'class-validator';
 import type {ApiPropertyOptions} from '@nestjs/swagger';
 import type {IAllFieldOptions} from '../index';
 import type {IBaseFieldOptions} from '../BaseField';
@@ -158,7 +158,10 @@ export const getArrayValidators = (options: IBaseFieldOptions) => [
     options.isArray && IsArray({
         message: options.isArrayConstraintMessage || 'Значение должно быть массивом',
     }),
-    options.arrayNotEmpty && ArrayNotEmpty({
-        message: options.arrayNotEmptyConstraintMessage || 'Значение должно быть непустым массивом',
+    typeof options.arrayMinLength === 'number' && ArrayMinSize(options.arrayMinLength, {
+        message: options.arrayMinLengthConstraintMessage || `Массив должен содержать не менее ${options.arrayMinLength} элементов`,
+    }),
+    typeof options.arrayMaxLength === 'number' && ArrayMaxSize(options.arrayMaxLength, {
+        message: options.arrayMaxLengthConstraintMessage || `Массив должен содержать не более ${options.arrayMaxLength} элементов`,
     }),
 ].filter(Boolean);

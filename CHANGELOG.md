@@ -11,7 +11,7 @@
 - `FileField` и `ImageField` теперь используют общую опцию `isArray` вместо отдельной опции `multiple`.
 
 ### Features
-- В Field options добавлены `isArrayConstraintMessage`, `arrayNotEmpty` и `arrayNotEmptyConstraintMessage` для настройки общей валидации массивов.
+- В Field options добавлены `isArrayConstraintMessage`, `arrayMinLength`, `arrayMaxLength`, `arrayMinLengthConstraintMessage` и `arrayMaxLengthConstraintMessage` для настройки общей валидации массивов.
 
 ### Removed
 - Удалена опция `multiple` из `FileField` и `ImageField`.

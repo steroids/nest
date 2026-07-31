@@ -21,14 +21,15 @@
 Теперь для всех полей `isArray: true` включает проверку, что значение является массивом.
 Сообщение ошибки для этой проверки задается через `isArrayConstraintMessage`.
 
-Если массив не должен быть пустым, укажите `arrayNotEmpty: true`.
-Сообщение ошибки для этой проверки задается через `arrayNotEmptyConstraintMessage`.
+Для ограничения количества элементов массива используйте `arrayMinLength` и `arrayMaxLength`.
+Например, `arrayMinLength: 1` запрещает пустой массив.
+Сообщения ошибок для этих проверок задаются через `arrayMinLengthConstraintMessage` и `arrayMaxLengthConstraintMessage`.
 
 Что нужно проверить в проекте:
 - Поля, которые должны принимать `null`: добавить `nullable: true`, если эта опция не была указана явно.
 - Обязательные поля: добавить `required: true`, если поле должно быть обязательным в валидации и OpenAPI.
-- Массивы, которые не должны быть пустыми: добавить `arrayNotEmpty: true`.
-- `IntegerField` с `isArray: true` и `RelationIdField`, где `nullable: true` раньше допускал пустой массив `[]`: проверить, нужно ли теперь явно разрешать пустой массив или запретить его через `arrayNotEmpty: true`.
+- Массивы, которые не должны быть пустыми: добавить `arrayMinLength: 1`.
+- `IntegerField` с `isArray: true` и `RelationIdField`, где `nullable: true` раньше допускал пустой массив `[]`: проверить, нужно ли теперь явно разрешать пустой массив или запретить его через `arrayMinLength: 1`.
 - `FileField` и `ImageField`: заменить `multiple: true` на `isArray: true`.
 
 ## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)

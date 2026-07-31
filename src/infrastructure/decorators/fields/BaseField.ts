@@ -41,13 +41,21 @@ export interface IBaseFieldOptions {
      */
     isArrayConstraintMessage?: string,
     /**
-     * Flag indicating whether an array field must not be empty
+     * Minimum array length
      */
-    arrayNotEmpty?: boolean,
+    arrayMinLength?: number,
     /**
-     * Custom constraint message for `arrayNotEmpty`
+     * Custom constraint message for `arrayMinLength`
      */
-    arrayNotEmptyConstraintMessage?: string,
+    arrayMinLengthConstraintMessage?: string,
+    /**
+     * Maximum array length
+     */
+    arrayMaxLength?: number,
+    /**
+     * Custom constraint message for `arrayMaxLength`
+     */
+    arrayMaxLengthConstraintMessage?: string,
     /**
      * Minimum value
      */
