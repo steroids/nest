@@ -1,8 +1,11 @@
 {
     "extends": [
-        "@steroidsjs/eslint-config"
+        "@steroidsjs/eslint-config/backend"
     ],
     "parser": "@typescript-eslint/parser",
+    "rules": {
+        "prettier/prettier": "off"
+    },
     "env": {
         "node": true
     }
