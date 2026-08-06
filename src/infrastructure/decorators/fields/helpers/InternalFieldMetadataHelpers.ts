@@ -1,7 +1,8 @@
 import {isString} from 'class-validator';
-import type {ApiPropertyOptions} from '@nestjs/swagger';
+import type {Type} from '@nestjs/common';
 import type {IAllFieldOptions} from '../index';
 import type {IBaseFieldOptions} from '../BaseField';
+import {ApiPropertyOptions} from '@nestjs/swagger';
 
 export const STEROIDS_META_FIELD_OPTIONS = 'steroids_meta_field_options';
 export const STEROIDS_META_FIELD_INTERNAL_OPTIONS = 'steroids_meta_field_internal_options';
@@ -16,9 +17,11 @@ export interface IRelationData {
     relationClass: () => any,
 }
 
+export type ISwaggerFieldType = Type<unknown> | Function | [Function] | 'array' | 'string' | 'number' | 'boolean' | 'integer' | 'null';
+
 export interface IFieldInternalOptions {
     appType?: AppColumnType,
-    swaggerType?: ApiPropertyOptions['type'],
+    swaggerType?: ISwaggerFieldType,
     decoratorName?: string,
 }
 

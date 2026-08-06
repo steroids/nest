@@ -57,7 +57,7 @@
     "@nestjs/core": "^10.4.19",
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^10.4.19",
-    "@nestjs/swagger": "^6.1.4",
+    "@nestjs/swagger": "^8.1.1",
     "@nestjs/typeorm": "^11.0.3",
     "@steroidsjs/eslint-config": "2.1.2",
     "@types/cookie-parser": "^1.4.10",
