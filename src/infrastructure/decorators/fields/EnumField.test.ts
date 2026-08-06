@@ -1,7 +1,9 @@
 import {describe, it, expect} from '@jest/globals';
-import {EnumField} from './EnumField';
-import {getFieldAppType, getFieldOptions} from './BaseField';
+import {DECORATORS} from "@nestjs/swagger/dist/constants";
+import { EnumField } from './EnumField';
 import BaseEnum from '../../../domain/base/BaseEnum';
+
+
 
 const fixtureColors = ['RED', 'GREEN', 'BLUE'];
 
@@ -12,23 +14,30 @@ class ColorEnum extends BaseEnum {
     }
 }
 
-const enumFixtures = [
-    ColorEnum,
-    fixtureColors,
-    Object.fromEntries(
-        fixtureColors.map(colorString => [colorString, colorString]),
-    ),
+const decorators = [
+    EnumField({ enum: ColorEnum }),
+    EnumField({ enum: fixtureColors }),
+    EnumField({
+        enum: Object.fromEntries(
+            fixtureColors.map(colorString => [colorString, colorString])
+        ),
+    }),
 ];
 
 describe('EnumField decorator', () => {
-    it.each(enumFixtures)('stores enum options in field metadata', (enumEntity) => {
+    it.each(decorators)('sets correct api properties to a field', (decorator) => {
         const targetPropertyKey = 'enumField';
+        const targetObject = {};
 
-        class TestSchema {}
+        decorator(targetObject, targetPropertyKey);
 
-        EnumField({enum: enumEntity})(TestSchema.prototype, targetPropertyKey);
+        const fieldApiPropertyMeta = Reflect.getMetadata(
+            DECORATORS.API_MODEL_PROPERTIES,
+            targetObject,
+            targetPropertyKey,
+        );
 
-        expect(getFieldOptions(TestSchema, targetPropertyKey).enum).toBe(enumEntity);
-        expect(getFieldAppType(TestSchema, targetPropertyKey)).toBe('enum');
+        expect(fieldApiPropertyMeta.enum)
+            .toEqual(fixtureColors);
     });
 });

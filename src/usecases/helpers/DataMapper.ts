@@ -2,6 +2,7 @@ import {has as _has} from 'lodash';
 import {isObject as _isObject} from 'lodash';
 import {getFieldAppType, getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
+import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {DeepPartial} from 'typeorm';
 import {
     getTransformCallbacks,
@@ -141,14 +142,15 @@ export class DataMapper {
             const fieldNames = getMetaFields(type);
             result[type.name] = {
                 attributes: fieldNames.map(fieldName => {
+                    const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, fieldName);
                     const options = getFieldOptions(type, fieldName);
                     const appType = getFieldAppType(type, fieldName);
 
                     const fieldData = {
                         attribute: fieldName,
                         type: appType || 'string',
-                        label: options.label,
-                        required: options.required,
+                        label: options.label || apiMeta.description,
+                        required: apiMeta.required,
                         ...(options.enum
                             ? {
                                 items: (Array.isArray(options.enum) ? options.enum[0] : options.enum).name
