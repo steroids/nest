@@ -23,7 +23,8 @@ export default {
             password: process.env.APP_DATABASE_PASSWORD,
             synchronize: false,
             migrationsRun: false,
-            logging: ['schema', 'warn', 'error', 'migration'/*, 'query'/**/],
+            // add 'query' for db queries logging
+            logging: ['schema', 'warn', 'error', 'migration'],
             namingStrategy: new DatabaseNamingStrategy(),
         } as PostgresDataSourceOptions,
     } as IAppModuleConfig),

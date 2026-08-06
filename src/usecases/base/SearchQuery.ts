@@ -28,23 +28,35 @@ export interface ISearchQueryConfig<TModel> {
 
 export default class SearchQuery<TModel> {
     protected _select?: string[];
+
     protected _excludeSelect?: string[];
+
     protected _alias?: string;
+
     protected _relationsJoin?: Record<string, {
         alias: string,
         select: string | string[],
     }>;
+
     protected _relationsNoJoin?: Record<string, {
         alias: string,
         select: string | string[],
     }>;
+
     protected _condition?: ICondition;
+
     protected _orders?: ISearchQueryOrder;
+
     protected _limit?: number;
+
     protected _offset?: number;
+
     protected _useShortAliases: boolean;
+
     protected _withDeleted: boolean;
+
     protected _onGetOne: ISearchQueryConfig<TModel>['onGetOne'];
+
     protected _onGetMany: ISearchQueryConfig<TModel>['onGetMany'];
 
     constructor(config?: ISearchQueryConfig<TModel>) {
@@ -150,10 +162,8 @@ export default class SearchQuery<TModel> {
             if (!this._relationsJoin) {
                 this._relationsJoin = {};
             }
-        } else {
-            if (!this._relationsNoJoin) {
-                this._relationsNoJoin = {};
-            }
+        } else if (!this._relationsNoJoin) {
+            this._relationsNoJoin = {};
         }
 
         const relations = useJoin ? this._relationsJoin : this._relationsNoJoin;
@@ -245,9 +255,9 @@ export default class SearchQuery<TModel> {
                 condition,
             ];
             return this;
-        } else {
-            return this.where(condition);
         }
+        return this.where(condition);
+
     }
 
     andFilterWhere(condition: ICondition) {
@@ -262,9 +272,9 @@ export default class SearchQuery<TModel> {
                 condition,
             ];
             return this;
-        } else {
-            return this.where(condition);
         }
+        return this.where(condition);
+
     }
 
     orFilterWhere(condition: ICondition) {
@@ -364,7 +374,7 @@ export default class SearchQuery<TModel> {
         throw new Error('[@steroidsjs/nest] SearchQuery do not support one() method. Provide _onGetOne param in config');
     }
 
-    async many(eagerLoading: boolean = true) {
+    async many(eagerLoading = true) {
         if (this._onGetMany) {
             return this._onGetMany(this);
         }

@@ -44,7 +44,9 @@ const createOptions = (hasPending = false) => {
         hasPendingMigrations: async () => hasPending,
     };
 
-    return {logger, options, writeFiles};
+    return {logger,
+        options,
+        writeFiles};
 };
 
 describe('migration generator', () => {

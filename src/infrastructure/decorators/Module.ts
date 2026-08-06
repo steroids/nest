@@ -5,12 +5,13 @@ import {ModuleHelper} from '../helpers/ModuleHelper';
 import {PermissionsFactory} from '../helpers/PermissionsFactory';
 
 export interface IModule extends ModuleMetadata {
-    name?: string;
-    rootTarget?: any;
-    global?: boolean;
+    name?: string,
+    rootTarget?: any,
+    global?: boolean,
     config?: () => any,
     module?: (config: any) => ModuleMetadata,
-    tables?: Function[];
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    tables?: Function[],
     permissions?: any,
 }
 

@@ -31,7 +31,8 @@ export function StringField(options: IStringFieldOptions = {}) {
                 message: options.regexpErrorMessage || 'Не корректный формат строки',
             },
         ),
-        !options.required && IsOptional(), // TODO check nullable and required
+        // TODO check nullable and required
+        !options.required && IsOptional(),
         typeof options.min === 'number' && MinLength(options.min, {
             message: options.minConstraintMessage,
             each: options.isArray,

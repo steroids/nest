@@ -1,13 +1,14 @@
 import {Command, Positional} from 'nestjs-command';
 import {Inject, Injectable} from '@nestjs/common';
-import {dbml2code} from './dbml/dbml2code';
-import {generate} from './generate';
 import {DataSource, MigrationInterface} from 'typeorm';
-import {importClassesFromDirectories} from './importClassesFromDirectories';
 import {OrmUtils} from 'typeorm/util/OrmUtils';
 import {ConnectionMetadataBuilder} from 'typeorm/connection/ConnectionMetadataBuilder';
+import {dbml2code} from './dbml/dbml2code';
+import {generate} from './generate';
+import {importClassesFromDirectories} from './importClassesFromDirectories';
 
-ConnectionMetadataBuilder.prototype.buildMigrations = async function (migrations: (Function|string)[]): Promise<MigrationInterface[]> {
+// eslint-disable-next-line @typescript-eslint/ban-types
+ConnectionMetadataBuilder.prototype.buildMigrations = async (migrations: (Function|string)[]): Promise<MigrationInterface[]> => {
     const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
     const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.dataSource.logger, migrationDirectories))];
     return allMigrationClasses.map(migrationClass => new (migrationClass as new () => MigrationInterface)());
@@ -67,7 +68,6 @@ export class MigrateCommand {
     async dbml2code(
         @Positional({
             name: 'path',
-            // @ts-ignore
             describe: 'Path to *.dbml file',
             type: 'string'
         })

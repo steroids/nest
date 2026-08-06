@@ -87,7 +87,8 @@ describe('CustomPostgresQueryRunner', () => {
         const runner = createQueryRunner();
         const trackedRunner = runner.trackSchemaOperations();
 
-        await trackedRunner.createTable(new Table({name: 'metrics', columns: []}), false, false, false);
+        await trackedRunner.createTable(new Table({name: 'metrics',
+            columns: []}), false, false, false);
         expect(trackedRunner.getMemorySql().upQueries[0].query).toBe('CREATE TABLE "metrics" ()');
         expect(trackedRunner.getMemorySql().upTableQueries[0]).toEqual(expect.objectContaining({
             tableName: 'metrics',

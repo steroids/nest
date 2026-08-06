@@ -17,7 +17,7 @@ export class QueryAdapterTypeORM {
         dbRepository: Repository<any>,
         dbQuery: SelectQueryBuilder<any>,
         searchQuery: SearchQuery<any>,
-        eagerLoading: boolean = true,
+        eagerLoading = true,
     ) {
         const prefix = dbQuery.expressionMap?.mainAlias?.name || '';
 
@@ -90,7 +90,7 @@ export class QueryAdapterTypeORM {
         const rootPrimaryKey = getMetaPrimaryKey(MetaClass);
 
         const relationPaths = Object.keys(relations || {}).sort();
-        for (let path of relationPaths) {
+        for (const path of relationPaths) {
             const pathItems = path.split('.');
             if (pathItems.length === 1) {
                 const relationName = pathItems.shift();
@@ -126,7 +126,7 @@ export class QueryAdapterTypeORM {
 
                 // Execute
                 switch (options.type) {
-                    case 'OneToMany': // user.images
+                    case 'OneToMany':
                         const relationClassOptions = getMetaFields(relationClass);
 
                         // Find inverse field name
@@ -169,7 +169,8 @@ export class QueryAdapterTypeORM {
                         });
                         break;
 
-                    case 'ManyToOne': // user.image
+                    // user.image
+                    case 'ManyToOne':
                         // Find field with id
                         const idField = getMetaRelationIdFieldKey(MetaClass, relationName);
                         if (!idField) {
@@ -184,17 +185,17 @@ export class QueryAdapterTypeORM {
 
                             // Execute
                             QueryAdapterTypeORM.prepare(dbRepository, dbQuery, searchQuery, true);
-                            const rows = await dbQuery.getMany();
-                            let models = rows.map(row => DataMapper.create(relationClass, row));
+                            const items = await dbQuery.getMany();
+                            const modelItems = items.map(item => DataMapper.create(relationClass, item));
                             models = await QueryAdapterTypeORM.loadRelationsWithoutJoin(
                                 relationClass,
                                 dbRepository,
-                                models,
+                                modelItems,
                                 searchQuery.getWithNoJoin(),
                             );
 
                             // Populate
-                            const indexedModels = _keyBy(models, subRelationPrimaryKey);
+                            const indexedModels = _keyBy(modelItems, subRelationPrimaryKey);
                             records = records.map(record => {
                                 record[relationName] = indexedModels[record[idField]] || null;
                                 return record;
@@ -218,8 +219,8 @@ export class QueryAdapterTypeORM {
         relationsWithAliases: string[],
         rootPrefix: string,
         rootClass: any,
-        useShortAliases: boolean = false,
-        eagerLoading: boolean = true,
+        useShortAliases = false,
+        eagerLoading = true,
     ) {
 
         // Normalize relations: a.b.c -> a, a.b, a.b.c
@@ -272,15 +273,13 @@ export class QueryAdapterTypeORM {
                             property,
                             relationToAliasMap[parentPath] + '.' + options.relationName,
                         );
+                    } else if (eagerLoading) {
+                        dbQuery.leftJoinAndSelect(
+                            property,
+                            alias,
+                        );
                     } else {
-                        if (eagerLoading) {
-                            dbQuery.leftJoinAndSelect(
-                                property,
-                                alias,
-                            );
-                        } else {
-                            dbQuery.leftJoin(property, alias);
-                        }
+                        dbQuery.leftJoin(property, alias);
                     }
                 }
             });

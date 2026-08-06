@@ -1,9 +1,8 @@
-import {has as _has} from 'lodash';
-import {isObject as _isObject} from 'lodash';
-import {getFieldAppType, getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
-import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
+import {has as _has,isObject as _isObject} from 'lodash';
 import {DECORATORS} from '@nestjs/swagger/dist/constants';
 import {DeepPartial} from 'typeorm';
+import {getFieldAppType, getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
+import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
 import {
     getTransformCallbacks,
     ITransformType,
@@ -69,8 +68,8 @@ export class DataMapper {
          * @see IManualSchema
          */
         // TODO May be @BeforeCreate() decorator?
-        if (result['updateFromModel'] && typeof result['updateFromModel'] === 'function' && values) {
-            result['updateFromModel'](values);
+        if (result.updateFromModel && typeof result.updateFromModel === 'function' && values) {
+            result.updateFromModel(values);
             return result;
         }
 
@@ -115,10 +114,10 @@ export class DataMapper {
                 }
             }
 
-            for (let type of transformTypes) {
+            for (const type of transformTypes) {
                 if (_has(values, sourceName) || type !== TRANSFORM_TYPE_DEFAULT) {
                     const callbacks = getTransformCallbacks(MetaClass.prototype, name, type);
-                    for (let callback of callbacks) {
+                    for (const callback of callbacks) {
                         const value = callback({
                             value: object[name],
                             item: values,
@@ -159,7 +158,7 @@ export class DataMapper {
                     };
 
                     if (fieldData.type === 'relation') {
-                        fieldData['modelClass'] = (options as IRelationFieldOptions).relationClass().name;
+                        fieldData.modelClass = (options as IRelationFieldOptions).relationClass().name;
                     }
 
                     return fieldData;

@@ -20,25 +20,25 @@ export {getTemplate, prettifyQuery} from './MigrationRenderer';
 
 /** Минимальный интерфейс вывода сообщений генератора. */
 export type MigrationGeneratorLogger = {
-    info: (message: string) => void;
-    error: (message: string) => void;
+    info: (message: string) => void,
+    error: (message: string) => void,
 };
 
 /** Настройки и подменяемые зависимости генератора миграций. */
 export type MigrationGeneratorOptions = {
-    now?: () => number;
-    fileExists?: (filePath: string) => boolean;
-    logger?: MigrationGeneratorLogger;
-    resolveMigrationsDir?: (objectFile: SchemaObjectFile) => string;
-    resolveObjectFiles?: (dataSource: DataSource) => Promise<SchemaObjectFiles>;
-    writeFiles?: (plans: MigrationFilePlan[]) => Promise<string[]>;
-    hasPendingMigrations?: (dataSource: DataSource) => Promise<boolean>;
+    now?: () => number,
+    fileExists?: (filePath: string) => boolean,
+    logger?: MigrationGeneratorLogger,
+    resolveMigrationsDir?: (objectFile: SchemaObjectFile) => string,
+    resolveObjectFiles?: (dataSource: DataSource) => Promise<SchemaObjectFiles>,
+    writeFiles?: (plans: MigrationFilePlan[]) => Promise<string[]>,
+    hasPendingMigrations?: (dataSource: DataSource) => Promise<boolean>,
 };
 
 /** Результат выполнения команды без необходимости разбирать console output. */
 export type MigrationGenerationResult = {
-    status: 'generated' | 'no-changes';
-    files: string[];
+    status: 'generated' | 'no-changes',
+    files: string[],
 };
 
 const defaultLogger: MigrationGeneratorLogger = {
@@ -75,7 +75,8 @@ export const generate = async (
 
     if (groups.length === 0) {
         logger.info('No changes in database schema were found');
-        return {status: 'no-changes', files: []};
+        return {status: 'no-changes',
+            files: []};
     }
 
     const objectFiles = await (options.resolveObjectFiles || resolveSchemaObjectFiles)(dataSource);
@@ -88,5 +89,6 @@ export const generate = async (
     const files = await (options.writeFiles || writeMigrationFiles)(plans);
 
     logger.info(`Created migrations:\n${files.map(filePath => `\t${filePath}`).join('\n')}`);
-    return {status: 'generated', files};
+    return {status: 'generated',
+        files};
 };

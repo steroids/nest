@@ -26,23 +26,10 @@ function mergeErrorsCompositeObjects(object: IErrorsCompositeObject, source: IEr
             if (Array.isArray(objValue)) {
                 return objValue.concat(srcValue);
             }
+
+            return objValue;
         },
     );
-}
-
-/**
- * @deprecated Use ValidationHelper.validate()
- * @throws {ValidationException}
- */
-export async function validateOrReject(dto: any, validatorOptions?: ValidatorOptions) {
-    const classValidatorErrors = await validate(
-        dto,
-        {...defaultValidatorOptions, ...validatorOptions},
-    );
-    if (classValidatorErrors.length) {
-        const errors = ValidationHelper.parseClassValidatorErrors(classValidatorErrors);
-        throw new ValidationException(errors);
-    }
 }
 
 /**
@@ -94,7 +81,7 @@ export class ValidationHelper {
         validatorsInstances: IValidator[] = null,
     ): Promise<IErrorsCompositeObject | null> {
         if (!dto) {
-            return;
+            return null;
         }
 
         const errors: IErrorsCompositeObject = {};
@@ -115,6 +102,7 @@ export class ValidationHelper {
             let keyErrors: string[] | IErrorsCompositeObject = null;
 
             if (Array.isArray(value)) {
+                // eslint-disable-next-line guard-for-in
                 for (const valueItemIndex in value) {
                     const arrayItemErrors = await this.getSteroidsErrors(value[valueItemIndex], nextParams, validatorsInstances);
 
@@ -155,12 +143,12 @@ export class ValidationHelper {
     }
 
     protected static async getSteroidsFieldValidatorsErrors(
-            dto: any,
-            key: string,
-            params: IValidatorParams,
-            validatorsInstances: IValidator[],
-        ): Promise<string[]> {
-        let fieldValidatorErrors: string[] = [];
+        dto: any,
+        key: string,
+        params: IValidatorParams,
+        validatorsInstances: IValidator[],
+    ): Promise<string[]> {
+        const fieldValidatorErrors: string[] = [];
         // Get field validators
         const fieldValidators = getValidators(dto.constructor, key);
         for (const fieldValidator of fieldValidators) {
@@ -269,5 +257,21 @@ export class ValidationHelper {
         }
 
         return result;
+    }
+}
+
+/**
+ * @deprecated Use ValidationHelper.validate()
+ * @throws {ValidationException}
+ */
+export async function validateOrReject(dto: any, validatorOptions?: ValidatorOptions) {
+    const classValidatorErrors = await validate(
+        dto,
+        {...defaultValidatorOptions,
+            ...validatorOptions},
+    );
+    if (classValidatorErrors.length) {
+        const errors = ValidationHelper.parseClassValidatorErrors(classValidatorErrors);
+        throw new ValidationException(errors);
     }
 }

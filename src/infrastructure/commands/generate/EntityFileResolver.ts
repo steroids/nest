@@ -7,8 +7,8 @@ import {ModuleHelper} from '../../helpers/ModuleHelper';
 
 /** Исходный файл entity и имя класса для генерируемой миграции. */
 export type SchemaObjectFile = {
-    className: string;
-    sourcePath: string;
+    className: string,
+    sourcePath: string,
 };
 
 /** Файлы entity, индексированные по имени таблицы или view. */
@@ -18,7 +18,7 @@ type ModuleCacheEntry = [string, {exports: unknown} | undefined];
 
 /** Подменяемые данные resolver для изолированной проверки поиска загруженных entity. */
 export type EntityFileResolverOptions = {
-    moduleCache?: ModuleCacheEntry[];
+    moduleCache?: ModuleCacheEntry[],
 };
 
 /** Проверяет, что найденный файл принадлежит установленной зависимости. */
@@ -109,7 +109,8 @@ const resolveFromSteroidsLayout = async (
                 const className = basename(sourcePath).replace(/\.(?:ts|js)$/, '');
                 const tableName = tableNameByClass[className];
                 if (tableName && shouldUseLocalFile(files, tableName)) {
-                    files[tableName] = {className, sourcePath};
+                    files[tableName] = {className,
+                        sourcePath};
                 }
             }
 

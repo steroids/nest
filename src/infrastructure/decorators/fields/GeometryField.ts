@@ -6,7 +6,7 @@ export interface IGeometryFieldOptions extends IBaseFieldOptions {
     srid: number,
     spatialFeatureType: string,
     // Use to manually define a field type in Swagger.
-    swaggerType?: ISwaggerFieldType;
+    swaggerType?: ISwaggerFieldType,
 }
 
 export function GeometryField(options: IGeometryFieldOptions = {

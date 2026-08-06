@@ -20,7 +20,8 @@ const createPlan = (filePath: string, content = 'migration'): MigrationFilePlan 
 describe('MigrationFileWriter', () => {
     afterEach(async () => {
         for (const directory of temporaryDirectories.splice(0)) {
-            await rm(directory, {recursive: true, force: true});
+            await rm(directory, {recursive: true,
+                force: true});
         }
     });
 

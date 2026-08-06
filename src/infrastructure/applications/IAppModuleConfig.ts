@@ -52,6 +52,6 @@ export interface IAppModuleConfig {
         /**
          * Show detailed error info in HTTP responses.
          */
-        exposeSentryErrorResponse?: boolean
+        exposeSentryErrorResponse?: boolean,
     },
 }

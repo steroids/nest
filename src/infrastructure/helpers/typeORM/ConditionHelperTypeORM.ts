@@ -89,43 +89,51 @@ export class ConditionHelperTypeORM {
                 operator = operator.replace(/^not\s+/, '');
             }
 
-            const objectWhere = (isNot, isEmpty, key, value) => {
-                return !filterEmpty || !isEmpty
-                    ? _set({}, key, isNot ? Not(value) : value)
-                    : emptyCondition;
-            };
+            const objectWhere = (addNot: boolean, empty: boolean, key, value) => !filterEmpty || !empty
+                ? _set({}, key, addNot ? Not(value) : value)
+                : emptyCondition;
 
             const key = condition[1] as string;
             const value = condition[2];
 
             switch (operator) {
-                case 'filter': // ['filter', condition]
+                // ['filter', condition]
+                case 'filter':
                     return ConditionHelperTypeORM._toTypeOrmInternal(
                         condition[1],
                         dbQuery,
                         rootClass,
                         true);
 
-                case '=': // ['=', 'age', 18]
+                // ['=', 'age', 18]
+                case '=':
                     return objectWhere(isNot, isEmpty(value), key, isEmpty(value) ? IsNull() : value);
 
-                case '>': // ['>', 'age', 18]
+                // ['>', 'age', 18]
+                case '>':
                     return objectWhere(isNot, isEmpty(value), key, MoreThan(value));
 
-                case '>=': // ['>=', 'age', 18]
+                // ['>=', 'age', 18]
+                case '>=':
                 case '=>':
                     return objectWhere(isNot, isEmpty(value), key, MoreThanOrEqual(value));
 
-                case '<': // ['<', 'age', 18]
+                // ['<', 'age', 18]
+                case '<':
                     return objectWhere(isNot, isEmpty(value), key, LessThan(value));
 
-                case '<=': // ['<=', 'age', 18]
+                // ['<=', 'age', 18]
+                case '<=':
                 case '=<':
                     return objectWhere(isNot, isEmpty(value), key, LessThanOrEqual(value));
 
-                case 'like': // ['like', 'name', 'alex']
-                case 'ilike': // ['ilike', 'name', 'alex']
-                    const likeMethod = operator === 'ilike' ? ILike : Like;
+                // ['like', 'name', 'alex']
+                case 'like':
+                case 'ilike':
+                    const likeMethod = operator === 'ilike'
+                        ? ILike
+                        : Like;
+
                     return objectWhere(
                         isNot,
                         isEmpty(value),
@@ -133,27 +141,33 @@ export class ConditionHelperTypeORM {
                         likeMethod( value ? (value.indexOf('%') !== -1 ? value : '%' + value + '%') : '')
                     );
 
-                case 'between': // ['between', 'size', 5, 10]
+                // ['between', 'size', 5, 10]
+                case 'between':
                     return objectWhere(isNot, isEmpty(condition[2] || condition[3]), key, Between(condition[2], condition[3]));
 
-                case 'in': // ['in', 'ids', [5, 6, 10]]
+                // ['in', 'ids', [5, 6, 10]]
+                case 'in':
                     if (value && !Array.isArray(value)) {
                         throw Error('Wrong value for IN operator: ' + JSON.stringify(value));
                     }
                     return objectWhere(isNot, isEmpty(value) || value.length === 0, key, In(value));
 
-                case '@>': // ['@>', 'codes', ['someCode', 'someCode2']]
+                // ['@>', 'codes', ['someCode', 'someCode2']]
+                case '@>':
                     return objectWhere(isNot, isEmpty(value), key, ArrayContains([].concat(value)));
 
-                case '<@': // ['<@', 'codes', ['someCode', 'someCode2']]
+                // ['<@', 'codes', ['someCode', 'someCode2']]
+                case '<@':
                     return objectWhere(isNot, isEmpty(value), key, ArrayContainedBy([].concat(value)));
 
-                case 'overlap': // ['overlap', 'codes', ['someCode', 'someCode2']]
+                // ['overlap', 'codes', ['someCode', 'someCode2']]
+                case 'overlap':
                     return objectWhere(isNot, isEmpty(value), key, ArrayOverlap([].concat(value)));
 
-                case 'some':  // ['some', 'applications', ['=', 'applications.id', 2']]
-                case 'every': // ['every', 'applications', ['=', 'applications.id', 2']]
-                case 'none':  // ['none', 'applications', ['=', 'applications.id', 2']]
+                // ['some', 'applications', ['=', 'applications.id', 2']]
+                case 'some':
+                case 'every':
+                case 'none':
                     if (isNot) {
                         throw Error(`Unsupport NOT for ${operator} operator.`);
                     }
@@ -206,9 +220,11 @@ export class ConditionHelperTypeORM {
                     return new Brackets((qb: any) => {
                         qb.andWhere(resultCondition);
                     });
-                case 'and': // ['and', {isActive: true}, ['=', 'name', 'Ivan']]
+
+                // ['and', {isActive: true}, ['=', 'name', 'Ivan']]
+                case 'and':
                 case '&&':
-                case 'or': // ['or', {isAdmin: true}, ['=', 'name', 'Ivan']]
+                case 'or':
                 case '||':
                     let isOr = ['or', '||'].includes(operator);
 
@@ -221,11 +237,11 @@ export class ConditionHelperTypeORM {
                             ? this._objectConditionToArray(item)
                             : item)
                         .map(item => ConditionHelperTypeORM._toTypeOrmInternal(
-                                isNot ? this._reverseCondition(item) : item,
+                            isNot ? this._reverseCondition(item) : item,
                             dbQuery,
                             rootClass,
                             filterEmpty))
-                        .filter(value => !isEmpty(value));
+                        .filter((someValue: any) => !isEmpty(someValue));
 
                     if (values.length === 0) {
                         return emptyCondition;
@@ -240,11 +256,11 @@ export class ConditionHelperTypeORM {
                         // Hack for use relations
                         query2.expressionMap.joinAttributes = parentQuery.expressionMap.joinAttributes;
 
-                        values.forEach(value => {
+                        values.forEach(someValue => {
                             if (isOr) {
-                                query2.orWhere(value);
+                                query2.orWhere(someValue);
                             } else {
-                                query2.andWhere(value);
+                                query2.andWhere(someValue);
                             }
                         });
                     });

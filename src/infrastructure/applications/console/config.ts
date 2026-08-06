@@ -41,7 +41,8 @@ export default {
                 ...config.database,
                 migrations: isMigrateCommand
                     ? collectMigrations(migrationsRootDir)
-                    : [], // Do not include migrations on web and other cli commands
+                    // Do not include migrations on web and other cli commands
+                    : [],
                 migrationsTableName: 'migrations',
             } as PostgresDataSourceOptions
         } as IConsoleAppModuleConfig;
@@ -51,7 +52,7 @@ export default {
         return {
             ...module,
             imports: [
-                ...module?.imports,
+                ...(module?.imports || []),
                 CommandModule,
             ],
             providers: [

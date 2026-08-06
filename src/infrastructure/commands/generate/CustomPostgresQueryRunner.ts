@@ -7,14 +7,14 @@ export {SchemaObjectType, TableQuery} from './TableQuery';
 export {TableSqlInMemory} from './TableSqlInMemory';
 
 type TrackingContext = {
-    objectName: string;
-    objectType: SchemaObjectType;
-    isDeclaration: boolean;
+    objectName: string,
+    objectType: SchemaObjectType,
+    isDeclaration: boolean,
 };
 
 type TrackedMethod = {
-    objectType: SchemaObjectType;
-    isDeclaration?: boolean;
+    objectType: SchemaObjectType,
+    isDeclaration?: boolean,
 };
 
 // Методы меняют таблицу, но не создают и не удаляют сам объект схемы.
@@ -61,10 +61,14 @@ const VIEW_CHANGE_METHODS = [
 ] as const;
 
 const TRACKED_METHODS: Record<string, TrackedMethod> = {
-    createTable: {objectType: 'table', isDeclaration: true},
-    dropTable: {objectType: 'table', isDeclaration: true},
-    createView: {objectType: 'view', isDeclaration: true},
-    dropView: {objectType: 'view', isDeclaration: true},
+    createTable: {objectType: 'table',
+        isDeclaration: true},
+    dropTable: {objectType: 'table',
+        isDeclaration: true},
+    createView: {objectType: 'view',
+        isDeclaration: true},
+    dropView: {objectType: 'view',
+        isDeclaration: true},
 };
 
 for (const method of TABLE_CHANGE_METHODS) {

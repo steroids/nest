@@ -1,6 +1,6 @@
 import {describe, it, expect} from '@jest/globals';
 import {DECORATORS} from "@nestjs/swagger/dist/constants";
-import { EnumField } from './EnumField';
+import {EnumField} from './EnumField';
 import BaseEnum from '../../../domain/base/BaseEnum';
 
 
@@ -15,8 +15,8 @@ class ColorEnum extends BaseEnum {
 }
 
 const decorators = [
-    EnumField({ enum: ColorEnum }),
-    EnumField({ enum: fixtureColors }),
+    EnumField({enum: ColorEnum}),
+    EnumField({enum: fixtureColors}),
     EnumField({
         enum: Object.fromEntries(
             fixtureColors.map(colorString => [colorString, colorString])

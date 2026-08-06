@@ -6,6 +6,8 @@ import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transf
 import {MinDate} from '../validators/MinDate';
 import {MaxDate} from '../validators/MaxDate';
 
+type DateFunction = () => Date;
+
 export const normalizeDate = (rawValue) => {
     if (!rawValue) {
         return rawValue;
@@ -32,8 +34,8 @@ export const normalizeFunctionDate = (value, args?: ValidationArguments) => {
 };
 
 export interface IDateFieldOptions extends IBaseFieldOptions {
-    minDate?: string | Date | Function,
-    maxDate?: string | Date | Function,
+    minDate?: string | Date | DateFunction,
+    maxDate?: string | Date | DateFunction,
 }
 
 export function DateField(options: IDateFieldOptions = {}) {

@@ -5,7 +5,7 @@ import type {ISwaggerFieldType} from './helpers/InternalFieldMetadataHelpers';
 
 export interface IJSONBFieldOptions extends IBaseFieldOptions {
     // Use to manually define a field type in Swagger.
-    swaggerType?: ISwaggerFieldType;
+    swaggerType?: ISwaggerFieldType,
 }
 
 export function JSONBField(options: IJSONBFieldOptions = {}) {

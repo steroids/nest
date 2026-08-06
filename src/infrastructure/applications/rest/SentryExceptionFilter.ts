@@ -19,7 +19,8 @@ export class SentryExceptionFilter implements ExceptionFilter {
                 message: exception.message,
             };
             if (typeof exceptionResponse === 'object') {
-                payload = {...payload, ...exceptionResponse};
+                payload = {...payload,
+                    ...exceptionResponse};
             } else {
                 payload.response = exceptionResponse;
             }

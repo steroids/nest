@@ -1,5 +1,5 @@
-import {IAllFieldOptions} from '../../../fields';
 import {Column} from 'typeorm';
+import {IAllFieldOptions} from '../../../fields';
 import {TypeOrmUpdateTimeBehaviour} from './TypeOrmUpdateTimeBehaviour';
 
 export default (options: IAllFieldOptions) => [

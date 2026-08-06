@@ -176,8 +176,9 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected initSettings() {
-        this._app.use(json({ limit: this._config.requestSizeLimit }));
-        this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
+        this._app.use(json({limit: this._config.requestSizeLimit}));
+        this._app.use(urlencoded({extended: true,
+            limit: this._config.requestSizeLimit}));
     }
 
     /**
@@ -234,7 +235,6 @@ export class RestApplication extends BaseApplication {
             ? [port, '127.0.0.1', onStartCallback]
             : [port, onStartCallback];
 
-        // @ts-ignore
         return this._app.listen(...appListenArguments);
     }
 

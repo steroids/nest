@@ -122,7 +122,7 @@ describe('CrudServiceTest', () => {
 
         // Create photos for gallery
         const photos = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i += 1) {
             photos.push(await createPhoto(app));
         }
 

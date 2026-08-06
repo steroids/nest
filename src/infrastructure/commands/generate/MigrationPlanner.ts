@@ -16,38 +16,38 @@ export type MigrationPhase = 'declaration' | 'change';
  * Все изменения одного объекта схемы, разделённые по направлению и фазе.
  */
 export type MigrationGroup = {
-    objectName: string;
-    objectType: SchemaObjectType;
-    declarationUp: Query[];
-    declarationDown: Query[];
-    changesUp: Query[];
-    changesDown: Query[];
+    objectName: string,
+    objectType: SchemaObjectType,
+    declarationUp: Query[],
+    declarationDown: Query[],
+    changesUp: Query[],
+    changesDown: Query[],
 };
 
 /**
  * Полностью подготовленный файл миграции, готовый к записи.
  */
 export type MigrationFilePlan = {
-    objectName: string;
-    objectType: SchemaObjectType;
-    phase: MigrationPhase;
-    timestamp: number;
-    filePath: string;
-    content: string;
+    objectName: string,
+    objectType: SchemaObjectType,
+    phase: MigrationPhase,
+    timestamp: number,
+    filePath: string,
+    content: string,
 };
 
 /** Внешние зависимости планировщика для путей, времени и проверки коллизий. */
 export type MigrationPlannerOptions = {
-    startTimestamp: number;
-    fileExists: (filePath: string) => boolean;
-    resolveMigrationsDir: (objectFile: SchemaObjectFile) => string;
+    startTimestamp: number,
+    fileExists: (filePath: string) => boolean,
+    resolveMigrationsDir: (objectFile: SchemaObjectFile) => string,
 };
 
 type MigrationCandidate = {
-    group: MigrationGroup;
-    phase: MigrationPhase;
-    upQueries: Query[];
-    downQueries: Query[];
+    group: MigrationGroup,
+    phase: MigrationPhase,
+    upQueries: Query[],
+    downQueries: Query[],
 };
 
 /**

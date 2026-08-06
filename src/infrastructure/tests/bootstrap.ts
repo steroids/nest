@@ -2,12 +2,11 @@ import {Module} from '@nestjs/common';
 import {NestFactory} from '@nestjs/core';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSourceOptions';
+import {join} from 'path';
 import {ValidationExceptionFilter} from '../filters/ValidationExceptionFilter';
 import {CreateDtoPipe} from '../pipes/CreateDtoPipe';
 import {ModuleHelper} from '../helpers/ModuleHelper';
-import {join} from 'path';
 import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
-import {UserExceptionFilter} from "../filters/UserExceptionFilter";
 
 @Module({
     imports: [
@@ -22,15 +21,16 @@ import {UserExceptionFilter} from "../filters/UserExceptionFilter";
                 entities: [join(__dirname, 'app/tables/*Table.ts')],
                 migrationsTableName: 'test_migration',
                 synchronize: true,
-                logging: ['schema', 'warn', 'error', 'migration'/*, 'query'/**/],
+                // add 'query' for db queries logging
+                logging: ['schema', 'warn', 'error', 'migration'],
                 namingStrategy: new DatabaseNamingStrategy(),
             } as PostgresDataSourceOptions),
         }),
-        TypeOrmModule.forFeature(ModuleHelper.importDir(__dirname + '/app/tables')),
+        TypeOrmModule.forFeature(ModuleHelper.importDir(join(__dirname, 'app/tables'))),
     ],
     providers: [
-        ...ModuleHelper.importDir(__dirname + '/app/repositories'),
-        ...ModuleHelper.importDir(__dirname + '/app/services'),
+        ...ModuleHelper.importDir(join(__dirname, 'app/repositories')),
+        ...ModuleHelper.importDir(join(__dirname, 'app/services')),
     ]
 })
 class AppModule {
@@ -40,7 +40,7 @@ export async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
     app.useGlobalPipes(new CreateDtoPipe());
-    app.useGlobalFilters(new ValidationExceptionFilter(),new UserExceptionFilter());
+    app.useGlobalFilters(new ValidationExceptionFilter());
     app.init();
 
     return app;

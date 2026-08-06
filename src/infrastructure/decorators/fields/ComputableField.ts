@@ -9,7 +9,7 @@ export interface IComputableFieldOptions extends IBaseFieldOptions {
     callback?: IComputableCallback,
     // Use to manually define a field type in Swagger.
     // This must be used when overriding this field from the parent.
-    swaggerType?: ISwaggerFieldType;
+    swaggerType?: ISwaggerFieldType,
 }
 
 export function ComputableField(options: IComputableFieldOptions) {

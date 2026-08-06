@@ -5,7 +5,9 @@ import {importOrRequireFile} from 'typeorm/util/ImportUtils';
 
 class MockMigration {
     name: string;
+
     file: string;
+
     _lazyInstance: any;
 
 
@@ -32,6 +34,7 @@ const createMockMigration = file => {
     const matches = /([0-9]+)-([a-zA-Z0-9]+)+.(ts|js)$/.exec(file);
     const name = matches ? matches[2] + matches[1] : 'MockMigration';
 
+    // eslint-disable-next-line no-new-func
     const NewClass = new Function('return function ' + name + '(){ this.name = "' + name + '"; this.file = "' + file + '" }')();
     NewClass.prototype = Object.create(MockMigration.prototype);
 
@@ -41,11 +44,18 @@ const createMockMigration = file => {
 /**
  * Loads all exported classes from the given directory.
  */
-export async function importClassesFromDirectories(logger: Logger, directories: string[], formats = [".js", ".mjs", ".cjs", ".ts", ".mts", ".cts"]): Promise<Function[]> {
+export async function importClassesFromDirectories(
+    logger: Logger,
+    directories: string[],
+    formats = [".js", ".mjs", ".cjs", ".ts", ".mts", ".cts"],
+    // eslint-disable-next-line @typescript-eslint/ban-types
+): Promise<Function[]> {
 
     const logLevel = "info";
     const classesNotFoundMessage = "No classes were found using the provided glob pattern: ";
     const classesFoundMessage = "All classes found using provided glob pattern";
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
     function loadFileClasses(exported: any, allLoaded: Function[]) {
         if (typeof exported === "function" || exported instanceof EntitySchema) {
             allLoaded.push(exported);
