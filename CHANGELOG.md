@@ -1,5 +1,21 @@
 # Steroids Nest Changelog
 
+## [Unreleased]
+
+[Migration guide](docs/MigrationGuide.md#unreleased)
+
+### Changed
+
+- Добавлена одновременная поддержка NestJS 10 и NestJS 11 в `peerDependencies` для `@nestjs/cli`, `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` и `@nestjs/swagger`.
+- Среда разработки обновлена до NestJS 11, Swagger 11 и типов Express 5.
+- `RestApplication` теперь создаёт `NestExpressApplication` и настраивает JSON и URL-encoded body parsers через `useBodyParser`, используя реализацию из установленного `@nestjs/platform-express`.
+- `DataMapper.exportModels` больше не читает закрытые metadata-константы Swagger: `label` и `required` экспортируются непосредственно из options Field-декораторов.
+
+### Removed
+
+- Удалены прямые runtime-зависимости от `express` и `body-parser`. Версия Express и реализация body parser теперь определяются установленной версией `@nestjs/platform-express`: Express 4 для NestJS 10 и Express 5 для NestJS 11.
+- Удалено использование закрытого импорта `@nestjs/swagger/dist/constants`, который недоступен в Swagger 11 через package exports.
+
 ## [5.0.3](https://github.com/steroids/nest/compare/5.0.2...5.0.3) (2026-07-30)
 
 ### Fixed
