@@ -10,7 +10,17 @@ import {
     TRANSFORM_TYPE_DEFAULT
 } from '../../infrastructure/decorators/Transform';
 import {IType} from '../interfaces/IType';
+import IManualSchema from '../interfaces/IManualSchema';
 import {getModelBuilder} from '../../infrastructure/base/ModelTableStorage';
+
+interface IExportedModelField {
+    attribute: string,
+    type: string,
+    label?: string,
+    required?: boolean,
+    items?: string,
+    modelClass?: string,
+}
 
 export class DataMapper {
     static create<T>(
@@ -68,8 +78,9 @@ export class DataMapper {
          * @see IManualSchema
          */
         // TODO May be @BeforeCreate() decorator?
-        if (result.updateFromModel && typeof result.updateFromModel === 'function' && values) {
-            result.updateFromModel(values);
+        const manualSchema = result as T & Partial<IManualSchema<DeepPartial<T>>>;
+        if (typeof manualSchema.updateFromModel === 'function' && values) {
+            manualSchema.updateFromModel(values);
             return result;
         }
 
@@ -145,7 +156,7 @@ export class DataMapper {
                     const options = getFieldOptions(type, fieldName);
                     const appType = getFieldAppType(type, fieldName);
 
-                    const fieldData = {
+                    const fieldData: IExportedModelField = {
                         attribute: fieldName,
                         type: appType || 'string',
                         label: options.label || apiMeta.description,
