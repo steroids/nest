@@ -49,6 +49,8 @@ import type {Request, Response} from 'express';
 
 Wildcard должен иметь имя, а форма `{*path}` используется, если маршрут должен совпадать и с корневым путём. Также проверьте код, который перезаписывает `request.query`: в Express 5 это getter, доступный только для чтения.
 
+Подробнее об изменениях Express 5 и необходимых действиях читайте в [официальном migration guide NestJS](https://docs.nestjs.com/migration-guide#express-v5).
+
 ### Настройка body parser в `RestApplication`
 
 `RestApplication` больше не подключает внешний `body-parser`. Ограничение размера запроса настраивается через `NestExpressApplication.useBodyParser`, поэтому один и тот же код использует совместимый parser и в NestJS 10, и в NestJS 11.
