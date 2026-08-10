@@ -176,6 +176,8 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected initSettings() {
+        this._app.set('query parser', 'extended');
+
         this._app.useBodyParser('json', {
             limit: this._config.requestSizeLimit,
         });
@@ -235,11 +237,11 @@ export class RestApplication extends BaseApplication {
         const onStartCallback = () => console.log(
             `Server started http://${this._config.isListenLocalhost ? '127.0.0.1' : 'localhost'}:${port}`,
         );
-        const appListenArguments = this._config.isListenLocalhost
-            ? [port, '127.0.0.1', onStartCallback]
-            : [port, onStartCallback];
+        if (this._config.isListenLocalhost) {
+            return this._app.listen(port, '127.0.0.1', onStartCallback);
+        }
 
-        return this._app.listen(...appListenArguments);
+        return this._app.listen(port, onStartCallback);
     }
 
     /**

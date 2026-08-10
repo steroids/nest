@@ -49,11 +49,13 @@ import type {Request, Response} from 'express';
 
 Wildcard должен иметь имя, а форма `{*path}` используется, если маршрут должен совпадать и с корневым путём. Также проверьте код, который перезаписывает `request.query`: в Express 5 это getter, доступный только для чтения.
 
+Кроме того, Express 5 по умолчанию использует упрощённый query parser вместо расширенного. Стандартный `RestApplication` явно устанавливает `query parser` в значение `extended`, поэтому вложенные параметры в bracket notation, например `filter[name]=value` или `tags[]=one&tags[]=two`, продолжат разбираться как объекты и массивы.
+
 Подробнее об изменениях Express 5 и необходимых действиях читайте в [официальном migration guide NestJS](https://docs.nestjs.com/migration-guide#express-v5).
 
-### Настройка body parser в `RestApplication`
+### Настройка парсеров запросов в `RestApplication`
 
-`RestApplication` больше не подключает внешний `body-parser`. Ограничение размера запроса настраивается через `NestExpressApplication.useBodyParser`, поэтому один и тот же код использует совместимый parser и в NestJS 10, и в NestJS 11.
+`RestApplication` больше не подключает внешний `body-parser`. Ограничение размера запроса настраивается через `NestExpressApplication.useBodyParser`, поэтому один и тот же код использует совместимый parser и в NestJS 10, и в NestJS 11. Для сохранения расширенного разбора query-параметров при переходе на Express 5 приложение также явно устанавливает настройку `query parser`.
 
 При использовании стандартного `RestApplication` дополнительных действий не требуется. Если проект переопределяет `createApp` или `initSettings`, используйте Express-тип приложения и штатный API адаптера:
 
@@ -70,6 +72,8 @@ protected async createApp() {
 }
 
 protected initSettings() {
+    this._app.set('query parser', 'extended');
+
     this._app.useBodyParser('json', {
         limit: this._config.requestSizeLimit,
     });
@@ -79,6 +83,8 @@ protected initSettings() {
     });
 }
 ```
+
+Настройка `query parser` управляет разбором параметров из URL, а option `extended` у URL-encoded body parser — разбором тела запроса. Это независимые настройки, поэтому при переопределении `initSettings` нужны обе.
 
 Если проект самостоятельно импортирует `body-parser`, его нужно оставить в зависимостях самого проекта. Удаление касается только внутреннего использования в `@steroidsjs/nest`.
 

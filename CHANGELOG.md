@@ -9,6 +9,7 @@
 - Добавлена одновременная поддержка NestJS 10 и NestJS 11 в `peerDependencies` для `@nestjs/cli`, `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` и `@nestjs/swagger`.
 - Среда разработки обновлена до NestJS 11, Swagger 11 и типов Express 5.
 - `RestApplication` теперь создаёт `NestExpressApplication` и настраивает JSON и URL-encoded body parsers через `useBodyParser`, используя реализацию из установленного `@nestjs/platform-express`.
+- `RestApplication` явно включает расширенный Express query parser, сохраняя поддержку вложенных query-параметров при использовании Express 5, где по умолчанию применяется упрощённый parser.
 - `DataMapper.exportModels` больше не читает закрытые metadata-константы Swagger: `label` и `required` экспортируются непосредственно из options Field-декораторов.
 
 ### Removed
