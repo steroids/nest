@@ -10,7 +10,11 @@ import {importClassesFromDirectories} from './importClassesFromDirectories';
 // eslint-disable-next-line @typescript-eslint/ban-types
 ConnectionMetadataBuilder.prototype.buildMigrations = async (migrations: (Function|string)[]): Promise<MigrationInterface[]> => {
     const [migrationClasses, migrationDirectories] = OrmUtils.splitClassesAndStrings(migrations);
-    const allMigrationClasses = [...migrationClasses, ...(await importClassesFromDirectories(this.dataSource.logger, migrationDirectories))];
+    const allMigrationClasses = [
+        ...migrationClasses,
+        // @ts-ignore
+        ...(await importClassesFromDirectories((this as ConnectionMetadataBuilder).dataSource.logger, migrationDirectories)),
+    ];
     return allMigrationClasses.map(migrationClass => new (migrationClass as new () => MigrationInterface)());
 }
 

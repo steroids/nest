@@ -1,5 +1,5 @@
 import {ExceptionFilter, Catch, ArgumentsHost, HttpStatus, HttpException} from '@nestjs/common';
-import {Response} from 'express';
+import type {Response} from 'express';
 import * as Sentry from '@sentry/nestjs';
 import {v4 as uuidv4} from 'uuid';
 import {CaptureContext} from '@sentry/nestjs';
