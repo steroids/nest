@@ -1,12 +1,12 @@
 # Steroids Nest Changelog
 
-## [Unreleased]
+## [5.1.0](https://github.com/steroids/nest/compare/5.0.3...5.1.0) (2026-08-11)
 
-[Migration guide](docs/MigrationGuide.md#unreleased)
+[Migration guide](docs/MigrationGuide.md#510-2026-08-11)
 
 ### Changed
 
-- Добавлена одновременная поддержка NestJS 10 и NestJS 11 в `peerDependencies` для `@nestjs/cli`, `@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express` и `@nestjs/swagger`.
+- Добавлена одновременная поддержка NestJS 10 и NestJS 11 в `peerDependencies` для `@nestjs/cli`, `@nestjs/common`, `@nestjs/core` и `@nestjs/platform-express`; диапазон `@nestjs/swagger` обновлён до `^8.1.1 || ^11.0.0`.
 - Среда разработки обновлена до NestJS 11, Swagger 11 и типов Express 5.
 - `RestApplication` теперь создаёт `NestExpressApplication` и настраивает JSON и URL-encoded body parsers через `useBodyParser`, используя реализацию из установленного `@nestjs/platform-express`.
 - `RestApplication` явно включает расширенный Express query parser, сохраняя поддержку вложенных query-параметров при использовании Express 5, где по умолчанию применяется упрощённый parser.
@@ -17,6 +17,11 @@
 - Удалены прямые runtime-зависимости от `express` и `body-parser`. Версия Express и реализация body parser теперь определяются установленной версией `@nestjs/platform-express`: Express 4 для NestJS 10 и Express 5 для NestJS 11.
 - Удалено использование закрытого импорта `@nestjs/swagger/dist/constants`, который недоступен в Swagger 11 через package exports.
 - Упрощён интерфейс `IModule`: удалено неиспользуемое наследование от `ModuleMetadata`.
+
+### Chores
+
+- Обновлены runtime-зависимости `lodash` и `pg`, а также инструменты разработки: Jest, типы Node.js и Lodash, `ts-jest`, `ts-node` и `@steroidsjs/eslint-config`.
+- Добавлена команда `yarn lint`, обновлена конфигурация ESLint и исправлены типы для совместимости с обновлёнными зависимостями, включая type-only импорты Express.
 
 ## [5.0.3](https://github.com/steroids/nest/compare/5.0.2...5.0.3) (2026-07-30)
 
