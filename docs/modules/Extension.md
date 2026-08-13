@@ -175,7 +175,7 @@ import {NotifierSendLogService} from '../domain/services/NotifierSendLogService'
     ...coreModule,
     tables: [
         ...coreModule.tables,
-        ...ModuleHelper.importDir(join(__dirname, '/tables')),
+        ...notifierModuleTables,
     ],
     module: (config: INotifierModuleConfig) => {
         const module = coreModule.module(config);

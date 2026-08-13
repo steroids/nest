@@ -91,7 +91,7 @@ export class StoreExternalIdValidator implements IValidator {
     
     ```ts
     @Module({
-        tables: ModuleHelper.importDir(join(__dirname, '/tables')),
+        tables,
         permissions,
         module: () => ({
             imports: [],
