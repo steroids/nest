@@ -6,7 +6,8 @@ import {
     getTransformCallbacks,
     ITransformType,
     TRANSFORM_TYPE_COMPUTABLE,
-    TRANSFORM_TYPE_DEFAULT
+    TRANSFORM_TYPE_DEFAULT,
+    TRANSFORM_TYPE_TO_DB,
 } from '../../infrastructure/decorators/Transform';
 import {IType} from '../interfaces/IType';
 import IManualSchema from '../interfaces/IManualSchema';
@@ -92,7 +93,10 @@ export class DataMapper {
         const MetaClass = object.constructor;
         const keys = isMetaClass(MetaClass) ? getMetaFields(MetaClass) : Object.keys(values);
 
-        const transformTypes = transformType === TRANSFORM_TYPE_DEFAULT
+        const includeComputable = transformType !== TRANSFORM_TYPE_COMPUTABLE
+            && transformType !== TRANSFORM_TYPE_TO_DB;
+
+        const transformTypes = includeComputable
             ? [transformType, TRANSFORM_TYPE_COMPUTABLE]
             : [transformType];
 
