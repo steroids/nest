@@ -1,4 +1,4 @@
-import {PrimaryGeneratedColumn} from '@steroidsjs/typeorm';
+import {PrimaryGeneratedColumn} from 'typeorm';
 
 export default () => [
     PrimaryGeneratedColumn({type: 'integer'}),

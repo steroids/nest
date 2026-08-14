@@ -23,9 +23,7 @@ export const getTransformCallbacks = (
     object: any,
     propertyName: string,
     transformType: ITransformType
-): ITransformCallback[] => {
-    return Reflect.getMetadata(STEROIDS_META_TRANSFORM_PREFIX + transformType, object, propertyName) || []
-}
+): ITransformCallback[] => Reflect.getMetadata(STEROIDS_META_TRANSFORM_PREFIX + transformType, object, propertyName) || []
 
 export const Transform = (
     callback: ITransformCallback,

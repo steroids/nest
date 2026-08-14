@@ -38,7 +38,8 @@ export function StringField(options: IStringFieldOptions = {}) {
                 message: options.regexpErrorMessage || MATCHES_DEFAULT_MESSAGE,
             },
         ),
-        !options.required && IsOptional(), // TODO check nullable and required
+        // TODO check nullable and required
+        !options.required && IsOptional(),
         typeof options.min === 'number' && MinLength(options.min, {
             message: options.minConstraintMessage || buildMinLengthDefaultMessage(options.min),
             each: options.isArray,

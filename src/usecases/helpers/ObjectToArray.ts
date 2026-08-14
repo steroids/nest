@@ -1,4 +1,4 @@
-export function ObjectToArray(object: Record<string, any>, keyPrefix: string = ''): any {
+export function ObjectToArray(object: Record<string, any>, keyPrefix = ''): any {
     if (!object) {
         return object;
     }

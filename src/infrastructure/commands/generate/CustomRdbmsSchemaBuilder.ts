@@ -1,50 +1,53 @@
-import {Table} from '@steroidsjs/typeorm/schema-builder/table/Table';
-import {TableForeignKey} from '@steroidsjs/typeorm/schema-builder/table/TableForeignKey';
-import {EntityMetadata} from '@steroidsjs/typeorm/metadata/EntityMetadata';
-import {View} from '@steroidsjs/typeorm/schema-builder/view/View';
-import {RdbmsSchemaBuilder} from '@steroidsjs/typeorm/schema-builder/RdbmsSchemaBuilder';
+import {RdbmsSchemaBuilder} from 'typeorm/schema-builder/RdbmsSchemaBuilder';
+import {EntityMetadata, Table, TableForeignKey, View} from 'typeorm';
 import {CustomPostgresQueryRunner, TableSqlInMemory} from './CustomPostgresQueryRunner';
 
+/**
+ * Строит schema diff TypeORM и сохраняет принадлежность запросов к таблицам и views.
+ */
 export class CustomRdbmsSchemaBuilder extends RdbmsSchemaBuilder {
-
     async log(): Promise<TableSqlInMemory> {
-        // Create query runner
-        const queryRunner = new CustomPostgresQueryRunner(this.connection.driver as any, 'master');
-        queryRunner.manager = this.connection.createEntityManager(queryRunner);
+        if (this.dataSource.options.type !== 'postgres') {
+            throw new Error(`Migration generation supports PostgreSQL only, received "${this.dataSource.options.type}".`);
+        }
+
+        // Proxy runner добавляет контекст объекта схемы к запросам штатного TypeORM.
+        const queryRunner = new CustomPostgresQueryRunner(this.dataSource.driver as any, 'master')
+            .trackSchemaOperations();
+        queryRunner.manager = this.dataSource.createEntityManager(queryRunner);
         this.queryRunner = queryRunner;
 
         try {
-            // Flush the queryrunner table & view cache
+            // Загружаем реальное состояние таблиц и views до вычисления diff.
             const tablePaths = this.entityToSyncMetadatas.map(metadata => this.getTablePathCustom(metadata));
-            await this.queryRunner.getTables(tablePaths);
-            await this.queryRunner.getViews([]);
+            const viewPaths = this.viewEntityToSyncMetadatas.map(metadata => this.getTablePathCustom(metadata));
+            this.tables = await this.queryRunner.getTables(tablePaths);
+            this.views = await this.queryRunner.getViews(viewPaths);
 
             this.queryRunner.enableSqlMemory();
             await this.executeSchemaSyncOperationsInProperOrder();
 
-            // if cache is enabled then perform cache-synchronization as well
-            if (this.connection.queryResultCache) // todo: check this functionality
-                await this.connection.queryResultCache.synchronize(this.queryRunner);
+            // При включённом query cache учитываем изменения его служебной таблицы.
+            if (this.dataSource.queryResultCache) {
+                // TODO: проверить генерацию миграции для разных реализаций query cache.
+                await this.dataSource.queryResultCache.synchronize(this.queryRunner);
+            }
 
             return this.queryRunner.getMemorySql() as TableSqlInMemory;
-
         } finally {
-            // its important to disable this mode despite the fact we are release query builder
-            // because there exist drivers which reuse same query runner. Also its important to disable
-            // sql memory after call of getMemorySql() method because last one flushes sql memory.
+            // SQL-memory нужно выключать даже перед release: некоторые драйверы переиспользуют runner.
             this.queryRunner.disableSqlMemory();
             await this.queryRunner.release();
         }
     }
 
     private getTablePathCustom(target: EntityMetadata | Table | View | TableForeignKey | string): string {
-        const parsed = this.connection.driver.parseTableName(target);
+        const parsed = this.dataSource.driver.parseTableName(target);
 
-        return this.connection.driver.buildTableName(
+        return this.dataSource.driver.buildTableName(
             parsed.tableName,
-            parsed.schema || this.connection.driver.schema,
-            parsed.database || this.connection.driver.database
+            parsed.schema || this.dataSource.driver.schema,
+            parsed.database || this.dataSource.driver.database,
         );
     }
-
 }

@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IGeometryFieldOptions} from '../../../fields/GeometryField';
 
 export default (options: IGeometryFieldOptions) => [

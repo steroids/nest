@@ -1,5 +1,96 @@
 # Steroids Nest Changelog
 
+## [Unreleased]
+
+### Fixes
+- `SearchQuery.orderBy` и `addOrderBy` больше не оборачивают alias и поля в двойные кавычки, что исправляло ошибку `""model"" alias was not found` при сортировке с join и paginate.
+
+## [5.1.0](https://github.com/steroids/nest/compare/5.0.3...5.1.0) (2026-08-11)
+
+[Migration guide](docs/MigrationGuide.md#510-2026-08-11)
+
+### Changed
+
+- Добавлена одновременная поддержка NestJS 10 и NestJS 11 в `peerDependencies` для `@nestjs/cli`, `@nestjs/common`, `@nestjs/core` и `@nestjs/platform-express`; диапазон `@nestjs/swagger` обновлён до `^8.1.1 || ^11.0.0`.
+- Среда разработки обновлена до NestJS 11, Swagger 11 и типов Express 5.
+- `RestApplication` теперь создаёт `NestExpressApplication` и настраивает JSON и URL-encoded body parsers через `useBodyParser`, используя реализацию из установленного `@nestjs/platform-express`.
+- `RestApplication` явно включает расширенный Express query parser, сохраняя поддержку вложенных query-параметров при использовании Express 5, где по умолчанию применяется упрощённый parser.
+- `DataMapper.exportModels` больше не читает закрытые metadata-константы Swagger: `label` и `required` экспортируются непосредственно из options Field-декораторов.
+
+### Removed
+
+- Удалены прямые runtime-зависимости от `express` и `body-parser`. Версия Express и реализация body parser теперь определяются установленной версией `@nestjs/platform-express`: Express 4 для NestJS 10 и Express 5 для NestJS 11.
+- Удалено использование закрытого импорта `@nestjs/swagger/dist/constants`, который недоступен в Swagger 11 через package exports.
+- Упрощён интерфейс `IModule`: удалено неиспользуемое наследование от `ModuleMetadata`.
+
+### Chores
+
+- Обновлены runtime-зависимости `lodash` и `pg`, а также инструменты разработки: Jest, типы Node.js и Lodash, `ts-jest`, `ts-node` и `@steroidsjs/eslint-config`.
+- Добавлена команда `yarn lint`, обновлена конфигурация ESLint и исправлены типы для совместимости с обновлёнными зависимостями, включая type-only импорты Express.
+
+## [5.0.3](https://github.com/steroids/nest/compare/5.0.2...5.0.3) (2026-07-30)
+
+### Fixed
+
+- `migrate:generate` теперь создаёт миграции для entity из npm-пакетов в локальном модуле проекта, зарегистрированном через `ModuleHelper`, а не внутри соответствующей зависимости в `node_modules`.
+
+## [5.0.2](https://github.com/steroids/nest/compare/5.0.1...5.0.2) (2026-07-30)
+
+### Fixed
+
+- `RelationField` теперь передаёт тип связи в Swagger через lazy resolver, предотвращая ошибку `A circular dependency has been detected` для двунаправленных связей.
+
+## [5.0.1](https://github.com/steroids/nest/compare/5.0.0...5.0.1) (2026-07-23)
+
+### Changed
+
+- Генератор миграций разделён на независимые этапы получения schema diff, поиска файлов entity, планирования, рендеринга и записи миграций.
+- Кастомный PostgreSQL query runner теперь использует штатную SQL-логику TypeORM и только добавляет к запросам информацию об объектах схемы.
+- Миграции создаются в предсказуемом порядке: сначала объявления таблиц и views, затем внешние ключи, индексы и остальные изменения.
+- Исходные файлы entity сначала определяются через загруженные модули, а при необходимости — через стандартную структуру Steroids-проекта.
+- Импорты `MigrationInterface` и `QueryRunner` в сгенерированных миграциях переведены на `import type`.
+
+### Fixed
+
+- Исправлено получение текущего состояния таблиц и views: `migrate:generate` больше не генерирует создание всей схемы для уже существующей базы данных.
+- Проверка неприменённых миграций выполняется без вывода полного списка уже применённых миграций.
+- Исправлена ошибка `Unknown argument: migrate:generate`, возникавшая при поиске entity из-за обращения к getter-экспортам сторонних модулей.
+- Добавлена корректная группировка изменений views, комментариев таблиц и операций, присутствующих только в `down`.
+- Для нескольких миграций гарантируются уникальные timestamps и порядок, учитывающий зависимости между объектами схемы.
+- Генератор заранее проверяет пути всех entity, не перезаписывает существующие миграции и удаляет уже созданные файлы при ошибке записи.
+
+## [5.0.0](https://github.com/steroids/nest/compare/4.4.2...5.0.0) (2026-07-23)
+
+[Migration guide](docs/MigrationGuide.md#500-2026-07-23)
+
+### Changed
+
+- Форки `@steroidsjs/typeorm` и `@steroidsjs/nest-typeorm` заменены на оригинальные пакеты `typeorm` и `@nestjs/typeorm`.
+- Интеграция с TypeORM переведена с устаревшего API `Connection` на `DataSource`.
+- Импорты TypeORM обновлены в исходном коде, CLI-командах, шаблонах генератора и документации.
+- Миграции теперь создаются напрямую через конструктор класса, так как `getFromContainer` удалён из TypeORM 1.x.
+
+### Fixed
+
+- `glob` и `yargs`, которые ранее устанавливались транзитивно вместе с форками TypeORM, добавлены как явные зависимости.
+- Загрузка миграций переведена с удалённого callback API `glob` на Promise API.
+
+## [4.4.2](https://github.com/steroids/nest/compare/4.4.1...4.4.2) (2026-06-26)
+
+[Migration guide](docs/MigrationGuide.md#442-2026-06-26)
+
+### Fixes
+- При включенном параметре `isListenLocalhost` теперь используется `127.0.0.1`, а не `localhost` ([#269](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/269))
+
+### Removed
+- Удалены `GracefulController` и `GracefulService` ([#271](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/271))
+- УдаленS `RequestExecutionException` и `RequestExecutionExceptionFilter` ([#262](https://gitlab.kozhindev.com/steroids/steroids-nest/-/work_items/262))
+
+## [4.4.1](https://github.com/steroids/nest/compare/4.4.0...4.4.1) (2026-05-27)
+
+### Fixes
+- Удален `postinstall` скрипт по очистке кэша jest, так как он ломал деплой в окружении без jest
+
 ## [4.4.0](https://github.com/steroids/nest/compare/4.3.0...4.4.0) (2026-05-14)
 
 [Migration guide](docs/MigrationGuide.md#440-2026-05-14)

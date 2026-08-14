@@ -1,7 +1,7 @@
 import {ArgumentMetadata, Injectable, PipeTransform} from '@nestjs/common';
+import {plainToInstance} from 'class-transformer';
 import {DataMapper} from '../../usecases/helpers/DataMapper';
 import {isMetaClass} from '../decorators/fields/BaseField';
-import {plainToInstance} from 'class-transformer';
 import {IType} from '../../usecases/interfaces/IType';
 
 @Injectable()

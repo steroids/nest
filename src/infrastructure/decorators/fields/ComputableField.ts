@@ -1,7 +1,7 @@
 import {applyDecorators} from '@nestjs/common';
-import {ApiPropertyOptions} from '@nestjs/swagger';
 import {BaseField, IBaseFieldOptions, IRelationData} from './BaseField';
 import {Computable, IComputableCallback} from '../Computable';
+import type {ISwaggerFieldType} from './helpers/InternalFieldMetadataHelpers';
 
 export interface IComputableFieldOptions extends IBaseFieldOptions {
     unique?: boolean,
@@ -9,7 +9,7 @@ export interface IComputableFieldOptions extends IBaseFieldOptions {
     callback?: IComputableCallback,
     // Use to manually define a field type in Swagger.
     // This must be used when overriding this field from the parent.
-    swaggerType?: ApiPropertyOptions['type'];
+    swaggerType?: ISwaggerFieldType,
 }
 
 export function ComputableField(options: IComputableFieldOptions) {

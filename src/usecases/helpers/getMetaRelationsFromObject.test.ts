@@ -1,8 +1,5 @@
 import {describe, expect, it} from '@jest/globals';
-import {PrimaryKeyField} from '../../infrastructure/decorators/fields';
-import {RelationField} from '../../infrastructure/decorators/fields';
-import {RelationIdField} from '../../infrastructure/decorators/fields';
-import {StringField} from '../../infrastructure/decorators/fields';
+import {PrimaryKeyField,RelationField,RelationIdField,StringField} from '../../infrastructure/decorators/fields';
 import {getMetaRelationsFromObject} from './getMetaRelationsFromObject';
 
 class FileSchema {

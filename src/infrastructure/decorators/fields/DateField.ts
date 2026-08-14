@@ -6,6 +6,8 @@ import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transf
 import {MinDate} from '../validators/MinDate';
 import {MaxDate} from '../validators/MaxDate';
 
+type DateFunction = () => Date;
+
 export const normalizeDate = (rawValue) => {
     if (!rawValue) {
         return rawValue;
@@ -38,8 +40,8 @@ const MAX_DATE_DEFAULT_MESSAGE_PREFIX = 'Выбрана дата позже ма
 type DateConstraintMessage = string | ((args: ValidationArguments) => string);
 
 export interface IDateFieldOptions extends IBaseFieldOptions {
-    minDate?: string | Date | Function,
-    maxDate?: string | Date | Function,
+    minDate?: string | Date | DateFunction,
+    maxDate?: string | Date | DateFunction,
     minDateConstraintMessage?: DateConstraintMessage,
     maxDateConstraintMessage?: DateConstraintMessage,
     isISO8601ConstraintMessage?: string,

@@ -1,9 +1,39 @@
 {
     "extends": [
-        "@steroidsjs/eslint-config"
+        "@steroidsjs/eslint-config/backend"
     ],
     "parser": "@typescript-eslint/parser",
+    "rules": {
+        "prettier/prettier": "off",
+        "max-classes-per-file": "off",
+        "no-continue": "off",
+        "max-len": ["warn", {"code": 150, "comments": 1000}],
+        "no-case-declarations": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "no-console": "off",
+        "import/no-dynamic-require": "off"
+    },
     "env": {
         "node": true
+    },
+    "overrides": [
+        {
+            "files": [
+                "**/*.test.ts",
+                "**/*.spec.ts"
+            ],
+            "rules": {
+                "import/no-extraneous-dependencies": [
+                    "error",
+                    {
+                        "devDependencies": true,
+                        "optionalDependencies": false
+                    }
+                ]
+            }
+        }
+    ],
+    "parserOptions": {
+        "project": "./tsconfig.eslint.json"
     }
 }

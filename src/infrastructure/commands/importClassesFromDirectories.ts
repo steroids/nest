@@ -1,12 +1,13 @@
-import * as glob from "glob";
-import {PlatformTools} from "@steroidsjs/typeorm/platform/PlatformTools";
-import {EntitySchema} from "@steroidsjs/typeorm/entity-schema/EntitySchema";
-import {Logger} from "@steroidsjs/typeorm/logger/Logger";
-import {importOrRequireFile} from "@steroidsjs/typeorm/util/ImportUtils";
+import {glob} from 'glob';
+import {EntitySchema, Logger} from 'typeorm';
+import {PlatformTools} from 'typeorm/platform/PlatformTools';
+import {importOrRequireFile} from 'typeorm/util/ImportUtils';
 
 class MockMigration {
     name: string;
+
     file: string;
+
     _lazyInstance: any;
 
 
@@ -33,6 +34,7 @@ const createMockMigration = file => {
     const matches = /([0-9]+)-([a-zA-Z0-9]+)+.(ts|js)$/.exec(file);
     const name = matches ? matches[2] + matches[1] : 'MockMigration';
 
+    // eslint-disable-next-line no-new-func
     const NewClass = new Function('return function ' + name + '(){ this.name = "' + name + '"; this.file = "' + file + '" }')();
     NewClass.prototype = Object.create(MockMigration.prototype);
 
@@ -42,11 +44,18 @@ const createMockMigration = file => {
 /**
  * Loads all exported classes from the given directory.
  */
-export async function importClassesFromDirectories(logger: Logger, directories: string[], formats = [".js", ".mjs", ".cjs", ".ts", ".mts", ".cts"]): Promise<Function[]> {
+export async function importClassesFromDirectories(
+    logger: Logger,
+    directories: string[],
+    formats = [".js", ".mjs", ".cjs", ".ts", ".mts", ".cts"],
+    // eslint-disable-next-line @typescript-eslint/ban-types
+): Promise<Function[]> {
 
     const logLevel = "info";
     const classesNotFoundMessage = "No classes were found using the provided glob pattern: ";
     const classesFoundMessage = "All classes found using provided glob pattern";
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
     function loadFileClasses(exported: any, allLoaded: Function[]) {
         if (typeof exported === "function" || exported instanceof EntitySchema) {
             allLoaded.push(exported);
@@ -61,19 +70,9 @@ export async function importClassesFromDirectories(logger: Logger, directories: 
         return allLoaded;
     }
 
-    let allFiles: string[] = [];
-    await Promise.all(directories.map(dir => {
-        return new Promise((resolve, reject) => {
-            glob(PlatformTools.pathNormalize(dir), (err, matches) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    allFiles = allFiles.concat(matches)
-                    resolve(null);
-                }
-            });
-        });
-    }));
+    const allFiles = (await Promise.all(
+        directories.map(dir => glob(PlatformTools.pathNormalize(dir))),
+    )).flat();
 
     if (directories.length > 0 && allFiles.length === 0) {
         logger.log(logLevel, `${classesNotFoundMessage} "${directories}"`);

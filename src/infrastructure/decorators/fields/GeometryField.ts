@@ -1,12 +1,12 @@
 import {applyDecorators} from '@nestjs/common';
-import {ApiPropertyOptions} from '@nestjs/swagger';
 import {BaseField, IBaseFieldOptions} from './BaseField';
+import type {ISwaggerFieldType} from './helpers/InternalFieldMetadataHelpers';
 
 export interface IGeometryFieldOptions extends IBaseFieldOptions {
     srid: number,
     spatialFeatureType: string,
     // Use to manually define a field type in Swagger.
-    swaggerType?: ApiPropertyOptions['type'];
+    swaggerType?: ISwaggerFieldType,
 }
 
 export function GeometryField(options: IGeometryFieldOptions = {
@@ -17,7 +17,7 @@ export function GeometryField(options: IGeometryFieldOptions = {
         BaseField(options, {
             decoratorName: 'GeometryField',
             appType: 'geometry',
-            swaggerType: options.swaggerType ?? 'object',
+            swaggerType: options.swaggerType ?? Object,
         }),
     ].filter(Boolean));
 }

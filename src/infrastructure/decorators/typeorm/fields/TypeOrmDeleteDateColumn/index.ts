@@ -1,4 +1,4 @@
-import {DeleteDateColumn} from '@steroidsjs/typeorm';
+import {DeleteDateColumn} from 'typeorm';
 
 export default () => [
     DeleteDateColumn({

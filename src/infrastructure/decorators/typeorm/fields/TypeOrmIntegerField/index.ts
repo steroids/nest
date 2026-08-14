@@ -1,5 +1,5 @@
+import {Column} from 'typeorm';
 import {IAllFieldOptions} from '../../../fields';
-import {Column} from '@steroidsjs/typeorm';
 
 export default (options: IAllFieldOptions) => [
     Column({

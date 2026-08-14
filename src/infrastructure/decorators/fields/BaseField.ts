@@ -109,6 +109,7 @@ export {
     IFieldInternalOptions,
     IFieldOptions,
     IRelationData,
+    ISwaggerFieldType,
     STEROIDS_META_FIELD_INTERNAL_OPTIONS,
     STEROIDS_META_FIELD_OPTIONS,
     STEROIDS_META_KEYS,

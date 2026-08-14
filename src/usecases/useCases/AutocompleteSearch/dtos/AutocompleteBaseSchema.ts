@@ -1,5 +1,6 @@
 import {IntegerField, RelationField, StringField} from '../../../../infrastructure/decorators/fields';
 
+
 export class AutocompleteBaseItemSchema {
     @IntegerField({
         label: 'Ключ значения',

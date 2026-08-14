@@ -24,5 +24,5 @@ export interface IValidatorParams {
 }
 
 export interface IValidator {
-    validate(dto: any, params: IValidatorParams);
+    validate(dto: any, params: IValidatorParams),
 }

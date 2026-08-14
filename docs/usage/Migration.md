@@ -59,7 +59,7 @@ ORM-сущности, соответствующей конкретной дом
 ```typescript
 import {TableFromModel} from '@steroidsjs/nest/infrastructure/decorators/TableFromModel';
 import {IDeepPartial} from '@steroidsjs/nest/usecases/interfaces/IDeepPartial';
-import {Index} from '@steroidsjs/typeorm';
+import {Index} from 'typeorm';
 import {UserModel} from '../../domain/models/UserModel';
 
 @TableFromModel(UserModel, 'user')
@@ -77,7 +77,7 @@ export class UserTable implements IDeepPartial<UserModel> {}
 Миграции будут выполняться в порядке от самой ранней временной метки в названии к самой поздней.
 
 ```typescript
-import {MigrationInterface, QueryRunner} from '@steroidsjs/typeorm';
+import {MigrationInterface, QueryRunner} from 'typeorm';
 
 export class UserTable1695645734527 implements MigrationInterface {
     name = 'UserTable1695645734527';
@@ -157,4 +157,3 @@ yarn cli entity:generate <entityName> <moduleName>
 интерфейса репозитория, сервиса, ORM-сущности,
 dto для поиска и сохранения по названию модели (`<entityName>`)
 и названию модуля (`<moduleName>`).
-

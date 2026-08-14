@@ -7,13 +7,18 @@ export interface IContextDto {
 }
 
 export class ContextDto implements IContextDto {
-    user?: any | { // TODO Use AuthUserDto
+    // TODO Use AuthUserDto
+    user?: any | {
         id?: number,
         name?: string,
         permissions?: string[],
     };
+
     ipAddress: string;
+
     userAgent?: string;
+
     language?: string;
+
     loginUid?: string;
 }

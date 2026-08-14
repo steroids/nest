@@ -1,5 +1,188 @@
 # Steroids Nest Migration Guide
 
+## [5.1.0](../CHANGELOG.md#510-2026-08-11) (2026-08-11)
+
+### Поддержка NestJS 11
+
+`@steroidsjs/nest` 5.1.0 одновременно поддерживает NestJS 10 и NestJS 11.
+Обновление самого пакета не требует обязательного перехода на NestJS 11: проекты на NestJS 10 могут сохранить текущие версии зависимостей.
+
+Для перехода приложения на NestJS 11 обновите основные NestJS-пакеты согласованно, не смешивая разные major-версии:
+
+```json
+{
+  "dependencies": {
+    "@nestjs/cli": "^11.0.24",
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/swagger": "^11.4.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6"
+  }
+}
+```
+
+NestJS 11 требует Node.js 20 или новее, а Nest CLI 11 — Node.js 20.11 или новее.
+Перед обновлением также проверьте `peerDependencies` остальных NestJS- и `@steroidsjs/*`-пакетов приложения: поддержка NestJS 11 должна быть заявлена каждым из них отдельно.
+
+### Переход на Express 5
+
+`@nestjs/platform-express` использует Express 4 в NestJS 10 и Express 5 в NestJS 11.
+`@steroidsjs/nest` больше не устанавливает собственную версию `express` и не добавляет вторую, несовместимую major-версию в дерево зависимостей.
+
+Если приложение добавляло `express` только ради типов `Request` и `Response`, прямую runtime-зависимость можно удалить, оставив `@types/express`. При переходе на NestJS 11 обновите типы до Express 5 и используйте type-only imports:
+
+```ts
+import type {Request, Response} from 'express';
+```
+
+Если приложение напрямую создаёт Express Router или использует runtime API Express, его собственную зависимость `express` также необходимо обновить до версии 5.
+
+В Express 5 изменился синтаксис маршрутов `path-to-regexp`. Проверьте wildcard-маршруты и middleware paths:
+
+```text
+/files/*  -> /files/*path
+/*        -> /{*path}
+```
+
+Wildcard должен иметь имя, а форма `{*path}` используется, если маршрут должен совпадать и с корневым путём. Также проверьте код, который перезаписывает `request.query`: в Express 5 это getter, доступный только для чтения.
+
+Кроме того, Express 5 по умолчанию использует упрощённый query parser вместо расширенного. Стандартный `RestApplication` явно устанавливает `query parser` в значение `extended`, поэтому вложенные параметры в bracket notation, например `filter[name]=value` или `tags[]=one&tags[]=two`, продолжат разбираться как объекты и массивы.
+
+Подробнее об изменениях Express 5 и необходимых действиях читайте в [официальном migration guide NestJS](https://docs.nestjs.com/migration-guide#express-v5).
+
+### Настройка парсеров запросов в `RestApplication`
+
+`RestApplication` больше не подключает внешний `body-parser`. Ограничение размера запроса настраивается через `NestExpressApplication.useBodyParser`, поэтому один и тот же код использует совместимый parser и в NestJS 10, и в NestJS 11. Для сохранения расширенного разбора query-параметров при переходе на Express 5 приложение также явно устанавливает настройку `query parser`.
+
+При использовании стандартного `RestApplication` дополнительных действий не требуется. Если проект переопределяет `createApp` или `initSettings`, используйте Express-тип приложения и штатный API адаптера:
+
+```ts
+import {NestFactory} from '@nestjs/core';
+import {NestExpressApplication} from '@nestjs/platform-express';
+
+protected _app: NestExpressApplication;
+
+protected async createApp() {
+    this._app = await NestFactory.create<NestExpressApplication>(this._moduleClass, {
+        logger: this._config.loggerLevels,
+    });
+}
+
+protected initSettings() {
+    this._app.set('query parser', 'extended');
+
+    this._app.useBodyParser('json', {
+        limit: this._config.requestSizeLimit,
+    });
+    this._app.useBodyParser('urlencoded', {
+        extended: true,
+        limit: this._config.requestSizeLimit,
+    });
+}
+```
+
+Настройка `query parser` управляет разбором параметров из URL, а option `extended` у URL-encoded body parser — разбором тела запроса. Это независимые настройки, поэтому при переопределении `initSettings` нужны обе.
+
+Если проект самостоятельно импортирует `body-parser`, его нужно оставить в зависимостях самого проекта. Удаление касается только внутреннего использования в `@steroidsjs/nest`.
+
+### Metadata Field-декораторов и `DataMapper.exportModels`
+
+Swagger 11 запрещает импорт закрытого модуля `@nestjs/swagger/dist/constants`. `DataMapper.exportModels` больше не зависит от Swagger metadata и читает `label` и `required` из публичных options Field-декораторов.
+
+Если приложение использует результат `DataMapper.exportModels`, проверьте обязательность полей. Ранее экспортированное значение `required` фактически определялось выражением `nullable === false`; теперь оно соответствует option `required`:
+
+```ts
+@StringField({
+    required: true,
+    nullable: false,
+})
+name: string;
+```
+
+Указывайте `required` явно для полей, которые должны быть помечены обязательными в экспортированной модели. `nullable` продолжает описывать допустимость `null` и настройку соответствующей колонки, а `required` — обязательность заполнения поля.
+
+## [5.0.0](../CHANGELOG.md#500-2026-07-23) (2026-07-23)
+
+### Переход с форков TypeORM на оригинальные пакеты
+
+Форки `@steroidsjs/typeorm` и `@steroidsjs/nest-typeorm` больше не используются.
+Их необходимо заменить на оригинальные пакеты `typeorm` и `@nestjs/typeorm`.
+
+Удалите старые зависимости и установите новые:
+
+```shell
+yarn remove @steroidsjs/typeorm @steroidsjs/nest-typeorm
+yarn add typeorm@^1.1.0 @nestjs/typeorm@^11.0.3
+```
+
+Если зависимости редактируются вручную, в `package.json` должны использоваться следующие версии:
+
+```json
+{
+  "dependencies": {
+    "@nestjs/typeorm": "^11.0.3",
+    "typeorm": "^1.1.0"
+  }
+}
+```
+
+Обновите импорты и устаревшие API:
+
+| Было | Стало |
+| --- | --- |
+| `@steroidsjs/typeorm` | `typeorm` |
+| `@steroidsjs/typeorm/...` | `typeorm/...` |
+| `@steroidsjs/nest-typeorm` | `@nestjs/typeorm` |
+| `Connection` | `DataSource` |
+| `PostgresConnectionOptions` | `PostgresDataSourceOptions` |
+| `queryBuilder.connection` | `queryBuilder.dataSource` |
+| `queryRunner.connection` | `queryRunner.dataSource` |
+
+Пример обновления конфигурации:
+
+```ts
+import {TypeOrmModule} from '@nestjs/typeorm';
+import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSourceOptions';
+
+const databaseOptions: PostgresDataSourceOptions = {
+    type: 'postgres',
+    host: process.env.APP_DATABASE_HOST,
+    port: parseInt(process.env.APP_DATABASE_PORT, 10),
+    database: process.env.APP_DATABASE_NAME,
+    username: process.env.APP_DATABASE_USERNAME,
+    password: process.env.APP_DATABASE_PASSWORD,
+};
+
+TypeOrmModule.forRoot(databaseOptions);
+```
+
+В TypeORM 1.x удалены `getFromContainer` и связанный с ним глобальный контейнер.
+Миграции создаются непосредственно через конструктор класса, поэтому их конструкторы не должны требовать аргументов:
+
+```ts
+const migration = new MigrationClass();
+```
+
+Если проект переопределяет внутренний `ConnectionMetadataBuilder.buildMigrations`, необходимо также заменить
+`this.connection` на `this.dataSource`.
+
+## [4.4.2](../CHANGELOG.md#442-2026-06-26) (2026-06-26)
+
+### Удаление `GracefulController`
+
+Удалены `GracefulController` и `GracefulService`, а также связанная с ними настройка `gracefulEnabled` в `IRestAppModuleConfig`.
+
+Это ломает обратную совместимость для проектов, которые:
+- использовали встроенный `GET /health`;
+- включали `gracefulEnabled` в конфиге REST-приложения;
+- переопределяли `RestApplication.init()` и вызывали `this.initGraceful()`.
+
+Теперь библиотека больше не добавляет `app.enableShutdownHooks()` автоматически и не предоставляет встроенный `GET /health`.
+Если приложению по-прежнему нужен health-check, его нужно реализовать в проекте самостоятельно.
+
 ## [4.4.0](../CHANGELOG.md#440-2026-05-14) (2026-05-14)
 
 ### Добавление `RestApplication.initCookieParser`

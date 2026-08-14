@@ -1,5 +1,4 @@
-import {DeepPartial, EntityManager, Repository} from '@steroidsjs/typeorm';
-import {SelectQueryBuilder} from '@steroidsjs/typeorm/query-builder/SelectQueryBuilder';
+import {DeepPartial, EntityManager, Repository, SelectQueryBuilder} from 'typeorm';
 import {OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {SearchHelperTypeORM} from '../helpers/typeORM/SearchHelperTypeORM';
 import {ICrudRepository, TransactionHandler} from '../../usecases/interfaces/ICrudRepository';
@@ -20,7 +19,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
     /**
      * Table primary key
      */
-    public primaryKey: string = 'id';
+    public primaryKey = 'id';
 
     /**
      * TypeORM repository instance
@@ -136,7 +135,7 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
      */
     protected createQueryBuilder(
         conditionOrQuery: ICondition | SearchQuery<TModel>,
-        eagerLoading: boolean = true,
+        eagerLoading = true,
     ): [SelectQueryBuilder<any>, SearchQuery<TModel>] {
         let searchQuery = conditionOrQuery as SearchQuery<TModel>;
         if (!(conditionOrQuery instanceof SearchQuery)) {
@@ -197,12 +196,12 @@ export class CrudRepository<TModel> implements ICrudRepository<TModel>, OnModule
                     ),
                 ),
             );
-        } else {
-            return this.saveInternal(
-                {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
-                model,
-            );
-        }
+        } 
+        return this.saveInternal(
+            {save: (nextModel) => saver(this.dbRepository.manager, nextModel)},
+            model,
+        );
+        
     }
 
     /**

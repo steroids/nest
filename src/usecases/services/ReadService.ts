@@ -16,7 +16,7 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
     /**
      * Model primary key
      */
-    protected primaryKey: string = 'id';
+    protected primaryKey = 'id';
 
     /**
      * CRUD repository instance (not TypeORM!)
@@ -46,6 +46,7 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
     }
 
     async search(dto: TSearchDto, context?: ContextDto | null): Promise<SearchResultDto<TModel>>
+
     async search<TSchema>(
         dto: TSearchDto,
         context?: ContextDto | null,
@@ -99,6 +100,7 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
     }
 
     async findById(id: number | string, context?: ContextDto | null): Promise<TModel>
+
     async findById<TSchema>(
         id: number | string,
         context?: ContextDto | null,
@@ -135,7 +137,7 @@ export class ReadService<TModel, TSearchDto extends ISearchInputDto = ISearchInp
      * @param searchQuery
      */
     async findMany(searchQuery: SearchQuery<TModel>): Promise<TModel[]> {
-        return await this.repository.findMany(searchQuery);
+        return this.repository.findMany(searchQuery);
     }
 
     /**

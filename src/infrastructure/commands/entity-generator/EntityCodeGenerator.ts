@@ -98,10 +98,10 @@ export class EntityCodeGenerator {
             'utf8',
         );
 
-        for (const placeholder in this.placeholdersValuesMap) {
+        for (const [placeholder, placeholderValue] of Object.entries(this.placeholdersValuesMap)) {
             resultFileContent = resultFileContent.replace(
-                new RegExp(`${escapeRegExp(placeholder)}`, 'g'),
-                this.placeholdersValuesMap[placeholder],
+                new RegExp(escapeRegExp(placeholder), 'g'),
+                placeholderValue,
             );
         }
 
@@ -129,15 +129,15 @@ export class EntityCodeGenerator {
         );
     }
 
-    private findModulePath(moduleName) {
+    private findModulePath(moduleName: string) {
         const possibleModulePaths = [
             path.resolve(this.projectRootPath, 'src', moduleName),
             path.resolve(this.projectRootPath, moduleName),
         ];
 
-        for (const path of possibleModulePaths) {
-            if (fs.existsSync(path)) {
-                return path;
+        for (const somePath of possibleModulePaths) {
+            if (fs.existsSync(somePath)) {
+                return somePath;
             }
         }
 

@@ -10,7 +10,7 @@ import {
 } from 'lodash';
 import * as pluralize from 'pluralize';
 import {loadConfiguration} from '@nestjs/cli/lib/utils/load-configuration';
-import {CommandUtils} from '@steroidsjs/typeorm/commands/CommandUtils';
+import {CommandUtils} from 'typeorm/commands/CommandUtils';
 import {exporter} from '@dbml/core';
 import {templateModel, templateModelField, templateModelRelation, templateTable} from './templates';
 
@@ -27,7 +27,7 @@ const determineRelation = (dbmlJson, manyToManyTables, endpointId) => {
     const ref = dbmlJson.refs[endpointLeft.refId];
     const endpointRight = dbmlJson.endpoints[
         ref.endpointIds.filter(refEndpointId => refEndpointId !== endpointId)[0]
-        ];
+    ];
 
     const relationLeft = endpointLeft.relation;
     const relationRight = endpointRight.relation;
@@ -45,8 +45,8 @@ const determineRelation = (dbmlJson, manyToManyTables, endpointId) => {
             const manyToManyRelationEndpoint = dbmlJson.endpoints[manyToManyRelationField.endpointIds[0]];
             const manyToManyRelationRef = dbmlJson.refs[manyToManyRelationEndpoint.refId];
             const realRelationEndpoint = dbmlJson.endpoints[
-                manyToManyRelationRef.endpointIds.filter(endpointId => endpointId !== manyToManyRelationEndpoint.id)[0]
-                ];
+                manyToManyRelationRef.endpointIds.filter(someEndpointId => someEndpointId !== manyToManyRelationEndpoint.id)[0]
+            ];
             fieldRight = dbmlJson.fields[realRelationEndpoint.fieldIds[0]];
         }
     }
@@ -68,11 +68,9 @@ const findManyToManyTables = (dbmlJson: any) => {
     return manyToManyTables;
 }
 
-const findModules = (tables: Array<{ name: string }>) => {
-    return _uniq(
-        tables.map(table => _split(table.name, '_')[0])
-    );
-}
+const findModules = (tables: Array<{ name: string }>) => _uniq(
+    tables.map(table => _split(table.name, '_')[0])
+)
 
 const getFieldType = (fieldName, typeName, isPrimaryKey) => {
     const typesMap = {
@@ -194,6 +192,7 @@ export async function dbml2code(path) {
                     const fieldLeft = dbmlJson.fields[fieldId];
 
                     fieldLeft.endpointIds.forEach(endpointId => {
+                        // eslint-disable-next-line prefer-const
                         let {relationType, fieldRight} = determineRelation(dbmlJson, manyToManyTables, endpointId);
                         relationType = relationsMap[relationType];
 
@@ -201,7 +200,7 @@ export async function dbml2code(path) {
                         const baseRightName = _camelCase(rightTable.name);
                         const modelRightName = _upperFirst(baseRightName) + 'Model';
 
-                        let fieldName = getRelationFieldName(
+                        const relationFieldName = getRelationFieldName(
                             baseRightName, relationType, fieldLeft.name, rightTable.name
                         );
                         const inverseSideFieldName = !['ManyToMany', 'ManyToOne'].includes(relationType)
@@ -213,7 +212,7 @@ export async function dbml2code(path) {
                         }
 
                         let isOwningSide = ['OneToOne', 'ManyToMany'].includes(relationType) ? false : null;
-                        if ((relationType === 'OneToOne' && fieldName !== 'id')
+                        if ((relationType === 'OneToOne' && relationFieldName !== 'id')
                             || (relationType === 'ManyToMany'
                                 && !relationsWithJoin.includes(`${fieldId} - ${fieldRight.id}`))
                         ) {
@@ -229,7 +228,8 @@ export async function dbml2code(path) {
 
                         if (rightTable.name !== table.name) {
                             const moduleToImport = _split(rightTable.name, '_')[0];
-                            importedModels.push({model: modelRightName, module: moduleToImport});
+                            importedModels.push({model: modelRightName,
+                                module: moduleToImport});
                         }
 
                         modelFieldCodes.push(templateModelRelation(
@@ -237,7 +237,7 @@ export async function dbml2code(path) {
                             relationType,
                             isOwningSide,
                             modelRightName,
-                            fieldName,
+                            relationFieldName,
                             baseRightName,
                             inverseSideFieldName,
                             isNullable,
@@ -272,14 +272,14 @@ export async function dbml2code(path) {
 
 
             const modulesImports = _uniqWith(importedModels, _isEqual).reduce((code, importedModel) => {
-                let path = '';
+                let modelPath = '';
                 if (importedModel.module === moduleName) {
-                    path = `./${importedModel.model}`;
+                    modelPath = `./${importedModel.model}`;
                 } else {
-                    path = `../../../${importedModel.module}/domain/models/${importedModel.model}`;
+                    modelPath = `../../../${importedModel.module}/domain/models/${importedModel.model}`;
                 }
 
-                code += `import { ${importedModel.model} } from '${path}';\n`;
+                code += `import { ${importedModel.model} } from '${modelPath}';\n`;
                 return code;
             }, '');
 

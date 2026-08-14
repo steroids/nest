@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IStringFieldOptions} from '../../../fields/StringField';
 
 export default (options: IStringFieldOptions) => [

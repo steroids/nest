@@ -64,9 +64,9 @@ export class GlobalModule {}
 ```typescript
 import {Module} from '@steroidsjs/nest/infrastructure/decorators/Module';
 import baseConfig from '@steroidsjs/nest/infrastructure/applications/rest/config';
-import {TypeOrmModule} from '@steroidsjs/nest-typeorm';
+import {TypeOrmModule} from '@nestjs/typeorm';
 import {addTransactionalDataSource} from '@steroidsjs/typeorm-transactional';
-import {DataSource} from '@steroidsjs/typeorm';
+import {DataSource} from 'typeorm';
 import {RestApplication} from './RestApplication';
 import {GlobalModule} from './global/GlobalModule';
 

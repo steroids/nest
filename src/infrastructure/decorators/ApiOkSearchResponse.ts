@@ -3,6 +3,7 @@ import {ApiExtraModels, ApiOkResponse, getSchemaPath} from '@nestjs/swagger';
 import {SearchSchema} from '../schemas/SearchSchema';
 
 interface ApiOkSearchResponseOptions {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     type: Function,
 }
 
@@ -13,12 +14,12 @@ export function ApiOkSearchResponse(options: ApiOkSearchResponseOptions) {
         ApiOkResponse({
             schema: {
                 allOf: [
-                    { $ref: getSchemaPath(SearchSchema) },
+                    {$ref: getSchemaPath(SearchSchema)},
                     {
                         properties: {
                             items: {
                                 type: 'array',
-                                items: { $ref: getSchemaPath(itemType) },
+                                items: {$ref: getSchemaPath(itemType)},
                             },
                         },
                     },

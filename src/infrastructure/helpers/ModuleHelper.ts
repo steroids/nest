@@ -2,11 +2,18 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {Provider} from '@nestjs/common';
 
+type ModuleClass = {
+    readonly name: string,
+};
+
 export class ModuleHelper {
 
     private static _allEntities = [];
+
     private static _moduleEntities = {};
+
     private static _configs = {};
+
     private static _initHandlers = [];
 
     static addEntities(entities, moduleName) {
@@ -34,11 +41,11 @@ export class ModuleHelper {
             : this._allEntities;
     }
 
-    static setConfig(moduleClass: Function, config: any) {
+    static setConfig(moduleClass: ModuleClass, config: any) {
         this._configs[moduleClass.name] = config;
     }
 
-    static getConfig<T>(moduleClass: Function): T {
+    static getConfig<T>(moduleClass: ModuleClass): T {
         if (typeof this._configs[moduleClass.name] === 'function') {
             this._configs[moduleClass.name] = this._configs[moduleClass.name]();
         }
@@ -85,19 +92,21 @@ export class ModuleHelper {
             inject: inject.reduce((arr, item) => arr.concat(item), []),
             provide,
             useFactory: (...args) => {
-                const instances = [];
-                let injectIndex = 0;
                 let argsIndex = 0;
-                inject.forEach(() => {
-                    if (Array.isArray(inject[injectIndex])) {
-                        instances.push(inject[injectIndex++].map(() => args[argsIndex++]));
-                    } else {
-                        instances.push(args[argsIndex++]);
-                        injectIndex++;
+
+                const instances = inject.map(item => {
+                    if (Array.isArray(item)) {
+                        const itemInstances = args.slice(argsIndex, argsIndex + item.length);
+                        argsIndex += item.length;
+                        return itemInstances;
                     }
+
+                    const instance = args[argsIndex];
+                    argsIndex += 1;
+                    return instance;
                 });
 
-                return new Type(...instances)
+                return new Type(...instances);
             },
         };
     }

@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {IJSONBFieldOptions} from '../../../fields/JSONBField';
 
 export default (options: IJSONBFieldOptions) => [

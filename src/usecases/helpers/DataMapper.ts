@@ -1,17 +1,26 @@
-import {has as _has} from 'lodash';
-import {isObject as _isObject} from 'lodash';
+import {has as _has, isObject as _isObject} from 'lodash';
+import {DeepPartial} from 'typeorm';
 import {getFieldAppType, getFieldOptions, getMetaFields, isMetaClass} from '../../infrastructure/decorators/fields/BaseField';
 import {IRelationFieldOptions} from '../../infrastructure/decorators/fields/RelationField';
-import {DECORATORS} from '@nestjs/swagger/dist/constants';
-import {DeepPartial} from '@steroidsjs/typeorm';
 import {
     getTransformCallbacks,
     ITransformType,
     TRANSFORM_TYPE_COMPUTABLE,
-    TRANSFORM_TYPE_DEFAULT
+    TRANSFORM_TYPE_DEFAULT,
+    TRANSFORM_TYPE_TO_DB,
 } from '../../infrastructure/decorators/Transform';
 import {IType} from '../interfaces/IType';
+import IManualSchema from '../interfaces/IManualSchema';
 import {getModelBuilder} from '../../infrastructure/base/ModelTableStorage';
+
+interface IExportedModelField {
+    attribute: string,
+    type: string,
+    label?: string,
+    required?: boolean,
+    items?: string,
+    modelClass?: string,
+}
 
 export class DataMapper {
     static create<T>(
@@ -69,8 +78,9 @@ export class DataMapper {
          * @see IManualSchema
          */
         // TODO May be @BeforeCreate() decorator?
-        if (result['updateFromModel'] && typeof result['updateFromModel'] === 'function' && values) {
-            result['updateFromModel'](values);
+        const manualSchema = result as T & Partial<IManualSchema<DeepPartial<T>>>;
+        if (typeof manualSchema.updateFromModel === 'function' && values) {
+            manualSchema.updateFromModel(values);
             return result;
         }
 
@@ -83,7 +93,10 @@ export class DataMapper {
         const MetaClass = object.constructor;
         const keys = isMetaClass(MetaClass) ? getMetaFields(MetaClass) : Object.keys(values);
 
-        const transformTypes = transformType === TRANSFORM_TYPE_DEFAULT
+        const includeComputable = transformType !== TRANSFORM_TYPE_COMPUTABLE
+            && transformType !== TRANSFORM_TYPE_TO_DB;
+
+        const transformTypes = includeComputable
             ? [transformType, TRANSFORM_TYPE_COMPUTABLE]
             : [transformType];
 
@@ -115,10 +128,10 @@ export class DataMapper {
                 }
             }
 
-            for (let type of transformTypes) {
+            for (const type of transformTypes) {
                 if (_has(values, sourceName) || type !== TRANSFORM_TYPE_DEFAULT) {
                     const callbacks = getTransformCallbacks(MetaClass.prototype, name, type);
-                    for (let callback of callbacks) {
+                    for (const callback of callbacks) {
                         const value = callback({
                             value: object[name],
                             item: values,
@@ -142,15 +155,14 @@ export class DataMapper {
             const fieldNames = getMetaFields(type);
             result[type.name] = {
                 attributes: fieldNames.map(fieldName => {
-                    const apiMeta = Reflect.getMetadata(DECORATORS.API_MODEL_PROPERTIES, type.prototype, fieldName);
                     const options = getFieldOptions(type, fieldName);
                     const appType = getFieldAppType(type, fieldName);
 
-                    const fieldData = {
+                    const fieldData: IExportedModelField = {
                         attribute: fieldName,
                         type: appType || 'string',
-                        label: options.label || apiMeta.description,
-                        required: apiMeta.required,
+                        label: options.label,
+                        required: options.required,
                         ...(options.enum
                             ? {
                                 items: (Array.isArray(options.enum) ? options.enum[0] : options.enum).name
@@ -159,7 +171,7 @@ export class DataMapper {
                     };
 
                     if (fieldData.type === 'relation') {
-                        fieldData['modelClass'] = (options as IRelationFieldOptions).relationClass().name;
+                        fieldData.modelClass = (options as IRelationFieldOptions).relationClass().name;
                     }
 
                     return fieldData;

@@ -1,8 +1,8 @@
 import {NestFactory, Reflector} from '@nestjs/core';
-import {json, urlencoded} from 'body-parser';
+import {NestExpressApplication} from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
-import {INestApplication, VersioningType} from '@nestjs/common';
+import {VersioningType} from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
 import {SentryExceptionFilter} from './SentryExceptionFilter';
 import {SchemaSerializer} from './SchemaSerializer';
@@ -22,7 +22,7 @@ export class RestApplication extends BaseApplication {
      * An instance of an application built with NestJS.
      * @protected
      */
-    protected _app: INestApplication;
+    protected _app: NestExpressApplication;
 
     /**
      * The class of the application module (default is `AppModule`).
@@ -161,7 +161,6 @@ export class RestApplication extends BaseApplication {
         this._app.useGlobalFilters(new UserExceptionFilter());
     }
 
-
     /**
      * Initialization of global interceptors (default is `SchemaSerializer`).
      * @protected
@@ -177,18 +176,15 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected initSettings() {
-        this._app.use(json({ limit: this._config.requestSizeLimit }));
-        this._app.use(urlencoded({ extended: true, limit: this._config.requestSizeLimit }));
-    }
+        this._app.set('query parser', 'extended');
 
-    /**
-     * Enable graceful application shutdown if the `gracefulEnabled` property is enabled in the configuration.
-     * @protected
-     */
-    protected initGraceful() {
-        if (this._config.gracefulEnabled) {
-            this._app.enableShutdownHooks();
-        }
+        this._app.useBodyParser('json', {
+            limit: this._config.requestSizeLimit,
+        });
+        this._app.useBodyParser('urlencoded', {
+            extended: true,
+            limit: this._config.requestSizeLimit,
+        });
     }
 
     /**
@@ -196,7 +192,7 @@ export class RestApplication extends BaseApplication {
      * @protected
      */
     protected async createApp() {
-        this._app = await NestFactory.create(this._moduleClass, {
+        this._app = await NestFactory.create<NestExpressApplication>(this._moduleClass, {
             logger: this._config.loggerLevels,
         });
     }
@@ -226,7 +222,6 @@ export class RestApplication extends BaseApplication {
         this.initFilters();
         this.initInterceptors();
         this.initSettings();
-        this.initGraceful();
     }
 
     /**
@@ -239,13 +234,14 @@ export class RestApplication extends BaseApplication {
         const port = parseInt(process.env.PORT, 10);
 
         // eslint-disable-line no-console
-        const onStartCallback = () => console.log(`Server started http://localhost:${port}`);
-        const appListenArguments = this._config.isListenLocalhost
-            ? [port, 'localhost', onStartCallback]
-            : [port, onStartCallback];
+        const onStartCallback = () => console.log(
+            `Server started http://${this._config.isListenLocalhost ? '127.0.0.1' : 'localhost'}:${port}`,
+        );
+        if (this._config.isListenLocalhost) {
+            return this._app.listen(port, '127.0.0.1', onStartCallback);
+        }
 
-        // @ts-ignore
-        return this._app.listen(...appListenArguments);
+        return this._app.listen(port, onStartCallback);
     }
 
     /**

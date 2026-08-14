@@ -1,4 +1,4 @@
-import {Column} from '@steroidsjs/typeorm';
+import {Column} from 'typeorm';
 import {ICoordinateFieldOptions} from '../../../fields/CoordinateField';
 
 export default (options: ICoordinateFieldOptions) => [

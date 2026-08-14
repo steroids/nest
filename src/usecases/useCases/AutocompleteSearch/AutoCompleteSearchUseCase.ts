@@ -9,7 +9,7 @@ import {ReadService} from '../../services/ReadService';
 export abstract class AutoCompleteSearchUseCase<TModel> {
     protected constructor(
        protected readonly entityService: ReadService<TModel>,
-   ) {}
+    ) {}
 
     public async handle<TSchema extends new (...args: any[]) => AutocompleteBaseItemSchema>(
         dto: AutocompleteBaseDto,

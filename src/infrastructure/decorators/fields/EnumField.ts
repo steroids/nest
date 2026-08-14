@@ -8,12 +8,12 @@ const IS_ENUM_DEFAULT_MESSAGE = 'Выберите одно из значений
 
 export interface IEnumFieldOptions extends IBaseFieldOptions {
     enum: object | string[] | any,
-    enumName?: string;
+    enumName?: string,
     isEnumConstraintMessage?: string,
 }
 
 type BaseEnumClass<T extends BaseEnum = BaseEnum> = {
-    new (): T;
+    new (): T,
 } & typeof BaseEnum;
 
 function getOpenApiEnum(enumEntity: string[] | object | BaseEnumClass): string[] {

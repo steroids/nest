@@ -1,5 +1,5 @@
-import {TypeOrmModule, TypeOrmModuleOptions} from '@steroidsjs/nest-typeorm';
-import {PostgresConnectionOptions} from '@steroidsjs/typeorm/driver/postgres/PostgresConnectionOptions';
+import {TypeOrmModule, TypeOrmModuleOptions} from '@nestjs/typeorm';
+import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSourceOptions';
 import {SentryModule} from '@sentry/nestjs/setup';
 import {EventEmitterModule} from '@nestjs/event-emitter';
 import {ModuleHelper} from '../../helpers/ModuleHelper';
@@ -23,9 +23,10 @@ export default {
             password: process.env.APP_DATABASE_PASSWORD,
             synchronize: false,
             migrationsRun: false,
-            logging: ['schema', 'warn', 'error', 'migration'/*, 'query'/**/],
+            // add 'query' for db queries logging
+            logging: ['schema', 'warn', 'error', 'migration'],
             namingStrategy: new DatabaseNamingStrategy(),
-        } as PostgresConnectionOptions,
+        } as PostgresDataSourceOptions,
     } as IAppModuleConfig),
     module: (config: IAppModuleConfig) => ({
         imports: [

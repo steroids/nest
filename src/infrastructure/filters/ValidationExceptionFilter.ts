@@ -1,5 +1,5 @@
 import {ExceptionFilter, Catch, ArgumentsHost, HttpStatus} from '@nestjs/common';
-import { Response } from 'express';
+import type {Response} from 'express';
 import {ValidationException} from '../../usecases/exceptions';
 
 @Catch(ValidationException)
@@ -9,7 +9,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
 
         response
-            // TODO#Warning - ставим код 200, чтобы форма на фронте принимала массив ошибок
+            // Используем код 200 потому что именно его ожидает фронтенд, это обсуждается в задаче steroids/dev#938
             .status(HttpStatus.OK)
             .json({
                 statusCode: HttpStatus.BAD_REQUEST,

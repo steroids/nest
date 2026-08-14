@@ -1,8 +1,10 @@
 import {registerDecorator, ValidationArguments, ValidationOptions} from 'class-validator';
 import {normalizeDate, normalizeFunctionDate} from '../fields/DateField';
 
-export function MinDate(minDate: string | Date | Function, validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
+type MinDateFunction = () => Date;
+
+export function MinDate(minDate: string | Date | MinDateFunction, validationOptions?: ValidationOptions) {
+    return (object: Record<string, any>, propertyName: string) => {
         registerDecorator({
             name: 'minDate',
             target: object.constructor,
@@ -10,7 +12,7 @@ export function MinDate(minDate: string | Date | Function, validationOptions?: V
             constraints: [minDate],
             options: validationOptions,
             validator: {
-                validate: function (value: any, args: ValidationArguments) {
+                validate (value: any, args: ValidationArguments) {
                     return new Date(normalizeDate(value)) >= new Date(normalizeFunctionDate(args.constraints[0], args));
                 },
             },

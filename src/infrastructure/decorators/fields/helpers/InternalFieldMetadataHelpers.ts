@@ -1,5 +1,6 @@
 import {isString} from 'class-validator';
-import type {ApiPropertyOptions} from '@nestjs/swagger';
+import type {Type} from '@nestjs/common';
+import {ApiPropertyOptions} from '@nestjs/swagger';
 import type {IAllFieldOptions} from '../index';
 import type {IBaseFieldOptions} from '../BaseField';
 
@@ -16,9 +17,12 @@ export interface IRelationData {
     relationClass: () => any,
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type ISwaggerFieldType = Type<unknown> | Function | [Function] | 'array' | 'string' | 'number' | 'boolean' | 'integer' | 'null';
+
 export interface IFieldInternalOptions {
     appType?: AppColumnType,
-    swaggerType?: ApiPropertyOptions['type'],
+    swaggerType?: ISwaggerFieldType,
     decoratorName?: string,
 }
 
@@ -31,11 +35,19 @@ export const getMetaFields = (MetaClass): string[] => {
     return Reflect.getMetadata(STEROIDS_META_KEYS, MetaClass.prototype) || [];
 };
 
-export const getFieldOptions = (targetClass, fieldName: string): IFieldOptions => targetClass && Reflect.getMetadata(STEROIDS_META_FIELD_OPTIONS, targetClass.prototype, fieldName);
+export const getFieldOptions = (targetClass, fieldName: string): IFieldOptions => (
+    targetClass
+    && Reflect.getMetadata(STEROIDS_META_FIELD_OPTIONS, targetClass.prototype, fieldName)
+);
 
-export const getFieldInternalOptions = (targetClass, fieldName: string): IFieldInternalOptions | undefined => targetClass && Reflect.getMetadata(STEROIDS_META_FIELD_INTERNAL_OPTIONS, targetClass.prototype, fieldName);
+export const getFieldInternalOptions = (targetClass, fieldName: string): IFieldInternalOptions | undefined => (
+    targetClass
+    && Reflect.getMetadata(STEROIDS_META_FIELD_INTERNAL_OPTIONS, targetClass.prototype, fieldName)
+);
 
-export const getFieldAppType = (targetClass, fieldName: string): AppColumnType | undefined => getFieldInternalOptions(targetClass, fieldName)?.appType;
+export const getFieldAppType = (targetClass, fieldName: string): AppColumnType | undefined => (
+    getFieldInternalOptions(targetClass, fieldName)?.appType
+);
 
 export const getMetaPrimaryKey = (targetClass): string => getMetaFields(targetClass)
     .find(key => getFieldAppType(targetClass, key) === 'primaryKey') || null;
@@ -43,6 +55,7 @@ export const getMetaPrimaryKey = (targetClass): string => getMetaFields(targetCl
 export const isMetaClass = (MetaClass): boolean => Reflect.hasMetadata(STEROIDS_META_KEYS, MetaClass.prototype);
 
 export const getMetaRelations = (MetaClass, parentPrefix = null): string[] => {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const findRelationsRecursive = (MetaClass, foundClasses, parentPrefix = null) => getMetaFields(MetaClass)
         .filter(fieldName => {
             const options = getFieldOptions(MetaClass, fieldName);
@@ -117,15 +130,15 @@ export const getRelationsByFilter = (
     MetaClass,
     filterCallBack: (options: IFieldOptions) => void,
 ): string[] => getMetaFields(MetaClass)
-    .filter(fieldName => {
-        return ['relation'].includes(getFieldAppType(MetaClass, fieldName));
-    })
+    .filter(fieldName => ['relation'].includes(getFieldAppType(MetaClass, fieldName)))
     .filter((relationName) => {
         const relationOptions = getFieldOptions(MetaClass, relationName);
         return filterCallBack(relationOptions);
     });
 
-export const getFieldDecoratorName = (targetClass, fieldName: string): string | undefined => getFieldInternalOptions(targetClass, fieldName)?.decoratorName;
+export const getFieldDecoratorName = (targetClass, fieldName: string): string | undefined => (
+    getFieldInternalOptions(targetClass, fieldName)?.decoratorName
+);
 
 export const getFieldDecorator = (targetClass, fieldName: string): (...args: any) => PropertyDecorator => {
     const decoratorName: string = getFieldDecoratorName(targetClass, fieldName);
