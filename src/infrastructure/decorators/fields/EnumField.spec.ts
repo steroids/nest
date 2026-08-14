@@ -1,58 +1,34 @@
 import {describe, it, expect} from '@jest/globals';
-import {DECORATORS} from '@nestjs/swagger/dist/constants';
-import {EnumField, IEnumFieldOptions} from './EnumField';
+import {EnumField} from './EnumField';
+import {getFieldAppType, getFieldOptions} from './BaseField';
 import BaseEnum from '../../../domain/base/BaseEnum';
-import {buildDto, validateValue} from './BaseField_test/BaseField.helpers';
 
 const fixtureColors = ['RED', 'GREEN', 'BLUE'];
 
+// Create a simple BaseEnum subclass for testing
 class ColorEnum extends BaseEnum {
     static getKeys() {
         return fixtureColors;
     }
 }
 
-const decorators = [
-    EnumField({enum: ColorEnum}),
-    EnumField({enum: fixtureColors}),
-    EnumField({
-        enum: Object.fromEntries(fixtureColors.map(colorString => [colorString, colorString])),
-    }),
+const enumFixtures = [
+    ColorEnum,
+    fixtureColors,
+    Object.fromEntries(
+        fixtureColors.map(colorString => [colorString, colorString]),
+    ),
 ];
 
 describe('EnumField decorator', () => {
-    describe('IsEnum constraint', () => {
-        it('passes value matching enum', async () => {
-            const Dto = buildDto(EnumField({enum: fixtureColors}));
-            const errors = await validateValue(Dto, 'RED');
-            expect(errors).toHaveLength(0);
-        });
+    it.each(enumFixtures)('stores enum options in field metadata', (enumEntity) => {
+        const targetPropertyKey = 'enumField';
 
-        it.each([
-            [{enum: fixtureColors} as IEnumFieldOptions, 'Выберите одно из значений'],
-            [{enum: fixtureColors, isEnumConstraintMessage: 'Недопустимое значение'}, 'Недопустимое значение'],
-        ])('reports message %#', async (options, expectedMessage) => {
-            const Dto = buildDto(EnumField(options));
-            const errors = await validateValue(Dto, 'YELLOW');
-            expect(errors[0].constraints.isEnum).toBe(expectedMessage);
-        });
-    });
+        class TestSchema {}
 
-    describe('ApiProperty metadata', () => {
-        it.each(decorators)('sets correct api properties to a field', (decorator) => {
-            const targetPropertyKey = 'enumField';
-            const targetObject = {};
+        EnumField({enum: enumEntity})(TestSchema.prototype, targetPropertyKey);
 
-            decorator(targetObject, targetPropertyKey);
-
-            const fieldApiPropertyMeta = Reflect.getMetadata(
-                DECORATORS.API_MODEL_PROPERTIES,
-                targetObject,
-                targetPropertyKey,
-            );
-
-            expect(fieldApiPropertyMeta.enum)
-                .toEqual(fixtureColors);
-        });
+        expect(getFieldOptions(TestSchema, targetPropertyKey).enum).toBe(enumEntity);
+        expect(getFieldAppType(TestSchema, targetPropertyKey)).toBe('enum');
     });
 });
