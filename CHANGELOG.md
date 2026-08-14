@@ -1,9 +1,24 @@
 # Steroids Nest Changelog
 
-## [Unreleased]
+## [5.2.0](https://github.com/steroids/nest/compare/5.1.0...5.2.0) (2026-08-14)
+
+### Features
+
+- Field-декораторы получили единообразную поддержку пользовательских сообщений валидации. Добавлены options `isNotEmptyConstraintMessage`, `isBooleanConstraintMessage`, `isStringConstraintMessage`, `isEmailConstraintMessage`, `isFileConstraintMessage` и `isHhMmTimeConstraintMessage` для соответствующих validation constraints.
+- `DateField` теперь позволяет переопределить сообщения `IsISO8601`, `MinDate` и `MaxDate`; для минимальной и максимальной даты поддерживаются как строки, так и callback-функции.
+- Для `DecimalNumberField` добавлен отдельный публичный интерфейс `IDecimalNumberFieldOptions` с настройками точности, масштаба и сообщений валидации.
 
 ### Fixes
-- `SearchQuery.orderBy` и `addOrderBy` больше не оборачивают alias и поля в двойные кавычки, что исправляло ошибку `""model"" alias was not found` при сортировке с join и paginate.
+
+- `DataMapper` теперь вычисляет computable-поля при маппинге данных из БД и при других преобразованиях, кроме преобразования в БД.
+- `SearchQuery.orderBy` и `addOrderBy` больше не оборачивают alias и поля в двойные кавычки, что исправляет ошибку `""model"" alias was not found` при сортировке с join и paginate.
+- `IntegerField` и `TextField` теперь используют переданные пользовательские сообщения для ограничений `min` и `max`; для строковых ограничений добавлены корректные сообщения по умолчанию.
+- Исправлено имя constraint в валидаторе `MaxDate`: ошибки максимальной даты теперь идентифицируются как `maxDate`, а не `minDate`.
+- Из `UpdateTimeField` удалён лишний validation constraint `IsString`.
+
+### Tests
+
+- Добавлены unit-тесты Field-декораторов, проверяющие стандартные и пользовательские сообщения всех затронутых validation constraints.
 
 ## [5.1.0](https://github.com/steroids/nest/compare/5.0.3...5.1.0) (2026-08-11)
 
