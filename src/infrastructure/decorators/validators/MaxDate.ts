@@ -6,7 +6,7 @@ type MaxDateFunction = () => Date;
 export function MaxDate(maxDate: string | Date | MaxDateFunction, validationOptions?: ValidationOptions) {
     return (object: Record<string, any>, propertyName: string) => {
         registerDecorator({
-            name: 'minDate',
+            name: 'maxDate',
             target: object.constructor,
             propertyName,
             constraints: [maxDate],

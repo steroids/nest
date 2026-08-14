@@ -55,7 +55,13 @@ export interface IBaseFieldOptions {
      * If this flag is set, the field will not be present in the database
      */
     noColumn?: boolean,
+    /**
+     * Custom validation message for the IsNotEmpty constraint (when `required` is true)
+     */
+    isNotEmptyConstraintMessage?: string,
 }
+
+const IS_NOT_EMPTY_DEFAULT_MESSAGE = 'Обязательно для заполнения';
 
 const ColumnMetaDecorator = (options: IFieldOptions, internalOptions: IFieldInternalOptions) => (object, propertyName) => {
     //проверить getOwnMetadata
@@ -92,7 +98,7 @@ export function BaseField(options: IBaseFieldOptions = {}, internalOptions: IFie
             }),
             options.transform && Transform(options.transform),
             options.required && IsNotEmpty({
-                message: 'Обязательно для заполнения',
+                message: options.isNotEmptyConstraintMessage || IS_NOT_EMPTY_DEFAULT_MESSAGE,
             }),
         ].filter(Boolean),
     );
