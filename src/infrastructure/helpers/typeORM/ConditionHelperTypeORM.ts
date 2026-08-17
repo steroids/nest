@@ -28,7 +28,25 @@ const isEmpty = value => value === null || typeof value === 'undefined' || value
 
 const STEROIDS_SUBQUERY_PARAMS_KEY = 'steroids_subquery_params_key'
 
+const deprecatedOperators = new Map([
+    ['&&', 'and'],
+    ['||', 'or'],
+    ['not &&', 'not and'],
+    ['not ||', 'not or'],
+]);
+
 export class ConditionHelperTypeORM {
+
+    private static _logDeprecationWarning(operator: string) {
+        if (deprecatedOperators.has(operator)) {
+            const replacement = deprecatedOperators.get(operator);
+            console.warn(
+                `DeprecationWarning: Operator "${operator}" is deprecated. ` +
+                `Please use "${replacement}" instead. ` +
+                `Note: In PostgreSQL, "${operator}" has a different meaning (${operator === '&&' || operator === 'not &&' ? 'array overlap' : 'string concatenation'}).`
+            );
+        }
+    }
 
     static toTypeOrm(
         condition: ICondition,
@@ -226,6 +244,7 @@ export class ConditionHelperTypeORM {
                 case '&&':
                 case 'or':
                 case '||':
+                    ConditionHelperTypeORM._logDeprecationWarning(operator);
                     let isOr = ['or', '||'].includes(operator);
 
                     if (isNot) {
