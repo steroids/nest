@@ -5,8 +5,10 @@ import {PostgresDataSourceOptions} from 'typeorm/driver/postgres/PostgresDataSou
 import {join} from 'path';
 import {ValidationExceptionFilter} from '../filters/ValidationExceptionFilter';
 import {CreateDtoPipe} from '../pipes/CreateDtoPipe';
-import {ModuleHelper} from '../helpers/ModuleHelper';
 import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
+import repositories from './app/repositories';
+import services from './app/services';
+import tables from './app/tables';
 
 @Module({
     imports: [
@@ -26,11 +28,11 @@ import {DatabaseNamingStrategy} from '../base/DatabaseNamingStrategy';
                 namingStrategy: new DatabaseNamingStrategy(),
             } as PostgresDataSourceOptions),
         }),
-        TypeOrmModule.forFeature(ModuleHelper.importDir(join(__dirname, 'app/tables'))),
+        TypeOrmModule.forFeature(tables),
     ],
     providers: [
-        ...ModuleHelper.importDir(join(__dirname, 'app/repositories')),
-        ...ModuleHelper.importDir(join(__dirname, 'app/services')),
+        ...repositories,
+        ...services,
     ]
 })
 class AppModule {

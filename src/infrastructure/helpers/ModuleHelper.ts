@@ -52,6 +52,13 @@ export class ModuleHelper {
         return this._configs[moduleClass.name] || null;
     }
 
+    /**
+     * Позволяет загрузить все js/ts файлы в папке
+     *
+     * @deprecate в будущем метод будет удален, вместо него вручную подключайте нужные файлы
+     * @param dir
+     * @param custom
+     */
     static importDir(dir, custom = {}) {
         dir = path.normalize(dir);
 
