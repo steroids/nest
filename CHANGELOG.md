@@ -1,5 +1,13 @@
 # Steroids Nest Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Инициализация Sentry удалена из `BaseApplication`, теперь нужно инициализировать в проекте до импорта NestJS
+- Поля `sentry.dsn` и `sentry.environment` удалены из конфигурации приложения. Nest-интеграция и HTTP-фильтр подключаются только для инициализированного клиента Sentry.
+- `@sentry/nestjs` перенесён в `peerDependencies`; его необходимо явно установить в зависимости проекта.
+
 ## [5.2.1](https://github.com/steroids/nest/compare/5.2.0...5.2.1) (2026-08-25)
 
 ### Fixes

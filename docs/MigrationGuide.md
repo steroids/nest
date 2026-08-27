@@ -1,5 +1,37 @@
 # Steroids Nest Migration Guide
 
+## Unreleased
+
+### Инициализация Sentry
+
+Инициализация Sentry больше не выполняется в `BaseApplication`. 
+Пакет `@sentry/nestjs` теперь является `peerDependency`, поэтому установите его явно в зависимости проекта:
+
+```bash
+yarn add @sentry/nestjs
+```
+
+Создайте отдельный bootstrap-файл в приложении и импортируйте его первой 
+строкой каждого исполняемого файла, например `main.ts` и `cli.ts`.
+
+```ts
+// src/base/infrastructure/sentry/initSentry.ts
+import * as dotenv from 'dotenv';
+import * as Sentry from '@sentry/nestjs';
+
+if (!process.env.APP_ENVIRONMENT) {
+    dotenv.config({quiet: true});
+}
+
+if (!Sentry.isInitialized()) {
+    const {APP_SENTRY_DSN: dsn, APP_ENVIRONMENT: environment} = process.env;
+
+    if (dsn) {
+        Sentry.init({dsn, environment});
+    }
+}
+```
+
 ## [5.1.0](../CHANGELOG.md#510-2026-08-11) (2026-08-11)
 
 ### Поддержка NestJS 11

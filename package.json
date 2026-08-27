@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@dbml/core": "^2.4.4",
-    "@sentry/nestjs": "^10.38.0",
     "@sqltools/formatter": "^1.2.5",
     "@supercharge/request-ip": "^1.2.0",
     "class-transformer": "^0.5.1",
@@ -46,6 +45,7 @@
     "@nestjs/platform-express": "^10.4.19 || ^11.0.0",
     "@nestjs/swagger": "^8.1.1 || ^11.0.0",
     "@nestjs/typeorm": "^11.0.3",
+    "@sentry/nestjs": "^10.38.0",
     "class-validator": "^0.14.0",
     "typeorm": "^1.1.0"
   },
@@ -58,6 +58,7 @@
     "@nestjs/platform-express": "^11.1.28",
     "@nestjs/swagger": "^11.4.6",
     "@nestjs/typeorm": "^11.0.3",
+    "@sentry/nestjs": "^10.38.0",
     "@steroidsjs/eslint-config": "^3.0.5",
     "@types/cookie-parser": "^1.4.10",
     "@types/jest": "^30.0.0",
