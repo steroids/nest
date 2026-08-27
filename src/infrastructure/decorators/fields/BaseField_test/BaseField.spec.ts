@@ -8,7 +8,7 @@ const buildBaseFieldDecorator = (options: IBaseFieldOptions) => BaseField(option
 });
 
 describe('BaseField decorator', () => {
-    describe('IsNotEmpty constraint', () => {
+    describe('required constraint', () => {
         it('passes when required value is present', async () => {
             const Dto = buildDto(buildBaseFieldDecorator({required: true}));
             const errors = await validateValue(Dto, 'value');
@@ -21,13 +21,10 @@ describe('BaseField decorator', () => {
             expect(errors).toHaveLength(0);
         });
 
-        it.each([
-            [{required: true} as IBaseFieldOptions, 'Обязательно для заполнения'],
-            [{required: true, isNotEmptyConstraintMessage: 'Заполните'}, 'Заполните'],
-        ])('reports message %#', async (options, expectedMessage) => {
-            const Dto = buildDto(buildBaseFieldDecorator(options));
-            const errors = await validateValue(Dto, '');
-            expect(errors[0].constraints.isNotEmpty).toBe(expectedMessage);
+        it.each([undefined, null])('reports message for missing value %#', async (value) => {
+            const Dto = buildDto(buildBaseFieldDecorator({required: true}));
+            const errors = await validateValue(Dto, value);
+            expect(errors[0].constraints.isDefined).toBe('Обязательно для заполнения');
         });
     });
 });

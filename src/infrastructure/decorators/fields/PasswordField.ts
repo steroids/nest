@@ -38,7 +38,6 @@ export function PasswordField(options: IPasswordFieldOptions = {}) {
             minNumbers: finalOptions.minNumbers,
             minSymbols: finalOptions.minSymbols,
         }, {
-            each: finalOptions.isArray,
             message: finalOptions.isStrongPasswordConstraintMessage,
         }),
     );

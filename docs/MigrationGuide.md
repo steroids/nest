@@ -1,5 +1,98 @@
 # Steroids Nest Migration Guide
 
+## [Unreleased](../CHANGELOG.md#unreleased)
+
+### Изменения Field-декораторов
+
+**Для удобства перехода на эту версию была создана [cli-команда]()**
+
+Ниже перечислены только действия, которые могут понадобиться проекту для сохранения поведения
+
+#### Общие options: `required` и `nullable`
+
+Раньше Swagger считал поле обязательным, если было передано `nullable: false`, даже без `required: true`. После обновления обязательность в Swagger определяется только `required`.
+
+Если прежний OpenAPI-контракт должен остаться обязательным, укажите обе опции явно:
+
+```ts
+@StringField({
+    required: true,
+    nullable: false,
+})
+title: string;
+```
+
+`required: true` больше не является проверкой на непустую строку. Для `StringField` и `TextField`, где раньше пустая строка не допускалась, добавьте `notEmpty: true`.
+
+#### BooleanField
+
+При `required: false` поле раньше принимало `null` и `undefined` без `nullable: true`. Для сохранения этого поведения укажите `nullable: true`.
+
+#### StringField
+
+При `required: false` поле раньше принимало `null` и `undefined` без `nullable: true`. Для сохранения этого поведения укажите `nullable: true`.
+
+Если используется `required: true` и пустая строка должна остаться недопустимой, добавьте `notEmpty: true`.
+
+#### TextField
+
+При `required: false` поле раньше принимало `null` и `undefined` без `nullable: true`. Для сохранения этого поведения укажите `nullable: true`.
+
+Если используется `required: true` и пустая строка должна остаться недопустимой, добавьте `notEmpty: true`.
+
+#### JSONBField
+
+При `required: false` поле раньше принимало `null` и `undefined` без `nullable: true`. Для сохранения этого поведения укажите `nullable: true`.
+
+#### UpdateTimeField
+
+При `required: false` поле раньше принимало `null` и `undefined` без `nullable: true`. Для сохранения этого поведения укажите `nullable: true`.
+
+#### IntegerField
+
+При `nullable: true` поле раньше принимало пустой массив `[]`. Это поведение сохраняется, пока в `arrayOptions` не указан `notEmpty: true`.
+
+#### RelationField
+
+Если связь раньше могла принимать `null`, укажите `nullable: true` явно.
+
+#### RelationIdField
+
+Раньше `isArray: true` вместе с `nullable: false` автоматически запрещал пустой массив. Чтобы сохранить это поведение, добавьте `arrayOptions.notEmpty`.
+Если для этой проверки использовался `isFieldValidConstraintMessage`, перенесите его значение в `arrayOptions.notEmptyConstraintMessage`:
+
+```ts
+@RelationIdField({
+    isArray: true,
+    nullable: false,
+    arrayOptions: {
+        notEmpty: true,
+        notEmptyConstraintMessage: 'Не должно быть пустым',
+    },
+})
+relationIds: number[];
+```
+
+#### FileField
+
+Замените `multiple: true` на `isArray: true`.
+
+#### ImageField
+
+Замените `multiple: true` на `isArray: true`.
+
+#### Поля с `isArray`
+
+У `StringField`, `TextField`, `IntegerField`, `DateField`, `DateTimeField`, `DecimalField`, `DecimalNumberField`, `EnumField`, `FileField`, `ImageField`, `JSONBField` и `RelationIdField` `isArray: true` теперь проверяет, что значение действительно является массивом.
+
+Если проект валидирует DTO напрямую и раньше намеренно принимал скаляр при `isArray: true`, нормализуйте входное значение в массив до валидации либо используйте проектный декоратор без `IsArray`.
+
+#### Поля без поддержки `isArray`
+
+`BooleanField`, `EmailField`, `PasswordField`, `PhoneField`, `TimeField`, `HtmlField`, `GeometryField`, `CoordinateField`, `UidField` и `PrimaryKeyField` больше не принимают `isArray` в публичных options.
+
+Если массив в таком поле действительно нужен, создайте проектный декоратор с `IsArray`, валидаторами элементов с `each: true` и необходимой TypeORM-настройкой. Иначе удалите `isArray`.
+
 ## [5.1.0](../CHANGELOG.md#510-2026-08-11) (2026-08-11)
 
 ### Поддержка NestJS 11

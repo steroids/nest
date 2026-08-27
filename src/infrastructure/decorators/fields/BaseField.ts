@@ -1,8 +1,10 @@
 import {applyDecorators} from '@nestjs/common';
 import {ApiProperty} from '@nestjs/swagger';
-import {IsNotEmpty} from 'class-validator';
+import type {ApiPropertyOptions} from '@nestjs/swagger';
 import {ITransformCallback, Transform} from '../Transform';
 import {
+    getArrayApiPropertyOptions,
+    getRequiredNullableValidators,
     STEROIDS_META_FIELD_INTERNAL_OPTIONS,
     STEROIDS_META_FIELD_OPTIONS,
     STEROIDS_META_KEYS,
@@ -32,10 +34,6 @@ export interface IBaseFieldOptions {
      */
     nullable?: boolean,
     /**
-     * Flag indicating whether the field is an array
-     */
-    isArray?: boolean,
-    /**
      * Minimum value
      */
     min?: number,
@@ -63,6 +61,45 @@ export interface IBaseFieldOptions {
 
 const IS_NOT_EMPTY_DEFAULT_MESSAGE = 'Обязательно для заполнения';
 
+export type IConstraintOption<T> = T | {
+    value: T,
+    constraintMessage?: string,
+};
+
+export interface IArrayOptions {
+    /**
+     * Minimum array length.
+     */
+    minLength?: IConstraintOption<number>,
+    /**
+     * Maximum array length.
+     */
+    maxLength?: IConstraintOption<number>,
+    /**
+     * Flag indicating whether an empty array is forbidden.
+     */
+    notEmpty?: boolean,
+    /**
+     * Custom constraint message for `notEmpty`.
+     */
+    notEmptyConstraintMessage?: string,
+}
+
+export interface IArrayFieldOptions {
+    /**
+     * Flag indicating whether the field is an array.
+     */
+    isArray?: boolean,
+    /**
+     * Custom constraint message for `isArray`.
+     */
+    isArrayConstraintMessage?: string,
+    /**
+     * Array-specific validation options.
+     */
+    arrayOptions?: IArrayOptions,
+}
+
 const ColumnMetaDecorator = (options: IFieldOptions, internalOptions: IFieldInternalOptions) => (object, propertyName) => {
     //проверить getOwnMetadata
     Reflect.defineMetadata(STEROIDS_META_FIELD_OPTIONS, options, object, propertyName);
@@ -85,7 +122,10 @@ const ColumnMetaDecorator = (options: IFieldOptions, internalOptions: IFieldInte
  * `STEROIDS_META_FIELD_INTERNAL_OPTIONS`.
  * Examples: `appType`, `decoratorName`, `swaggerType`.
  */
-export function BaseField(options: IBaseFieldOptions = {}, internalOptions: IFieldInternalOptions = {}) {
+export function BaseField(
+    options: IBaseFieldOptions & Partial<IArrayFieldOptions> = {},
+    internalOptions: IFieldInternalOptions = {},
+) {
     return applyDecorators(
         ...[
             ColumnMetaDecorator(options, internalOptions),
@@ -93,13 +133,12 @@ export function BaseField(options: IBaseFieldOptions = {}, internalOptions: IFie
                 type: internalOptions.swaggerType,
                 description: options.label || undefined,
                 example: options.example || undefined,
-                required: options.nullable === false,
-                isArray: options.isArray,
-            }),
+                required: options.required ?? false,
+                nullable: options.nullable ?? false,
+                ...getArrayApiPropertyOptions(options),
+            } as ApiPropertyOptions),
             options.transform && Transform(options.transform),
-            options.required && IsNotEmpty({
-                message: options.isNotEmptyConstraintMessage || IS_NOT_EMPTY_DEFAULT_MESSAGE,
-            }),
+            ...getRequiredNullableValidators(options),
         ].filter(Boolean),
     );
 }

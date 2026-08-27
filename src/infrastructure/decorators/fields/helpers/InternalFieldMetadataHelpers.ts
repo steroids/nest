@@ -1,12 +1,17 @@
-import {isString} from 'class-validator';
+import {ArrayMaxSize, ArrayMinSize, ArrayNotEmpty, IsArray, IsDefined, IsOptional, isString, NotEquals, ValidateIf} from 'class-validator';
 import type {Type} from '@nestjs/common';
-import {ApiPropertyOptions} from '@nestjs/swagger';
+import type {ApiPropertyOptions} from '@nestjs/swagger';
 import type {IAllFieldOptions} from '../index';
-import type {IBaseFieldOptions} from '../BaseField';
+import type {IArrayFieldOptions, IBaseFieldOptions, IConstraintOption} from '../BaseField';
 
 export const STEROIDS_META_FIELD_OPTIONS = 'steroids_meta_field_options';
 export const STEROIDS_META_FIELD_INTERNAL_OPTIONS = 'steroids_meta_field_internal_options';
 export const STEROIDS_META_KEYS = 'steroids_meta_keys';
+
+export const ARRAY_IS_ARRAY_CONSTRAINT_MESSAGE = 'Значение должно быть массивом';
+export const ARRAY_NOT_EMPTY_CONSTRAINT_MESSAGE = 'Массив не должен быть пустым';
+export const getArrayMinLengthConstraintMessage = (value: number) => `Массив должен содержать не менее ${value} элементов`;
+export const getArrayMaxLengthConstraintMessage = (value: number) => `Массив должен содержать не более ${value} элементов`;
 
 export type AppColumnType = 'boolean' | 'createTime' | 'date' | 'dateTime' | 'decimal' | 'email' | 'enum' | 'file'
     | 'html' | 'integer' | 'password' | 'phone' | 'primaryKey' | 'relation' | 'relationId' | 'string' | 'text'
@@ -148,4 +153,83 @@ export const getFieldDecorator = (targetClass, fieldName: string): (...args: any
     }
 
     return decorator;
+};
+
+export const getRequiredNullableValidators = ({required, nullable}: IBaseFieldOptions) => [
+    // Отключаем валидацию для null, не пропускаем undefined
+    required && nullable && [ValidateIf((object, value) => value !== null), NotEquals(undefined, {
+        message: 'Обязательно для заполнения',
+    })],
+    // Не пропускаем null и undefined
+    required && !nullable && IsDefined({
+        message: 'Обязательно для заполнения',
+    }),
+    // Отключаем валидацию для null и undefined
+    !required && nullable && IsOptional(),
+    // Отключаем валидацию для undefined, не пропускаем null
+    !required && !nullable && [ValidateIf((object, value) => value !== undefined), NotEquals(null, {
+        message: 'Не может иметь null значение',
+    })],
+].flat().filter(Boolean);
+
+export const getConstraintValue = <T>(option?: IConstraintOption<T>): T | undefined => (
+    option && typeof option === 'object' && 'value' in option
+        ? option.value
+        : option as T | undefined
+);
+
+export const getConstraintMessage = <T>(option?: IConstraintOption<T>): string | undefined => (
+    option && typeof option === 'object' && 'constraintMessage' in option
+        ? option.constraintMessage
+        : undefined
+);
+
+export const getArrayApiPropertyOptions = (options: Partial<IArrayFieldOptions>): ApiPropertyOptions => {
+    if (!options.isArray) {
+        return {
+            isArray: options.isArray,
+        };
+    }
+
+    const minLength = getConstraintValue(options.arrayOptions?.minLength);
+    const maxLength = getConstraintValue(options.arrayOptions?.maxLength);
+    const notEmpty = options.arrayOptions?.notEmpty;
+    const minItems = notEmpty
+        ? Math.max(1, minLength ?? 0)
+        : minLength;
+
+    return {
+        isArray: true,
+        minItems,
+        maxItems: maxLength,
+    };
+};
+
+export const getArrayValidators = (
+    options: IArrayFieldOptions,
+) => {
+    if (!options.isArray) {
+        return [];
+    }
+
+    const minLength = getConstraintValue(options.arrayOptions?.minLength);
+    const maxLength = getConstraintValue(options.arrayOptions?.maxLength);
+    const notEmpty = options.arrayOptions?.notEmpty;
+
+    return [
+        IsArray({
+            message: options.isArrayConstraintMessage || ARRAY_IS_ARRAY_CONSTRAINT_MESSAGE,
+        }),
+        notEmpty && ArrayNotEmpty({
+            message: options.arrayOptions?.notEmptyConstraintMessage || ARRAY_NOT_EMPTY_CONSTRAINT_MESSAGE,
+        }),
+        typeof minLength === 'number' && ArrayMinSize(minLength, {
+            message: getConstraintMessage(options.arrayOptions?.minLength)
+                || getArrayMinLengthConstraintMessage(minLength),
+        }),
+        typeof maxLength === 'number' && ArrayMaxSize(maxLength, {
+            message: getConstraintMessage(options.arrayOptions?.maxLength)
+                || getArrayMaxLengthConstraintMessage(maxLength),
+        }),
+    ].filter(Boolean);
 };

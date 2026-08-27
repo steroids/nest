@@ -7,5 +7,6 @@ export default (options: ITextFieldOptions) => [
         length: options.max,
         default: options.defaultValue,
         nullable: options.nullable,
+        array: options.isArray,
     }),
 ];

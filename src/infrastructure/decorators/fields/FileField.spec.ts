@@ -23,15 +23,15 @@ describe('FileField decorator', () => {
 
     describe('IsArray constraint (multiple files)', () => {
         it('passes array of file ids', async () => {
-            const Dto = buildDto(FileField({multiple: true}));
+            const Dto = buildDto(FileField({isArray: true}));
             const errors = await validateValue(Dto, [1, 2]);
             expect(errors).toHaveLength(0);
         });
 
         it.each([
-            [{multiple: true} as IFileField, 'Необходимо загрузить файлы'],
-            [{multiple: true, isImage: true}, 'Необходимо загрузить изображения'],
-            [{multiple: true, isFileConstraintMessage: 'Загрузите файлы'}, 'Загрузите файлы'],
+            [{isArray: true} as IFileField, 'Необходимо загрузить файлы'],
+            [{isArray: true, isImage: true}, 'Необходимо загрузить изображения'],
+            [{isArray: true, isArrayConstraintMessage: 'Загрузите файлы'}, 'Загрузите файлы'],
         ])('reports message %#', async (options, expectedMessage) => {
             const Dto = buildDto(FileField(options));
             const errors = await validateValue(Dto, 42);

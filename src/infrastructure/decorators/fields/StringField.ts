@@ -1,10 +1,16 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {IsOptional, IsString, MaxLength, MinLength, Matches} from 'class-validator';
-import {BaseField, IBaseFieldOptions} from './BaseField';
+import {IsString, MaxLength, MinLength, Matches, NotEquals} from 'class-validator';
+import {BaseField, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
+import {
+    getArrayValidators,
+    getConstraintValue,
+} from './helpers/InternalFieldMetadataHelpers';
 
-export interface IStringFieldOptions extends IBaseFieldOptions {
+export interface IStringFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     unique?: boolean,
+    notEmpty?: boolean,
+    notEmptyConstraintMessage?: string,
     isStringConstraintMessage?: string,
     minConstraintMessage?: string,
     maxConstraintMessage?: string,
@@ -28,6 +34,11 @@ export function StringField(options: IStringFieldOptions = {}) {
             appType: 'string',
             swaggerType: 'string',
         }),
+        ...getArrayValidators(options),
+        getConstraintValue(options.notEmpty) && NotEquals('', {
+            each: options.isArray,
+            message: options.notEmptyConstraintMessage || 'Не должно быть пустым',
+        }),
         IsString({
             each: options.isArray,
             message: options.isStringConstraintMessage || IS_STRING_DEFAULT_MESSAGE,
@@ -35,11 +46,10 @@ export function StringField(options: IStringFieldOptions = {}) {
         options.regexp && Matches(
             options.regexp,
             {
+                each: options.isArray,
                 message: options.regexpErrorMessage || MATCHES_DEFAULT_MESSAGE,
             },
         ),
-        // TODO check nullable and required
-        !options.required && IsOptional(),
         typeof options.min === 'number' && MinLength(options.min, {
             message: options.minConstraintMessage || buildMinLengthDefaultMessage(options.min),
             each: options.isArray,

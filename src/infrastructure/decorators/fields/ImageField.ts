@@ -1,9 +1,8 @@
 import {applyDecorators} from '@nestjs/common';
-import {IBaseFieldOptions} from './BaseField';
+import {IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
 import {getFileFieldDecorators} from './FileField';
 
-export interface IFileField extends IBaseFieldOptions {
-    multiple?: boolean,
+export interface IFileField extends IBaseFieldOptions, IArrayFieldOptions {
     isImage?: boolean,
     isFileConstraintMessage?: string,
 }

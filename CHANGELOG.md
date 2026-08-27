@@ -1,5 +1,30 @@
 # Steroids Nest Changelog
 
+## [Unreleased](https://github.com/steroids/nest/compare/4.4.0...HEAD)
+
+[Migration guide](docs/MigrationGuide.md#unreleased)
+
+### Changed
+
+- Обработка `required` и `nullable` унифицирована во всех Field-декораторах. В Swagger они явно передаются как `required: false` и `nullable: false`, если options не заданы.
+- Поддержка `isArray` теперь объявлена только в Field-декораторах, которые её реализуют. Для них добавлена проверка типа массива и корректные OpenAPI metadata.
+- `FileField` и `ImageField` используют `isArray` вместо `multiple`.
+
+### Features
+
+- В поддерживаемых `isArray` полях добавлены `arrayOptions`: `notEmpty`, `minLength` и `maxLength`, включая настройку сообщений валидации и OpenAPI `minItems` / `maxItems`.
+- В `StringField` и `TextField` добавлена опция `notEmpty` для проверки пустой строки без запрета `null` и `undefined`.
+- `DateTimeField` поддерживает `isArray`.
+
+### Fixes
+
+- Преобразования значений в `DateField`, `DateTimeField` и `DecimalNumberField` теперь выполняются для каждого элемента массива.
+- В `StringField` регулярное выражение при `isArray: true` проверяется для каждого элемента массива.
+
+### Removed
+
+- Удалена опция `multiple` из `FileField` и `ImageField`.
+
 ## [5.2.1](https://github.com/steroids/nest/compare/5.2.0...5.2.1) (2026-08-25)
 
 ### Fixes

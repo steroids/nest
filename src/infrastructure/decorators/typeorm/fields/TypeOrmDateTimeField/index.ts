@@ -7,5 +7,6 @@ export default (options: IDateTimeFieldColumnOptions) => [
         precision: options.precision || 0,
         default: options.defaultValue,
         nullable: options.nullable,
+        array: options.isArray,
     }),
 ];

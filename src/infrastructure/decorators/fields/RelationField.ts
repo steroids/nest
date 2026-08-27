@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {ValidateIf, ValidateNested} from 'class-validator';
+import {ValidateNested} from 'class-validator';
 import {Type} from 'class-transformer';
 import {
     BaseField,
@@ -7,13 +7,16 @@ import {
     getFieldOptions,
     getMetaFields,
     getMetaPrimaryKey,
+    IArrayFieldOptions,
     IBaseFieldOptions,
 } from './BaseField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {DataMapper} from '../../../usecases/helpers/DataMapper';
 import {getTableFromModel} from '../../base/ModelTableStorage';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 
-type IRelationBaseFieldOptions = Omit<IBaseFieldOptions, 'isArray'>;
+type IRelationBaseFieldOptions = IBaseFieldOptions;
+type IRelationArrayFieldOptions = Omit<IArrayFieldOptions, 'isArray'>;
 
 export interface IRelationFieldOneToOneOptions extends IRelationBaseFieldOptions {
     type: 'OneToOne',
@@ -22,7 +25,7 @@ export interface IRelationFieldOneToOneOptions extends IRelationBaseFieldOptions
     inverseSide?: string | ((object: any) => any),
 }
 
-export interface IRelationFieldManyToManyOptions extends IRelationBaseFieldOptions {
+export interface IRelationFieldManyToManyOptions extends IRelationBaseFieldOptions, IRelationArrayFieldOptions {
     type: 'ManyToMany',
     isOwningSide: boolean,
     relationClass: () => any,
@@ -35,7 +38,7 @@ export interface IRelationFieldManyToOneOptions extends IRelationBaseFieldOption
     relationClass: () => any,
 }
 
-export interface IRelationFieldOneToManyOptions extends IRelationBaseFieldOptions {
+export interface IRelationFieldOneToManyOptions extends IRelationBaseFieldOptions, IRelationArrayFieldOptions {
     type: 'OneToMany',
     relationClass: () => any,
     inverseSide: string | ((object: any) => any),
@@ -132,8 +135,8 @@ export function RelationField(options: IRelationFieldOptions) {
                     return options.relationClass();
                 },
             }),
+            ...getArrayValidators(fieldOptions),
             //options.type === 'ManyToOne' && JoinColumn(),
-            ValidateIf((object, value) => !!value),
             ValidateNested({each: true}),
             Type(options.relationClass),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),

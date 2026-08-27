@@ -1,15 +1,12 @@
 import {applyDecorators} from '@nestjs/common';
-import {ArrayNotEmpty, ValidateIf} from 'class-validator';
-import {isEmpty as _isEmpty, isBoolean as _isBoolean} from 'lodash';
-import {BaseField, getFieldOptions, getMetaPrimaryKey, IBaseFieldOptions} from './BaseField';
+import {isBoolean as _isBoolean} from 'lodash';
+import {BaseField, getFieldOptions, getMetaPrimaryKey, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
 import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {getTableFromModel} from '../../base/ModelTableStorage';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 
-const ARRAY_NOT_EMPTY_DEFAULT_MESSAGE = 'Не должно быть пустым';
-
-export interface IRelationIdFieldOptions extends IBaseFieldOptions {
+export interface IRelationIdFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     relationName?: string,
-    isFieldValidConstraintMessage?: string,
 }
 
 // From db
@@ -56,8 +53,6 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
         options.nullable = true;
     }
 
-    const arrayNotEmptyMessage = options.isFieldValidConstraintMessage || ARRAY_NOT_EMPTY_DEFAULT_MESSAGE;
-
     return applyDecorators(
         ...[
             BaseField(options, {
@@ -65,8 +60,7 @@ export function RelationIdField(options: IRelationIdFieldOptions = {}) {
                 appType: 'relationId',
                 swaggerType: 'number',
             }),
-            options.nullable && ValidateIf((object, value) => !_isEmpty(value)),
-            options.isArray && !options.nullable && ArrayNotEmpty({message: arrayNotEmptyMessage}),
+            ...getArrayValidators(options),
             Transform(relationTransformFromDb, TRANSFORM_TYPE_FROM_DB),
             Transform(relationTransformToDb, TRANSFORM_TYPE_TO_DB),
         ].filter(Boolean),

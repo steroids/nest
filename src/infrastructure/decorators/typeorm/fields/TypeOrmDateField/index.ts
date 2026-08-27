@@ -6,5 +6,6 @@ export default (options: IDateFieldOptions) => [
         type: 'date',
         default: options.defaultValue,
         nullable: options.nullable,
+        array: options.isArray,
     }),
 ];

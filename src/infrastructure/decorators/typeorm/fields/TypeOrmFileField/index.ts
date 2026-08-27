@@ -3,7 +3,7 @@ import {IFileField} from '../../../fields/FileField';
 
 export default (options: IFileField) => [
     Column({
-        type: options.multiple ? 'simple-array' : 'integer',
+        type: options.isArray ? 'simple-array' : 'integer',
         default: options.defaultValue,
         nullable: options.nullable,
     }),

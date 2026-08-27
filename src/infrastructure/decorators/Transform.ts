@@ -13,6 +13,13 @@ export interface ITransformCallbackEvent {
 
 export type ITransformCallback = (event: ITransformCallbackEvent) => any;
 
+export const transformValueOrArray = <TValue, TResult>(
+    value: TValue | TValue[],
+    callback: (value: TValue) => TResult,
+): TResult | TResult[] => Array.isArray(value)
+        ? value.map(callback)
+        : callback(value);
+
 export type ITransformType = 'default' | 'computable' | 'from_db' | 'to_db' | string;
 export const TRANSFORM_TYPE_DEFAULT = 'default';
 export const TRANSFORM_TYPE_COMPUTABLE = 'computable';

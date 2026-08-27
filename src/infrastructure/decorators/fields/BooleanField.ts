@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsBoolean, IsOptional} from 'class-validator';
+import {IsBoolean} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 import {Transform} from '../Transform';
 
@@ -29,6 +29,5 @@ export function BooleanField(options: IBooleanFieldOptions = {}) {
         IsBoolean({
             message: options.isBooleanConstraintMessage || IS_BOOLEAN_DEFAULT_MESSAGE,
         }),
-        IsOptional(),
     );
 }

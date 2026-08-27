@@ -1,5 +1,5 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsEmail, ValidateIf} from 'class-validator';
+import {IsEmail} from 'class-validator';
 import {BaseField, IBaseFieldOptions} from './BaseField';
 
 const IS_EMAIL_DEFAULT_MESSAGE = 'Некорректный email адрес';
@@ -20,7 +20,6 @@ export function EmailField(options: IEmailFieldOptions = {}) {
             appType: 'email',
             swaggerType: 'string',
         }),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
         IsEmail({
             allow_display_name: true,
         }, {

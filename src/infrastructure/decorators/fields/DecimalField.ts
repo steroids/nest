@@ -1,13 +1,14 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsDecimal, ValidateBy, ValidateIf, ValidationOptions} from 'class-validator';
-import {BaseField, IBaseFieldOptions} from './BaseField';
+import {IsDecimal, ValidateBy, ValidationOptions} from 'class-validator';
+import {BaseField, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
 import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 
 const IS_DECIMAL_DEFAULT_MESSAGE = 'Должно быть числом';
 const buildMinDecimalDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
 const buildMaxDecimalDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
 
-export interface IDecimalFieldOptions extends IBaseFieldOptions {
+export interface IDecimalFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     precision?: number,
     scale?: number,
     isDecimalConstraintMessage?: string,
@@ -59,10 +60,11 @@ export function DecimalField(options: IDecimalFieldOptions = {}) {
             appType: 'decimal',
             swaggerType: 'number',
         }),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+        ...getArrayValidators(options),
         IsDecimal({
             decimal_digits: '0,' + (options.scale ?? DEFAULT_DECIMAL_SCALE),
         }, {
+            each: options.isArray,
             message: options.isDecimalConstraintMessage || IS_DECIMAL_DEFAULT_MESSAGE,
         }),
         typeof options.min === 'number' && StringMin(options.min, {

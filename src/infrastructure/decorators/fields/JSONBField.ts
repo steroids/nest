@@ -1,9 +1,9 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsOptional} from 'class-validator';
-import {BaseField, IBaseFieldOptions} from './BaseField';
+import {BaseField, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 import type {ISwaggerFieldType} from './helpers/InternalFieldMetadataHelpers';
 
-export interface IJSONBFieldOptions extends IBaseFieldOptions {
+export interface IJSONBFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     // Use to manually define a field type in Swagger.
     swaggerType?: ISwaggerFieldType,
 }
@@ -15,6 +15,6 @@ export function JSONBField(options: IJSONBFieldOptions = {}) {
             appType: 'object',
             swaggerType: options.swaggerType ?? 'string',
         }),
-        !options.required && IsOptional(),
+        ...getArrayValidators(options),
     ].filter(Boolean));
 }

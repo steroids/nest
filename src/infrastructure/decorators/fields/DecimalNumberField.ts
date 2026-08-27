@@ -1,10 +1,11 @@
 import {applyDecorators} from '@nestjs/common';
-import {Max, Min, ValidateIf, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
-import {BaseField, IBaseFieldOptions} from './BaseField';
-import {TRANSFORM_TYPE_FROM_DB, Transform} from '../Transform';
+import {Max, Min, ValidateBy, ValidationOptions, buildMessage, isDecimal} from 'class-validator';
+import {BaseField, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
+import {TRANSFORM_TYPE_FROM_DB, Transform, transformValueOrArray} from '../Transform';
 import {DEFAULT_DECIMAL_SCALE} from '../../base/consts';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 
-export interface IDecimalNumberFieldOptions extends IBaseFieldOptions {
+export interface IDecimalNumberFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     precision?: number,
     scale?: number,
     isDecimalConstraintMessage?: string,
@@ -17,6 +18,8 @@ export const IS_DECIMAL_NUMBER = 'isDecimalNumber';
 const IS_DECIMAL_NUMBER_DEFAULT_MESSAGE = 'Должно быть числом';
 const buildMinDecimalDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
 const buildMaxDecimalDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
+
+const normalizeDecimalNumber = value => value ? Number(value) : value;
 
 export function isDecimalNumber(value: unknown, options?: IDecimalNumberFieldOptions): boolean {
     if (typeof value !== 'number') { return false; }
@@ -53,9 +56,10 @@ export function DecimalNumberField(options: IDecimalNumberFieldOptions = {}) {
             appType: 'decimal',
             swaggerType: 'number',
         }),
-        Transform(({value}) => value ? Number(value) : value, TRANSFORM_TYPE_FROM_DB),
-        options.nullable && ValidateIf((object, value) => value !== null && typeof value !== 'undefined'),
+        ...getArrayValidators(options),
+        Transform(({value}) => transformValueOrArray(value, normalizeDecimalNumber), TRANSFORM_TYPE_FROM_DB),
         IsDecimalNumber(options, {
+            each: options.isArray,
             message: options.isDecimalConstraintMessage || IS_DECIMAL_NUMBER_DEFAULT_MESSAGE,
         }),
         typeof options.min === 'number' && Min(options.min, {

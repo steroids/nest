@@ -1,10 +1,11 @@
 import {applyDecorators} from '@nestjs/common';
-import {IsISO8601, ValidateIf, ValidationArguments} from 'class-validator';
+import {IsISO8601, ValidationArguments} from 'class-validator';
 import {formatISO9075, parseISO} from 'date-fns';
-import {BaseField, IBaseFieldOptions} from './BaseField';
-import {Transform, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
+import {BaseField, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
+import {Transform, transformValueOrArray, TRANSFORM_TYPE_FROM_DB, TRANSFORM_TYPE_TO_DB} from '../Transform';
 import {MinDate} from '../validators/MinDate';
 import {MaxDate} from '../validators/MaxDate';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 
 type DateFunction = () => Date;
 
@@ -39,7 +40,7 @@ const MAX_DATE_DEFAULT_MESSAGE_PREFIX = 'Выбрана дата позже ма
 
 type DateConstraintMessage = string | ((args: ValidationArguments) => string);
 
-export interface IDateFieldOptions extends IBaseFieldOptions {
+export interface IDateFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     minDate?: string | Date | DateFunction,
     maxDate?: string | Date | DateFunction,
     minDateConstraintMessage?: DateConstraintMessage,
@@ -55,9 +56,9 @@ export function DateField(options: IDateFieldOptions = {}) {
                 appType: 'date',
                 swaggerType: 'string',
             }),
-            Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_FROM_DB),
-            Transform(({value}) => normalizeDate(value), TRANSFORM_TYPE_TO_DB),
-            options.nullable && ValidateIf((object, value) => value),
+            ...getArrayValidators(options),
+            Transform(({value}) => transformValueOrArray(value, normalizeDate), TRANSFORM_TYPE_FROM_DB),
+            Transform(({value}) => transformValueOrArray(value, normalizeDate), TRANSFORM_TYPE_TO_DB),
             options.minDate && MinDate(options.minDate, {
                 each: options.isArray,
                 message: options.minDateConstraintMessage
@@ -69,6 +70,7 @@ export function DateField(options: IDateFieldOptions = {}) {
                     || ((args) => `${MAX_DATE_DEFAULT_MESSAGE_PREFIX} (${normalizeFunctionDate(options.maxDate, args)})`),
             }),
             IsISO8601({}, {
+                each: options.isArray,
                 message: options.isISO8601ConstraintMessage || IS_ISO_8601_DEFAULT_MESSAGE,
             }),
         ].filter(Boolean),

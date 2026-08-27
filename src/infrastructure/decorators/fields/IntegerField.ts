@@ -1,14 +1,15 @@
 import {applyDecorators} from '@nestjs/common';
 import {toInteger as _toInteger} from 'lodash';
-import {IsInt, Max, Min, ValidateIf} from 'class-validator';
-import {BaseField, IBaseFieldOptions} from './BaseField';
-import {Transform} from '../Transform';
+import {IsInt, Max, Min} from 'class-validator';
+import {BaseField, IArrayFieldOptions, IBaseFieldOptions} from './BaseField';
+import {Transform, transformValueOrArray} from '../Transform';
+import {getArrayValidators} from './helpers/InternalFieldMetadataHelpers';
 
 const IS_INT_DEFAULT_MESSAGE = 'Должно быть числом';
 const buildMinIntDefaultMessage = (min: number) => `Должно быть не меньше ${min}`;
 const buildMaxIntDefaultMessage = (max: number) => `Должно быть не больше ${max}`;
 
-export interface IIntegerFieldOptions extends IBaseFieldOptions {
+export interface IIntegerFieldOptions extends IBaseFieldOptions, IArrayFieldOptions {
     unique?: boolean,
     isIntConstraintMessage?: string,
     minIntConstraintMessage?: string,
@@ -16,7 +17,6 @@ export interface IIntegerFieldOptions extends IBaseFieldOptions {
 }
 
 const isEmpty = value => !value && value !== 0 && value !== '0';
-const isArrayEmpty = value => !value || (Array.isArray(value) && value?.length === 0);
 
 export function IntegerField(options: IIntegerFieldOptions = {}) {
     return applyDecorators(...[
@@ -25,13 +25,10 @@ export function IntegerField(options: IIntegerFieldOptions = {}) {
             appType: 'integer',
             swaggerType: 'number',
         }),
-        options.nullable && ValidateIf((object, value) => options.isArray ? !isArrayEmpty(value) : !isEmpty(value)),
-        Transform(({value}) => {
-            if (Array.isArray(value)) {
-                return value.map(valueItem => !isEmpty(valueItem) ? _toInteger(valueItem) : null);
-            }
-            return !isEmpty(value) ? _toInteger(value) : null;
-        }),
+        ...getArrayValidators(options),
+        Transform(({value}) => transformValueOrArray(value, (item) => !isEmpty(item)
+            ? _toInteger(item)
+            : null)),
         IsInt({
             message: options.isIntConstraintMessage || IS_INT_DEFAULT_MESSAGE,
             each: options.isArray,
