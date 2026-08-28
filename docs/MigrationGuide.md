@@ -1,5 +1,37 @@
 # Steroids Nest Migration Guide
 
+## Unreleased
+
+### Типизация `SearchQuery`
+
+Аргументы методов `select`, `excludeSelect`, `with`, `where` и `orderBy` у `SearchQuery` получили подсказки типов. Runtime-поведение не менялось: все ранее допустимые строковые значения и вручную собранные условия продолжают поддерживаться.
+
+Чтобы получить подсказки, `SearchQuery` должен знать тип модели. Обычно это происходит автоматически при вызове `createQuery()` из типизированного `CrudService` или `ReadService`. Если `SearchQuery` создаётся вручную через конструктор, передайте тип модели в generic:
+
+```ts
+import SearchQuery from '@steroidsjs/nest/usecases/base/SearchQuery';
+
+const query = new SearchQuery<ShiftModel>();
+```
+
+Что проверить при обновлении:
+
+- Если вы создаёте условия через `dto.items.map()` и затем передаёте их в `SearchQuery.andWhere(['or', ...conditions])`, TypeScript может вывести результат `map` как обычный массив вместо условия-кортежа. В этом случае укажите явный тип результата:
+
+```ts
+import type {ISearchQueryWhere} from '@steroidsjs/nest/usecases/base/SearchQuery';
+
+const timeConditions: ISearchQueryWhere<ShiftModel>[] = dto.items.map((item) => [
+    'and',
+    ['<', 'timeFrom', item.timeTo],
+    ['>', 'timeTo', item.timeFrom],
+]);
+
+await this.shiftService.createQuery()
+    .where(['=', 'courierId', dto.courierId])
+    .andWhere(['or', ...timeConditions])
+    .many();
+```
 ## [5.1.0](../CHANGELOG.md#510-2026-08-11) (2026-08-11)
 
 ### Поддержка NestJS 11

@@ -2,21 +2,37 @@ import {trim as _trim} from 'lodash';
 import {createHash} from 'crypto';
 import {getSchemaSelectOptions} from '../../infrastructure/decorators/schema/SchemaSelect';
 import {getMetaRelations} from '../../infrastructure/decorators/fields/BaseField';
-import {ICondition} from '../../infrastructure/helpers/typeORM/ConditionHelperTypeORM';
 import {wrapInDoubleQuotes} from '../utils/wrapInDoubleQuotes';
-
-/**
- * Order keys can be:
- * - a field name, for example `name`
- * - a root alias field path, for example `model.name`
- * - a relation field path, for example `author.name` or `author.profile.name`
- * - an already resolved relation alias path, for example `model_author.name`
- *
- * Field path parts can already be wrapped in double quotes.
- */
-export type ISearchQueryOrder = { [key: string]: 'asc' | 'desc' }
+import {ISearchQuerySelect} from '../interfaces/searchQuery/ISearchQuerySelect';
+import {ISearchQueryOrder, ISearchQueryOrderObject, ISearchQueryOrderField, ISearchQueryOrderValue} from '../interfaces/searchQuery/ISearchQueryOrder';
+import {ISearchQueryRelationOptions, ISearchQueryWithValue} from '../interfaces/searchQuery/ISearchQueryWith';
+import {ISearchQueryWhere} from '../interfaces/searchQuery/ISearchQueryWhere';
 
 export const DEFAULT_ALIAS = 'model';
+
+export type {
+    ISearchQueryOrder,
+    ISearchQueryOrderObject,
+    ISearchQueryOrderDirection,
+    ISearchQueryOrderField,
+    ISearchQueryOrderValue,
+} from '../interfaces/searchQuery/ISearchQueryOrder';
+export type {
+    ISearchQueryRelationOptions,
+    ISearchQueryWithRelation,
+    ISearchQueryWithRelationsObject,
+    ISearchQueryWithSelect,
+    ISearchQueryWithValue,
+} from '../interfaces/searchQuery/ISearchQueryWith';
+export type {
+    IConditionOperatorAndOr,
+    IConditionOperatorSingle,
+    IConditionOperatorSubquery,
+    ISearchQueryWhere,
+    ISearchQueryWhereField,
+    ISearchQueryWhereObject,
+    ISearchQueryWhereRelation,
+} from '../interfaces/searchQuery/ISearchQueryWhere';
 
 const ALIAS_HASH_LENGTH = 16;
 
@@ -27,23 +43,17 @@ export interface ISearchQueryConfig<TModel> {
 }
 
 export default class SearchQuery<TModel> {
-    protected _select?: string[];
+    protected _select?: ISearchQuerySelect<TModel>[];
 
-    protected _excludeSelect?: string[];
+    protected _excludeSelect?: ISearchQuerySelect<TModel>[];
 
     protected _alias?: string;
 
-    protected _relationsJoin?: Record<string, {
-        alias: string,
-        select: string | string[],
-    }>;
+    protected _relationsJoin?: Record<string, ISearchQueryRelationOptions>;
 
-    protected _relationsNoJoin?: Record<string, {
-        alias: string,
-        select: string | string[],
-    }>;
+    protected _relationsNoJoin?: Record<string, ISearchQueryRelationOptions>;
 
-    protected _condition?: ICondition;
+    protected _condition?: ISearchQueryWhere<TModel>;
 
     protected _orders?: ISearchQueryOrder;
 
@@ -77,7 +87,7 @@ export default class SearchQuery<TModel> {
             [value]: {
                 alias: null,
                 select: '*',
-            }
+            },
         }), {});
 
         return searchQuery;
@@ -106,12 +116,12 @@ export default class SearchQuery<TModel> {
                 .slice(0, ALIAS_HASH_LENGTH);
     }
 
-    select(value: string | string[]) {
+    select(value: ISearchQuerySelect<TModel> | ISearchQuerySelect<TModel>[]) {
         this._select = [].concat(value || []);
         return this;
     }
 
-    addSelect(value: string | string[]) {
+    addSelect(value: ISearchQuerySelect<TModel> | ISearchQuerySelect<TModel>[]) {
         this._select = [
             ...this._select,
             ...[].concat(value || []),
@@ -123,7 +133,7 @@ export default class SearchQuery<TModel> {
         return this._select;
     }
 
-    excludeSelect(value: string | string[]) {
+    excludeSelect(value: ISearchQuerySelect<TModel> | ISearchQuerySelect<TModel>[]) {
         this._excludeSelect = [].concat(value || []);
         return this;
     }
@@ -157,7 +167,7 @@ export default class SearchQuery<TModel> {
         return this._useShortAliases;
     }
 
-    with(relation: Record<string, string | string[]> | string | string[], useJoin = true) {
+    with(relation: ISearchQueryWithValue<TModel>, useJoin = true) {
         if (useJoin) {
             if (!this._relationsJoin) {
                 this._relationsJoin = {};
@@ -217,7 +227,7 @@ export default class SearchQuery<TModel> {
         return this;
     }
 
-    withNoJoin(relation: Record<string, string | string[]> | string | string[]) {
+    withNoJoin(relation: ISearchQueryWithValue<TModel>) {
         return this.with(relation, false);
     }
 
@@ -238,16 +248,16 @@ export default class SearchQuery<TModel> {
         return this._relationsNoJoin;
     }
 
-    where(condition: ICondition) {
+    where(condition: ISearchQueryWhere<TModel>) {
         this._condition = condition;
         return this;
     }
 
-    filterWhere(condition: ICondition) {
+    filterWhere(condition: ISearchQueryWhere<TModel>) {
         return this.where(['filter', condition]);
     }
 
-    andWhere(condition: ICondition) {
+    andWhere(condition: ISearchQueryWhere<TModel>) {
         if (this._condition) {
             this._condition = [
                 'and',
@@ -257,14 +267,13 @@ export default class SearchQuery<TModel> {
             return this;
         }
         return this.where(condition);
-
     }
 
-    andFilterWhere(condition: ICondition) {
+    andFilterWhere(condition: ISearchQueryWhere<TModel>) {
         return this.andWhere(['filter', condition]);
     }
 
-    orWhere(condition: ICondition) {
+    orWhere(condition: ISearchQueryWhere<TModel>) {
         if (this._condition) {
             this._condition = [
                 'or',
@@ -274,10 +283,9 @@ export default class SearchQuery<TModel> {
             return this;
         }
         return this.where(condition);
-
     }
 
-    orFilterWhere(condition: ICondition) {
+    orFilterWhere(condition: ISearchQueryWhere<TModel>) {
         return this.orWhere(['filter', condition]);
     }
 
@@ -285,7 +293,7 @@ export default class SearchQuery<TModel> {
         return this._condition;
     }
 
-    private resolveOrderByFieldPath(fieldPath: string): string {
+    private resolveOrderByFieldPath(fieldPath: ISearchQueryOrderField<TModel>): string {
         const pathToField = fieldPath.split('.');
         const field = pathToField.pop();
 
@@ -308,7 +316,7 @@ export default class SearchQuery<TModel> {
     }
 
     private resolveOrderByFieldPaths(
-        orderValue: string | ISearchQueryOrder,
+        orderValue: ISearchQueryOrderValue<TModel>,
         direction: 'asc' | 'desc',
     ): ISearchQueryOrder {
         if (typeof orderValue === 'string') {
@@ -323,12 +331,12 @@ export default class SearchQuery<TModel> {
         }), {});
     }
 
-    orderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
+    orderBy(value: ISearchQueryOrderValue<TModel>, direction: 'asc' | 'desc' = 'asc') {
         this._orders = this.resolveOrderByFieldPaths(value, direction);
         return this;
     }
 
-    addOrderBy(value: string | ISearchQueryOrder, direction: 'asc' | 'desc' = 'asc') {
+    addOrderBy(value: ISearchQueryOrderValue<TModel>, direction: 'asc' | 'desc' = 'asc') {
         this._orders = {
             ...this._orders,
             ...this.resolveOrderByFieldPaths(value, direction),
