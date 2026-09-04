@@ -157,6 +157,20 @@ export class CrudService<
             : savedModel;
     }
 
+    async saveInternal(
+        prevModel: TModel,
+        nextModel: TModel,
+        diffModel: DeepPartial<TModel>,
+        context?: ContextDto,
+    ): Promise<TModel>
+
+    async saveInternal(
+        prevModel: null,
+        nextModel: TModel,
+        diffModel: TModel,
+        context?: ContextDto,
+    ): Promise<TModel>
+
     /**
      * Internal save method for overwrite in project
      * @param prevModel
@@ -164,7 +178,12 @@ export class CrudService<
      * @param diffModel
      * @param context
      */
-    async saveInternal(prevModel: TModel | null, nextModel: TModel, diffModel: TModel, context?: ContextDto): Promise<TModel> {
+    async saveInternal(
+        prevModel: TModel | null,
+        nextModel: TModel,
+        diffModel: DeepPartial<TModel>,
+        context?: ContextDto,
+    ): Promise<TModel> {
         // you code outside transaction before save
         // return this.repository.save(diffModel, async (save) => {
         // you code inside transaction before save
@@ -175,7 +194,12 @@ export class CrudService<
         // you code outside transaction after save
 
         // or save() call without transaction
-        return this.repository.save(diffModel);
+        if (prevModel) {
+            const savedModel = await this.repository.save(diffModel);
+            return this.findById(savedModel[this.primaryKey], context);
+        }
+
+        return this.repository.save(nextModel);
     }
 
     /**

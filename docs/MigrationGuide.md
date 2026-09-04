@@ -1,5 +1,70 @@
 # Steroids Nest Migration Guide
 
+## Unreleased
+
+### Частичное сохранение в CrudRepository
+
+`CrudRepository.save`, `saveInternal` и `update` теперь принимают `DeepPartial<TModel>`. При сохранении неполной модели результат также имеет тип `DeepPartial<TModel>`.
+
+Если проект переопределяет `CrudRepository.saveInternal`, обновите типы аргумента и результата, чтобы они поддерживали частичные модели.
+
+До:
+
+```ts
+async saveInternal(manager: ISaveManager<TModel>, nextModel: TModel): Promise<TModel> {
+    return manager.save(nextModel);
+}
+```
+
+После:
+
+```ts
+import {DeepPartial} from 'typeorm';
+
+async saveInternal(
+    manager: ISaveManager<TModel>,
+    nextModel: TModel | DeepPartial<TModel>,
+): Promise<TModel | DeepPartial<TModel>> {
+    return manager.save(nextModel);
+}
+```
+
+Если проект переопределяет `CrudService.saveInternal`, учтите, что `diffModel` при обновлении является частичной моделью.
+После сохранения необходимо повторно загрузить модель по первичному ключу, если метод должен возвращать полный `TModel`.
+
+До:
+
+```ts
+async saveInternal(
+    prevModel: TModel | null,
+    nextModel: TModel,
+    diffModel: TModel,
+    context?: ContextDto,
+): Promise<TModel> {
+    return this.repository.save(diffModel);
+}
+```
+
+После:
+
+```ts
+import {DeepPartial} from 'typeorm';
+
+async saveInternal(
+    prevModel: TModel | null,
+    nextModel: TModel,
+    diffModel: DeepPartial<TModel>,
+    context?: ContextDto,
+): Promise<TModel> {
+    if (prevModel) {
+        const savedModel = await this.repository.save(diffModel);
+        return this.findById(savedModel[this.primaryKey], context);
+    }
+
+    return this.repository.save(nextModel);
+}
+```
+
 ## [5.1.0](../CHANGELOG.md#510-2026-08-11) (2026-08-11)
 
 ### Поддержка NestJS 11
