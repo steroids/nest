@@ -5,6 +5,7 @@ import {DataMapper} from '../../helpers/DataMapper';
 import {ValidationHelper} from '../../helpers/ValidationHelper';
 import {ContextDto} from '../../dtos/ContextDto';
 import {ReadService} from '../../services/ReadService';
+import {ICrudRepository} from '../../interfaces/ICrudRepository';
 import {SearchResultDto} from '../../dtos/SearchResultDto';
 
 type AutocompleteItemSchemaClass = new (...args: any[]) => AutocompleteBaseItemSchema;
@@ -12,6 +13,7 @@ type AutocompleteItemSchemaClass = new (...args: any[]) => AutocompleteBaseItemS
 export abstract class AutoCompleteSearchUseCase<TModel> {
     protected constructor(
        protected readonly entityService: ReadService<TModel>,
+       protected readonly repository: ICrudRepository<TModel>,
     ) {}
 
     public async handle<TSchema extends AutocompleteItemSchemaClass>(
@@ -25,7 +27,7 @@ export abstract class AutoCompleteSearchUseCase<TModel> {
 
         const [selectedItems, searchResult] = await Promise.all([
             this.getSelectedItems(schemaClass, primaryKey, dto.withIds),
-            this.getSearchResult(dto, schemaClass, primaryKey),
+            this.getSearchResult(dto, context, schemaClass, primaryKey),
         ]);
 
         return {
@@ -35,22 +37,32 @@ export abstract class AutoCompleteSearchUseCase<TModel> {
         };
     }
 
+    protected fillQueryFromSearchDto(
+        searchQuery: SearchQuery<TModel>,
+        dto: AutocompleteBaseDto,
+        context: ContextDto | null = null,
+    ): SearchQuery<TModel> {
+        return searchQuery;
+    }
+
     private async getSearchResult<TSchema extends AutocompleteItemSchemaClass>(
         dto: AutocompleteBaseDto,
+        context: ContextDto | null,
         schemaClass: TSchema,
         primaryKey: string,
     ): Promise<SearchResultDto<InstanceType<TSchema>>> {
         const searchQuery = SearchQuery.createFromSchema<TModel>(schemaClass);
 
+        this.fillQueryFromSearchDto(searchQuery, dto, context);
+
         if (dto.withIds?.length) {
             searchQuery.andWhere(['not in', primaryKey, dto.withIds]);
         }
 
-        return await this.entityService.searchByQuery(
-            dto,
-            searchQuery,
-            schemaClass,
-        ) as SearchResultDto<InstanceType<TSchema>>;
+        const searchResult = await this.repository.search(dto, searchQuery);
+        searchResult.items = DataMapper.create(schemaClass, searchResult.items) as InstanceType<TSchema>[];
+
+        return searchResult as SearchResultDto<InstanceType<TSchema>>;
     }
 
     private async getSelectedItems<TSchema extends AutocompleteItemSchemaClass>(
