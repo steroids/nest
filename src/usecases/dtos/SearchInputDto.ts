@@ -11,6 +11,7 @@ export class SearchInputDto {
     @IntegerField({
         label: 'Номер страницы',
         nullable: true,
+        min: 1,
     })
     page?: number;
 
