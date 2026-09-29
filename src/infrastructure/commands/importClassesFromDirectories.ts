@@ -5,9 +5,10 @@ import {importOrRequireFile} from 'typeorm/util/ImportUtils';
 
 class MockMigration {
     name: string;
-    file: string;
-    _lazyInstance: any;
 
+    file: string;
+
+    _lazyInstance: any;
 
     async up(queryRunner) {
         await this._load();
@@ -28,34 +29,39 @@ class MockMigration {
     }
 }
 
-const createMockMigration = file => {
+const createMockMigration = (file: string) => {
     const matches = /([0-9]+)-([a-zA-Z0-9]+)+.(ts|js)$/.exec(file);
     const name = matches ? matches[2] + matches[1] : 'MockMigration';
 
-    const NewClass = new Function('return function ' + name + '(){ this.name = "' + name + '"; this.file = "' + file + '" }')();
-    NewClass.prototype = Object.create(MockMigration.prototype);
+    const NewClass = class extends MockMigration {
+        constructor() {
+            super();
+            this.name = name;
+            this.file = file;
+        }
+    };
+
+    Object.defineProperty(NewClass, 'name', {
+        value: name,
+    });
 
     return NewClass;
-}
+};
 
 /**
  * Loads all exported classes from the given directory.
  */
-export async function importClassesFromDirectories(logger: Logger, directories: string[], formats = [".js", ".mjs", ".cjs", ".ts", ".mts", ".cts"]): Promise<Function[]> {
-
-    const logLevel = "info";
-    const classesNotFoundMessage = "No classes were found using the provided glob pattern: ";
-    const classesFoundMessage = "All classes found using provided glob pattern";
+export async function importClassesFromDirectories(logger: Logger, directories: string[], formats = ['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts']): Promise<Function[]> {
+    const logLevel = 'info';
+    const classesNotFoundMessage = 'No classes were found using the provided glob pattern: ';
+    const classesFoundMessage = 'All classes found using provided glob pattern';
     function loadFileClasses(exported: any, allLoaded: Function[]) {
-        if (typeof exported === "function" || exported instanceof EntitySchema) {
+        if (typeof exported === 'function' || exported instanceof EntitySchema) {
             allLoaded.push(exported);
-
         } else if (Array.isArray(exported)) {
             exported.forEach((i: any) => loadFileClasses(i, allLoaded));
-
-        } else if (typeof exported === "object" && exported !== null) {
+        } else if (typeof exported === 'object' && exported !== null) {
             Object.keys(exported).forEach(key => loadFileClasses(exported[key], allLoaded));
-
         }
         return allLoaded;
     }
@@ -72,7 +78,7 @@ export async function importClassesFromDirectories(logger: Logger, directories: 
     const dirs = allFiles
         .filter(file => {
             const dtsExtension = file.substring(file.length - 5, file.length);
-            return formats.indexOf(PlatformTools.pathExtname(file)) !== -1 && dtsExtension !== ".d.ts";
+            return formats.indexOf(PlatformTools.pathExtname(file)) !== -1 && dtsExtension !== '.d.ts';
         })
         .map(file => createMockMigration(file));
 
